@@ -74,7 +74,7 @@ func (we Adapter) Start() {
 	router := mux.NewRouter().StrictSlash(true)
 	router.Use()
 
-	subrouter := router.PathPrefix("/poll").Subrouter()
+	subrouter := router.PathPrefix("/polls").Subrouter()
 	subrouter.PathPrefix("/doc/ui").Handler(we.serveDocUI())
 	subrouter.HandleFunc("/doc", we.serveDoc)
 	subrouter.HandleFunc("/version", we.wrapFunc(we.apisHandler.Version)).Methods("GET")
