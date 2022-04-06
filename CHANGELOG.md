@@ -6,5 +6,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.1] - 2022-03-11
+## [1.0.1] - 2022-04-06
 - Introduce Polls BB 
