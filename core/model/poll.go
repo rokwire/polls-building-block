@@ -32,12 +32,13 @@ type Poll struct {
 } // @name Poll
 
 // ToPollResult converts to PollResult
-func (poll *Poll) ToPollResult() PollResult {
+func (poll *Poll) ToPollResult(currentUserID string) PollResult {
 
 	result := PollResult{
 		PollData: poll.PollData,
 	}
 
+	votes := make(map[int]bool)
 	votersMap := make(map[string]bool)
 
 	result.ID = poll.ID
@@ -50,8 +51,13 @@ func (poll *Poll) ToPollResult() PollResult {
 		for _, e := range poll.Responses {
 			votersMap[e.UserID] = true
 
+			userVoted := poll.UserID == currentUserID
+
 			for _, a := range e.Answer {
 				if a >= 0 && a < count {
+					if userVoted {
+						votes[a] = true
+					}
 					result.Results[a]++
 				}
 			}
@@ -64,6 +70,15 @@ func (poll *Poll) ToPollResult() PollResult {
 
 	for _, n := range result.Results {
 		result.Total += n
+	}
+
+	if l := len(votes); l > 0 {
+		result.Voted = make([]int, l)
+		i := 0
+		for k := range votes {
+			result.Voted[i] = k
+			i++
+		}
 	}
 
 	return result

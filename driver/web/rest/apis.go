@@ -102,7 +102,7 @@ func (h ApisHandler) GetPolls(claims *tokenauth.Claims, w http.ResponseWriter, r
 	result := []model.PollResult{}
 	if len(resData) > 0 {
 		for _, entry := range resData {
-			result = append(result, entry.ToPollResult())
+			result = append(result, entry.ToPollResult(claims.Subject))
 		}
 	}
 
@@ -154,7 +154,7 @@ func (h ApisHandler) GetUserPolls(claims *tokenauth.Claims, w http.ResponseWrite
 	result := []model.PollResult{}
 	if len(resData) > 0 {
 		for _, entry := range resData {
-			result = append(result, entry.ToPollResult())
+			result = append(result, entry.ToPollResult(claims.Subject))
 		}
 	}
 
@@ -190,7 +190,7 @@ func (h ApisHandler) GetPoll(claims *tokenauth.Claims, w http.ResponseWriter, r 
 		return
 	}
 
-	data, err := json.Marshal(resData.ToPollResult())
+	data, err := json.Marshal(resData.ToPollResult(claims.Subject))
 	if err != nil {
 		log.Printf("Error on apis.GetPoll(%s): %s", id, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -238,7 +238,7 @@ func (h ApisHandler) UpdatePoll(claims *tokenauth.Claims, w http.ResponseWriter,
 		return
 	}
 
-	jsonData, err := json.Marshal(resData.ToPollResult())
+	jsonData, err := json.Marshal(resData.ToPollResult(claims.Subject))
 	if err != nil {
 		log.Printf("Error on apis.UpdatePoll(%s): %s", id, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -283,7 +283,7 @@ func (h ApisHandler) CreatePoll(claims *tokenauth.Claims, w http.ResponseWriter,
 		return
 	}
 
-	jsonData, err := json.Marshal(createdItem.ToPollResult())
+	jsonData, err := json.Marshal(createdItem.ToPollResult(claims.Subject))
 	if err != nil {
 		log.Printf("Error on apis.CreatePoll: %s", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
