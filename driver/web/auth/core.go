@@ -23,8 +23,8 @@ func NewCoreAuth(app *core.Application, config *model.Config) *CoreAuth {
 		AuthServicesHost: config.CoreBBHost,
 	}
 
-	serviceLoader, err := authservice.NewRemoteAuthDataLoader(remoteConfig, []string{"core"}, logs.NewLogger("poll", &logs.LoggerOpts{}))
-	authService, err := authservice.NewAuthService("poll", config.PollServiceURL, serviceLoader)
+	serviceLoader, err := authservice.NewRemoteAuthDataLoader(remoteConfig, []string{"core"}, logs.NewLogger("polls-v2", &logs.LoggerOpts{}))
+	authService, err := authservice.NewAuthService("polls-v2", config.PollServiceURL, serviceLoader)
 	if err != nil {
 		log.Fatalf("Error initializing auth service: %v", err)
 	}
