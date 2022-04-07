@@ -43,6 +43,14 @@ func (app *Application) deletePoll(id string) error {
 	return app.storage.DeletePoll(id)
 }
 
+func (app *Application) startPoll(pollID string) error {
+	return app.storage.StartPoll(pollID)
+}
+
+func (app *Application) endPoll(pollID string) error {
+	return app.storage.EndPoll(pollID)
+}
+
 func (app *Application) votePoll(pollID string, vote model.PollVote) error {
 	return app.storage.VotePoll(pollID, vote)
 }

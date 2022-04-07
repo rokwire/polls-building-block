@@ -33,6 +33,8 @@ type Services interface {
 	UpdatePoll(poll model.Poll) (*model.Poll, error)
 
 	VotePoll(pollID string, vote model.PollVote) error
+	StartPoll(pollID string) error
+	EndPoll(pollID string) error
 
 	DeletePoll(id string) error
 }
@@ -63,6 +65,14 @@ func (s *servicesImpl) UpdatePoll(poll model.Poll) (*model.Poll, error) {
 
 func (s *servicesImpl) DeletePoll(id string) error {
 	return s.app.deletePoll(id)
+}
+
+func (s *servicesImpl) StartPoll(pollID string) error {
+	return s.app.startPoll(pollID)
+}
+
+func (s *servicesImpl) EndPoll(pollID string) error {
+	return s.app.endPoll(pollID)
 }
 
 func (s *servicesImpl) VotePoll(pollID string, vote model.PollVote) error {

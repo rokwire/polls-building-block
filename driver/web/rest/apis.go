@@ -361,3 +361,51 @@ func (h ApisHandler) VotePoll(claims *tokenauth.Claims, w http.ResponseWriter, r
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 }
+
+// StartPoll Starts an existing poll with the specified id
+// @Description  Starts an existing poll with the specified id
+// @Tags Client
+// @ID StartPoll
+// @Accept json
+// @Produce json
+// @Success 200
+// @Security UserAuth
+// @Router /polls/{id}/start [post]
+func (h ApisHandler) StartPoll(claims *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	err := h.app.Services.StartPoll(id)
+	if err != nil {
+		log.Printf("Error on apis.StartPoll(%s): %s", id, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+}
+
+// EndPoll Finishes an existing poll with the specified id
+// @Description  Finishes an existing poll with the specified id
+// @Tags Client
+// @ID EndPoll
+// @Accept json
+// @Produce json
+// @Success 200
+// @Security UserAuth
+// @Router /polls/{id}/end [post]
+func (h ApisHandler) EndPoll(claims *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	err := h.app.Services.EndPoll(id)
+	if err != nil {
+		log.Printf("Error on apis.EndPoll(%s): %s", id, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+}
