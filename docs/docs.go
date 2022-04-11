@@ -131,6 +131,9 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/Poll"
                         }
+                    },
+                    "401": {
+                        "description": ""
                     }
                 }
             },
@@ -168,6 +171,9 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/Poll"
                         }
+                    },
+                    "401": {
+                        "description": ""
                     }
                 }
             },
@@ -420,6 +426,13 @@ const docTemplate = `{
                         "started"
                     ]
                 },
+                "to_members": {
+                    "description": "nil or empty means everyone; non-empty means visible to those user ids",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ToMember"
+                    }
+                },
                 "userid": {
                     "type": "string"
                 },
@@ -493,6 +506,13 @@ const docTemplate = `{
                         "started"
                     ]
                 },
+                "to_members": {
+                    "description": "nil or empty means everyone; non-empty means visible to those user ids",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ToMember"
+                    }
+                },
                 "total": {
                     "type": "integer"
                 },
@@ -531,6 +551,23 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "userid": {
+                    "type": "string"
+                }
+            }
+        },
+        "ToMember": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "external_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "user_id": {
                     "type": "string"
                 }
             }

@@ -17,42 +17,45 @@
 
 package core
 
-import "polls/core/model"
+import (
+	"github.com/rokwire/core-auth-library-go/tokenauth"
+	"polls/core/model"
+)
 
 func (app *Application) getVersion() string {
 	return app.version
 }
 
-func (app *Application) getPolls(IDs []string, userID *string, offset *int64, limit *int64, order *string) ([]model.Poll, error) {
-	return app.storage.GetPolls(IDs, userID, offset, limit, order)
+func (app *Application) getPolls(user *tokenauth.Claims, IDs []string, userID *string, offset *int64, limit *int64, order *string, filterByToMembers bool) ([]model.Poll, error) {
+	return app.storage.GetPolls(user, IDs, userID, offset, limit, order, filterByToMembers)
 }
 
-func (app *Application) getPoll(id string) (*model.Poll, error) {
-	return app.storage.GetPoll(id)
+func (app *Application) getPoll(user *tokenauth.Claims, id string) (*model.Poll, error) {
+	return app.storage.GetPoll(user, id)
 }
 
-func (app *Application) createPoll(poll model.Poll) (*model.Poll, error) {
-	return app.storage.CreatePoll(poll)
+func (app *Application) createPoll(user *tokenauth.Claims, poll model.Poll) (*model.Poll, error) {
+	return app.storage.CreatePoll(user, poll)
 }
 
-func (app *Application) updatePoll(poll model.Poll) (*model.Poll, error) {
-	return app.storage.UpdatePoll(poll)
+func (app *Application) updatePoll(user *tokenauth.Claims, poll model.Poll) (*model.Poll, error) {
+	return app.storage.UpdatePoll(user, poll)
 }
 
-func (app *Application) deletePoll(id string) error {
-	return app.storage.DeletePoll(id)
+func (app *Application) deletePoll(user *tokenauth.Claims, id string) error {
+	return app.storage.DeletePoll(user, id)
 }
 
-func (app *Application) startPoll(pollID string) error {
-	return app.storage.StartPoll(pollID)
+func (app *Application) startPoll(user *tokenauth.Claims, pollID string) error {
+	return app.storage.StartPoll(user, pollID)
 }
 
-func (app *Application) endPoll(pollID string) error {
-	return app.storage.EndPoll(pollID)
+func (app *Application) endPoll(user *tokenauth.Claims, pollID string) error {
+	return app.storage.EndPoll(user, pollID)
 }
 
-func (app *Application) votePoll(pollID string, vote model.PollVote) error {
-	return app.storage.VotePoll(pollID, vote)
+func (app *Application) votePoll(user *tokenauth.Claims, pollID string, vote model.PollVote) error {
+	return app.storage.VotePoll(user, pollID, vote)
 }
 
 // OnCollectionUpdated callback that indicates the reward types collection is changed

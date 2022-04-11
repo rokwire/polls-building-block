@@ -77,7 +77,7 @@ type pollIDsRequestBody struct {
 // @Success 200 {array} model.PollResult
 // @Security UserAuth
 // @Router /polls [get]
-func (h ApisHandler) GetPolls(claims *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
+func (h ApisHandler) GetPolls(user *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
 	offsetFilter := getInt64QueryParam(r, "offset")
 	limitFilter := getInt64QueryParam(r, "limit")
 	orderFilter := getStringQueryParam(r, "order")
@@ -92,7 +92,7 @@ func (h ApisHandler) GetPolls(claims *tokenauth.Claims, w http.ResponseWriter, r
 		}
 	}
 
-	resData, err := h.app.Services.GetPolls(pollIDs, nil, offsetFilter, limitFilter, orderFilter)
+	resData, err := h.app.Services.GetPolls(user, pollIDs, nil, offsetFilter, limitFilter, orderFilter, true)
 	if err != nil {
 		log.Printf("Error on apis.GetPolls(): %s", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -102,7 +102,9 @@ func (h ApisHandler) GetPolls(claims *tokenauth.Claims, w http.ResponseWriter, r
 	result := []model.PollResult{}
 	if len(resData) > 0 {
 		for _, entry := range resData {
-			result = append(result, entry.ToPollResult(claims.Subject))
+			if entry.UserHasAccess(user.Subject) {
+				result = append(result, entry.ToPollResult(user.Subject))
+			}
 		}
 	}
 
@@ -129,7 +131,7 @@ func (h ApisHandler) GetPolls(claims *tokenauth.Claims, w http.ResponseWriter, r
 // @Success 200 {array} model.PollResult
 // @Security UserAuth
 // @Router /user/polls [get]
-func (h ApisHandler) GetUserPolls(claims *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
+func (h ApisHandler) GetUserPolls(user *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
 	offsetFilter := getInt64QueryParam(r, "offset")
 	limitFilter := getInt64QueryParam(r, "limit")
 	orderFilter := getStringQueryParam(r, "order")
@@ -144,7 +146,7 @@ func (h ApisHandler) GetUserPolls(claims *tokenauth.Claims, w http.ResponseWrite
 		}
 	}
 
-	resData, err := h.app.Services.GetPolls(pollIDs, &claims.Subject, offsetFilter, limitFilter, orderFilter)
+	resData, err := h.app.Services.GetPolls(user, pollIDs, &user.Subject, offsetFilter, limitFilter, orderFilter, true)
 	if err != nil {
 		log.Printf("Error on apis.GetPolls(): %s", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -154,7 +156,9 @@ func (h ApisHandler) GetUserPolls(claims *tokenauth.Claims, w http.ResponseWrite
 	result := []model.PollResult{}
 	if len(resData) > 0 {
 		for _, entry := range resData {
-			result = append(result, entry.ToPollResult(claims.Subject))
+			if entry.UserHasAccess(user.Subject) {
+				result = append(result, entry.ToPollResult(user.Subject))
+			}
 		}
 	}
 
@@ -177,20 +181,27 @@ func (h ApisHandler) GetUserPolls(claims *tokenauth.Claims, w http.ResponseWrite
 // @Accept json
 // @Produce json
 // @Success 200 {object} model.Poll
+// @Failure 401
 // @Security UserAuth
 // @Router /polls/{id} [get]
-func (h ApisHandler) GetPoll(claims *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
+func (h ApisHandler) GetPoll(user *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	resData, err := h.app.Services.GetPoll(id)
+	resData, err := h.app.Services.GetPoll(user, id)
 	if err != nil {
 		log.Printf("Error on apis.GetPoll(%s): %s", id, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	data, err := json.Marshal(resData.ToPollResult(claims.Subject))
+	if resData == nil || !resData.UserHasAccess(user.Subject) {
+		log.Printf("Error on apis.GetPoll(%s): access denied", id)
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
+	data, err := json.Marshal(resData.ToPollResult(user.Subject))
 	if err != nil {
 		log.Printf("Error on apis.GetPoll(%s): %s", id, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -210,11 +221,25 @@ func (h ApisHandler) GetPoll(claims *tokenauth.Claims, w http.ResponseWriter, r 
 // @Accept json
 // @Produce json
 // @Success 200 {object} model.Poll
+// @Failure 401
 // @Security UserAuth
 // @Router /polls/{id} [put]
-func (h ApisHandler) UpdatePoll(claims *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
+func (h ApisHandler) UpdatePoll(user *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
+
+	resData, err := h.app.Services.GetPoll(user, id)
+	if err != nil {
+		log.Printf("Error on apis.UpdatePoll(%s): %s", id, err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	if resData == nil || !resData.UserHasAccess(user.Subject) {
+		log.Printf("Error on apis.UpdatePoll(%s): access denied", id)
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
 
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -231,14 +256,14 @@ func (h ApisHandler) UpdatePoll(claims *tokenauth.Claims, w http.ResponseWriter,
 		return
 	}
 
-	resData, err := h.app.Services.UpdatePoll(item)
+	resData, err = h.app.Services.UpdatePoll(user, item)
 	if err != nil {
 		log.Printf("Error on apis.UpdatePoll(%s): %s", id, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	jsonData, err := json.Marshal(resData.ToPollResult(claims.Subject))
+	jsonData, err := json.Marshal(resData.ToPollResult(user.Subject))
 	if err != nil {
 		log.Printf("Error on apis.UpdatePoll(%s): %s", id, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -259,7 +284,7 @@ func (h ApisHandler) UpdatePoll(claims *tokenauth.Claims, w http.ResponseWriter,
 // @Success 200 {object} model.Poll
 // @Security UserAuth
 // @Router /polls [post]
-func (h ApisHandler) CreatePoll(claims *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
+func (h ApisHandler) CreatePoll(user *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
 
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -276,14 +301,14 @@ func (h ApisHandler) CreatePoll(claims *tokenauth.Claims, w http.ResponseWriter,
 		return
 	}
 
-	createdItem, err := h.app.Services.CreatePoll(item)
+	createdItem, err := h.app.Services.CreatePoll(user, item)
 	if err != nil {
 		log.Printf("Error on apis.CreatePoll: %s", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
 
-	jsonData, err := json.Marshal(createdItem.ToPollResult(claims.Subject))
+	jsonData, err := json.Marshal(createdItem.ToPollResult(user.Subject))
 	if err != nil {
 		log.Printf("Error on apis.CreatePoll: %s", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -302,11 +327,24 @@ func (h ApisHandler) CreatePoll(claims *tokenauth.Claims, w http.ResponseWriter,
 // @Success 200
 // @Security UserAuth
 // @Router /polls/{id} [delete]
-func (h ApisHandler) DeletePoll(claims *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
+func (h ApisHandler) DeletePoll(user *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	err := h.app.Services.DeletePoll(id)
+	resData, err := h.app.Services.GetPoll(user, id)
+	if err != nil {
+		log.Printf("Error on apis.GetPoll(%s): %s", id, err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	if resData == nil || resData.UserID == user.Subject {
+		log.Printf("Error on apis.DeletePoll(%s): access denied", id)
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
+
+	err = h.app.Services.DeletePoll(user, id)
 	if err != nil {
 		log.Printf("Error on apis.DeletePoll(%s): %s", id, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -327,9 +365,22 @@ func (h ApisHandler) DeletePoll(claims *tokenauth.Claims, w http.ResponseWriter,
 // @Success 200
 // @Security UserAuth
 // @Router /polls/{id}/vote [post]
-func (h ApisHandler) VotePoll(claims *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
+func (h ApisHandler) VotePoll(user *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
+
+	resData, err := h.app.Services.GetPoll(user, id)
+	if err != nil {
+		log.Printf("Error on apis.VotePoll(%s): %s", id, err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	if resData == nil || !resData.UserHasAccess(user.Subject) {
+		log.Printf("Error on apis.VotePoll(%s): access denied", id)
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		return
+	}
 
 	data, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -346,12 +397,12 @@ func (h ApisHandler) VotePoll(claims *tokenauth.Claims, w http.ResponseWriter, r
 		return
 	}
 
-	if claims.Subject != item.UserID {
+	if user.Subject != item.UserID {
 		log.Printf("Error on apis.VotePoll(%s): inconsistent user id", id)
 		http.Error(w, "inconsistent user id", http.StatusBadRequest)
 	}
 
-	err = h.app.Services.VotePoll(id, item)
+	err = h.app.Services.VotePoll(user, id, item)
 	if err != nil {
 		log.Printf("Error on apis.VotePoll(%s): %s", id, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -371,11 +422,11 @@ func (h ApisHandler) VotePoll(claims *tokenauth.Claims, w http.ResponseWriter, r
 // @Success 200
 // @Security UserAuth
 // @Router /polls/{id}/start [post]
-func (h ApisHandler) StartPoll(claims *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
+func (h ApisHandler) StartPoll(user *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	err := h.app.Services.StartPoll(id)
+	err := h.app.Services.StartPoll(user, id)
 	if err != nil {
 		log.Printf("Error on apis.StartPoll(%s): %s", id, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -395,11 +446,11 @@ func (h ApisHandler) StartPoll(claims *tokenauth.Claims, w http.ResponseWriter, 
 // @Success 200
 // @Security UserAuth
 // @Router /polls/{id}/end [post]
-func (h ApisHandler) EndPoll(claims *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
+func (h ApisHandler) EndPoll(user *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	err := h.app.Services.EndPoll(id)
+	err := h.app.Services.EndPoll(user, id)
 	if err != nil {
 		log.Printf("Error on apis.EndPoll(%s): %s", id, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

@@ -46,6 +46,12 @@ definitions:
         - created
         - started
         type: string
+      to_members:
+        description: nil or empty means everyone; non-empty means visible to those
+          user ids
+        items:
+          $ref: '#/definitions/ToMember'
+        type: array
       userid:
         type: string
       username:
@@ -97,6 +103,12 @@ definitions:
         - created
         - started
         type: string
+      to_members:
+        description: nil or empty means everyone; non-empty means visible to those
+          user ids
+        items:
+          $ref: '#/definitions/ToMember'
+        type: array
       total:
         type: integer
       unique_voters_count:
@@ -130,6 +142,17 @@ definitions:
     required:
     - answer
     - userid
+    type: object
+  ToMember:
+    properties:
+      email:
+        type: string
+      external_id:
+        type: string
+      name:
+        type: string
+      user_id:
+        type: string
     type: object
   pollIDsRequestBody:
     properties:
@@ -225,6 +248,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Poll'
+        "401":
+          description: ""
       security:
       - UserAuth: []
       tags:
@@ -248,6 +273,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Poll'
+        "401":
+          description: ""
       security:
       - UserAuth: []
       tags:
