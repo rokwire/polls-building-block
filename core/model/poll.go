@@ -54,6 +54,7 @@ type ToMember struct {
 // Poll wraps the entire record
 type Poll struct {
 	PollData  `json:"poll" bson:"poll"`
+	OrgID     string             `json:"org_id" bson:"org_id"`
 	ID        primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 	Responses []PollVote         `json:"responses" bson:"responses,omitempty" validate:"max=0"`
 	Results   []int              `json:"results" bson:"results,omitempty" validate:"max=0"`

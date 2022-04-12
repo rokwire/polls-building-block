@@ -388,6 +388,9 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
+                "org_id": {
+                    "type": "string"
+                },
                 "pin": {
                     "type": "integer",
                     "maximum": 9999,

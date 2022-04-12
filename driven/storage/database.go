@@ -43,7 +43,8 @@ type database struct {
 	db       *mongo.Database
 	dbClient *mongo.Client
 
-	polls *collectionWrapper
+	polls    *collectionWrapper
+	settings *collectionWrapper
 }
 
 func (m *database) start() error {
@@ -74,19 +75,26 @@ func (m *database) start() error {
 	m.db = db
 	m.dbClient = client
 
+	settings := &collectionWrapper{database: m, coll: db.Collection("pollsettings")}
+	err = m.applySettingsChecks(settings)
+	if err != nil {
+		return err
+	}
+
 	polls := &collectionWrapper{database: m, coll: db.Collection("polls")}
-	err = m.applyRewardTypesChecks(polls)
+	err = m.applyPollsChecks(polls)
 	if err != nil {
 		return err
 	}
 	go polls.Watch(nil)
 
 	m.polls = polls
+	m.settings = settings
 
 	return nil
 }
 
-func (m *database) applyRewardTypesChecks(posts *collectionWrapper) error {
+func (m *database) applyPollsChecks(posts *collectionWrapper) error {
 	log.Println("apply polls checks.....")
 
 	indexes, _ := posts.ListIndexes()
@@ -156,5 +164,42 @@ func (m *database) applyRewardTypesChecks(posts *collectionWrapper) error {
 	}
 
 	log.Println("polls checks passed")
+	return nil
+}
+
+func (m *database) applySettingsChecks(posts *collectionWrapper) error {
+	log.Println("apply settings checks.....")
+
+	indexes, _ := posts.ListIndexes()
+	indexMapping := map[string]interface{}{}
+	if indexes != nil {
+
+		for _, index := range indexes {
+			name := index["name"].(string)
+			indexMapping[name] = index
+		}
+	}
+
+	if indexMapping["org_id_1"] == nil {
+		err := posts.AddIndex(
+			bson.D{
+				primitive.E{Key: "org_id", Value: 1},
+			}, false)
+		if err != nil {
+			return err
+		}
+	}
+
+	if indexMapping["stadium_1"] == nil {
+		err := posts.AddIndex(
+			bson.D{
+				primitive.E{Key: "stadium", Value: 1},
+			}, false)
+		if err != nil {
+			return err
+		}
+	}
+
+	log.Println("polls settings passed")
 	return nil
 }

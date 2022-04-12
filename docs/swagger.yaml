@@ -19,6 +19,8 @@ definitions:
           type: string
         minItems: 2
         type: array
+      org_id:
+        type: string
       pin:
         maximum: 9999
         minimum: 0

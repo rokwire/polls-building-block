@@ -48,10 +48,29 @@ func main() {
 	mongoDBAuth := getEnvKey("MONGO_AUTH", true)
 	mongoDBName := getEnvKey("MONGO_DATABASE", true)
 	mongoTimeout := getEnvKey("MONGO_TIMEOUT", false)
-	storageAdapter := storage.NewStorageAdapter(mongoDBAuth, mongoDBName, mongoTimeout)
+
+	// web adapter
+	host := getEnvKey("HOST", true)
+	coreBBHost := getEnvKey("CORE_BB_HOST", true)
+	serviceURL := getEnvKey("POLL_SERVICE_URL", true)
+	uiucOrgID := getEnvKey("UIUC_ORG_ID", true)
+
+	config := &model.Config{
+		MongoDBAuth:    mongoDBAuth,
+		MongoDBName:    mongoDBName,
+		MongoTimeout:   mongoTimeout,
+		InternalAPIKey: internalAPIKey,
+		CoreBBHost:     coreBBHost,
+		PollServiceURL: serviceURL,
+		UiucOrgID:      uiucOrgID,
+	}
+
+	storageAdapter := storage.NewStorageAdapter(config)
 	err := storageAdapter.Start()
 	if err != nil {
 		log.Fatal("Cannot start the mongoDB adapter - " + err.Error())
+	} else {
+		log.Printf("Storage started")
 	}
 
 	defaultCacheExpirationSeconds := getEnvKey("DEFAULT_CACHE_EXPIRATION_SECONDS", false)
@@ -61,18 +80,7 @@ func main() {
 	application := core.NewApplication(Version, Build, storageAdapter, cacheAdapter)
 	application.Start()
 
-	// web adapter
-	host := getEnvKey("HOST", true)
-	coreBBHost := getEnvKey("CORE_BB_HOST", true)
-	serviceURL := getEnvKey("POLL_SERVICE_URL", true)
-
-	config := model.Config{
-		InternalAPIKey: internalAPIKey,
-		CoreBBHost:     coreBBHost,
-		PollServiceURL: serviceURL,
-	}
-
-	webAdapter := driver.NewWebAdapter(host, port, application, &config)
+	webAdapter := driver.NewWebAdapter(host, port, application, config)
 
 	webAdapter.Start()
 }
