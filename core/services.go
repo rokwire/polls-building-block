@@ -18,7 +18,9 @@
 package core
 
 import (
+	"encoding/json"
 	"github.com/rokwire/core-auth-library-go/tokenauth"
+	"log"
 	"polls/core/model"
 )
 
@@ -39,26 +41,76 @@ func (app *Application) createPoll(user *tokenauth.Claims, poll model.Poll) (*mo
 }
 
 func (app *Application) updatePoll(user *tokenauth.Claims, poll model.Poll) (*model.Poll, error) {
-	return app.storage.UpdatePoll(user, poll)
+	updatedPoll, err := app.storage.UpdatePoll(user, poll)
+	if err != nil {
+		return nil, err
+	}
+
+	return updatedPoll, nil
 }
 
 func (app *Application) deletePoll(user *tokenauth.Claims, id string) error {
-	return app.storage.DeletePoll(user, id)
+	err := app.storage.DeletePoll(user, id)
+	if err != nil {
+		return err
+	}
+
+	app.sseServer.NotifyPollForEvent(id, "poll_deleted")
+	app.sseServer.ClosePoll(id)
+
+	return nil
 }
 
 func (app *Application) startPoll(user *tokenauth.Claims, pollID string) error {
-	return app.storage.StartPoll(user, pollID)
+	err := app.storage.StartPoll(user, pollID)
+	if err != nil {
+		return err
+	}
+
+	app.sseServer.NotifyPollForEvent(pollID, "poll_started")
+
+	return nil
 }
 
 func (app *Application) endPoll(user *tokenauth.Claims, pollID string) error {
-	return app.storage.EndPoll(user, pollID)
+	err := app.storage.EndPoll(user, pollID)
+	if err != nil {
+		return err
+	}
+
+	app.sseServer.NotifyPollForEvent(pollID, "poll_end")
+	app.sseServer.ClosePoll(pollID)
+
+	return nil
 }
 
 func (app *Application) votePoll(user *tokenauth.Claims, pollID string, vote model.PollVote) error {
 	return app.storage.VotePoll(user, pollID, vote)
 }
 
-// OnCollectionUpdated callback that indicates the reward types collection is changed
-func (app *Application) OnCollectionUpdated(name string) {
+func (app *Application) subscribeToPoll(user *tokenauth.Claims, pollID string, resultChan chan map[string]interface{}, closeChan chan interface{}) error {
+	app.sseServer.RegisterUserForPoll(user.Subject, pollID, resultChan, closeChan)
+	return nil
+}
 
+// OnCollectionUpdated callback that indicates the reward types collection is changed
+func (app *Application) OnCollectionUpdated(collection string, record map[string]interface{}) {
+	if "polls" == collection && record != nil {
+		data, err := json.Marshal(record)
+		if err != nil {
+			log.Printf("Error on Application.OnCollectionUpdated: %s", err)
+			return
+		}
+
+		if data != nil {
+			var poll model.PollNotification
+			err = json.Unmarshal(data, &poll)
+			if err != nil {
+				log.Printf("Error on Application.OnCollectionUpdated: %s", err)
+				return
+			}
+
+			app.sseServer.NotifyPollUpdate(poll.ID.Hex(), poll)
+		}
+	}
 }

@@ -87,6 +87,7 @@ func (we Adapter) Start() {
 	apiRouter.HandleFunc("/polls/{id}", we.userAuthWrapFunc(we.apisHandler.GetPoll)).Methods("GET")
 	apiRouter.HandleFunc("/polls/{id}", we.userAuthWrapFunc(we.apisHandler.UpdatePoll)).Methods("PUT")
 	apiRouter.HandleFunc("/polls/{id}", we.userAuthWrapFunc(we.apisHandler.DeletePoll)).Methods("DELETE")
+	apiRouter.HandleFunc("/polls/{id}/events", we.userAuthWrapFunc(we.apisHandler.GetPollEvents)).Methods("GET")
 	apiRouter.HandleFunc("/polls/{id}/vote", we.userAuthWrapFunc(we.apisHandler.VotePoll)).Methods("POST")
 	apiRouter.HandleFunc("/polls/{id}/start", we.userAuthWrapFunc(we.apisHandler.VotePoll)).Methods("POST")
 	apiRouter.HandleFunc("/polls/{id}/end", we.userAuthWrapFunc(we.apisHandler.VotePoll)).Methods("POST")

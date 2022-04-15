@@ -307,7 +307,10 @@ func (m *database) onDataChanged(changeDoc map[string]interface{}) {
 	nsMap := ns.(map[string]interface{})
 	coll := nsMap["coll"]
 
+	record := changeDoc["fullDocument"]
+	recordMap := record.(map[string]interface{})
+
 	if m.listener != nil {
-		m.listener.OnCollectionUpdated(coll.(string))
+		m.listener.OnCollectionUpdated(coll.(string), recordMap)
 	}
 }

@@ -19,6 +19,7 @@ package rest
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/rokwire/core-auth-library-go/tokenauth"
 	"io/ioutil"
@@ -349,6 +350,58 @@ func (h ApisHandler) DeletePoll(user *tokenauth.Claims, w http.ResponseWriter, r
 		log.Printf("Error on apis.DeletePoll(%s): %s", id, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+}
+
+// GetPollEvents Subscribes to a poll events as SSE
+// @Description  Subscribes to a poll events as SSE
+// @Tags Client
+// @ID GetPollEvents
+// @Produce json
+// @Success 200
+// @Security UserAuth
+// @Router /polls/{id}/events [post]
+func (h ApisHandler) GetPollEvents(user *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	flusher, ok := w.(http.Flusher)
+	if !ok {
+		http.Error(w, "Connection doesn't support streaming", http.StatusBadRequest)
+		return
+	}
+
+	resultChan := make(chan map[string]interface{})
+	closeChan := make(chan interface{})
+	defer close(closeChan)
+	defer fmt.Println("Closing channel.")
+
+	go h.app.Services.SubscribeToPoll(user, id, resultChan, closeChan)
+
+	for {
+		select {
+		case <-closeChan:
+			close(resultChan)
+			w.Header().Set("Content-Type", "application/json; charset=utf-8")
+			w.WriteHeader(http.StatusOK)
+			return
+		case data := <-resultChan:
+			jsonData, err := json.Marshal(data)
+			if err != nil {
+				log.Printf("Error on apis.GetPollEvents(): %s", err)
+			}
+			log.Printf(string(jsonData))
+			w.Write(jsonData)
+			flusher.Flush()
+		}
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")

@@ -32,12 +32,13 @@ type Services interface {
 	GetPoll(user *tokenauth.Claims, id string) (*model.Poll, error)
 	CreatePoll(user *tokenauth.Claims, poll model.Poll) (*model.Poll, error)
 	UpdatePoll(user *tokenauth.Claims, poll model.Poll) (*model.Poll, error)
+	DeletePoll(user *tokenauth.Claims, id string) error
 
 	VotePoll(user *tokenauth.Claims, pollID string, vote model.PollVote) error
 	StartPoll(user *tokenauth.Claims, pollID string) error
 	EndPoll(user *tokenauth.Claims, pollID string) error
 
-	DeletePoll(user *tokenauth.Claims, id string) error
+	SubscribeToPoll(user *tokenauth.Claims, pollID string, resultChan chan map[string]interface{}, closeChan chan interface{}) error
 }
 
 type servicesImpl struct {
@@ -78,6 +79,10 @@ func (s *servicesImpl) EndPoll(user *tokenauth.Claims, pollID string) error {
 
 func (s *servicesImpl) VotePoll(user *tokenauth.Claims, pollID string, vote model.PollVote) error {
 	return s.app.votePoll(user, pollID, vote)
+}
+
+func (s *servicesImpl) SubscribeToPoll(user *tokenauth.Claims, pollID string, resultChan chan map[string]interface{}, closeChan chan interface{}) error {
+	return s.app.subscribeToPoll(user, pollID, resultChan, closeChan)
 }
 
 // Storage is used by core to storage data - DB storage adapter, file storage adapter etc

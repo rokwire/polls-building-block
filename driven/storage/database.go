@@ -30,7 +30,7 @@ import (
 
 // CollectionListener listens for collection updates
 type CollectionListener interface {
-	OnCollectionUpdated(name string)
+	OnCollectionUpdated(name string, record map[string]interface{})
 }
 
 type database struct {
