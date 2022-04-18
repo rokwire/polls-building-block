@@ -63,91 +63,28 @@ func NewInternalApisHandler(app *core.Application, config *model.Config) Interna
 	return InternalApisHandler{app: app, config: config}
 }
 
-type pollIDsRequestBody struct {
-	IDs []string `json:"ids"`
-} // @name pollIDsRequestBody
-
 // GetPolls Retrieves  all polls by a filter params
 // @Description Retrieves  all polls by a filter params
 // @Tags Client
 // @ID GetPolls
-// @Param offset query string false "offset"
-// @Param limit query string false "limit - limit the result"
-// @Param order query string false "order - Possible values: asc, desc. Default: desc"
-// @Param data body pollIDsRequestBody false "body json for defined poll ids as request body"
+// @Param data body model.PollsFilter false "body json for defined poll ids as request body"
 // @Success 200 {array} model.PollResult
 // @Security UserAuth
 // @Router /polls [get]
 func (h ApisHandler) GetPolls(user *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
-	offsetFilter := getInt64QueryParam(r, "offset")
-	limitFilter := getInt64QueryParam(r, "limit")
-	orderFilter := getStringQueryParam(r, "order")
 
-	var pollIDs []string
+	var filter model.PollsFilter
 	bodyData, _ := ioutil.ReadAll(r.Body)
 	if bodyData != nil {
-		var body pollIDsRequestBody
-		bodyErr := json.Unmarshal(bodyData, &body)
-		if bodyErr == nil {
-			pollIDs = body.IDs
+		err := json.Unmarshal(bodyData, &filter)
+		if err != nil {
+			log.Printf("Error on apis.GetPolls(): %s", err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
 		}
 	}
 
-	resData, err := h.app.Services.GetPolls(user, pollIDs, nil, offsetFilter, limitFilter, orderFilter, true)
-	if err != nil {
-		log.Printf("Error on apis.GetPolls(): %s", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	result := []model.PollResult{}
-	if len(resData) > 0 {
-		for _, entry := range resData {
-			if entry.UserHasAccess(user.Subject) {
-				result = append(result, entry.ToPollResult(user.Subject))
-			}
-		}
-	}
-
-	data, err := json.Marshal(result)
-	if err != nil {
-		log.Printf("Error on apis.GetPolls(): %s", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
-}
-
-// GetUserPolls Retrieves  all user poll that may include additional filter params
-// @Description Retrieves  all user poll that may include additional filter params
-// @Tags Client
-// @ID GetUserPolls
-// @Param offset query string false "offset"
-// @Param limit query string false "limit - limit the result"
-// @Param order query string false "order - Possible values: asc, desc. Default: desc"
-// @Param data body pollIDsRequestBody false "body json for defined poll ids as request body"
-// @Success 200 {array} model.PollResult
-// @Security UserAuth
-// @Router /user/polls [get]
-func (h ApisHandler) GetUserPolls(user *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
-	offsetFilter := getInt64QueryParam(r, "offset")
-	limitFilter := getInt64QueryParam(r, "limit")
-	orderFilter := getStringQueryParam(r, "order")
-
-	var pollIDs []string
-	bodyData, _ := ioutil.ReadAll(r.Body)
-	if bodyData != nil {
-		var body pollIDsRequestBody
-		bodyErr := json.Unmarshal(bodyData, &body)
-		if bodyErr == nil {
-			pollIDs = body.IDs
-		}
-	}
-
-	resData, err := h.app.Services.GetPolls(user, pollIDs, &user.Subject, offsetFilter, limitFilter, orderFilter, true)
+	resData, err := h.app.Services.GetPolls(user, filter, true)
 	if err != nil {
 		log.Printf("Error on apis.GetPolls(): %s", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

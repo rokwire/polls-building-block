@@ -5,6 +5,17 @@ import (
 	"time"
 )
 
+// PollsFilter Wraps all possible filters that could be used for retrieving polls
+type PollsFilter struct {
+	PollIDs  []string `json:"poll_ids,omitempty"`
+	MyPolls  *bool    `json:"my_polls,omitempty"`
+	GroupID  *string  `json:"group_id,omitempty"`
+	Statuses []string `json:"statuses,omitempty"`
+	Offset   *int64   `json:"offset,omitempty"`
+	Limit    *int64   `json:"limit,omitempty"`
+	Order    *string  `json:"order,omitempty"`
+} // @name PollsFilter
+
 // PollData data stored for a poll
 type PollData struct {
 	UserID        string     `json:"userid" bson:"userid" validate:"required"`

@@ -28,8 +28,8 @@ func (app *Application) getVersion() string {
 	return app.version
 }
 
-func (app *Application) getPolls(user *tokenauth.Claims, IDs []string, userID *string, offset *int64, limit *int64, order *string, filterByToMembers bool) ([]model.Poll, error) {
-	return app.storage.GetPolls(user, IDs, userID, offset, limit, order, filterByToMembers)
+func (app *Application) getPolls(user *tokenauth.Claims, filter model.PollsFilter, filterByToMembers bool) ([]model.Poll, error) {
+	return app.storage.GetPolls(user, filter, filterByToMembers)
 }
 
 func (app *Application) getPoll(user *tokenauth.Claims, id string) (*model.Poll, error) {

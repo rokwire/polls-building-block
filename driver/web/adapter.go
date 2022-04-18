@@ -82,7 +82,6 @@ func (we Adapter) Start() {
 	// handle apis
 	apiRouter := subrouter.PathPrefix("/api").Subrouter()
 	apiRouter.HandleFunc("/polls", we.userAuthWrapFunc(we.apisHandler.GetPolls)).Methods("GET")
-	apiRouter.HandleFunc("/user/polls", we.userAuthWrapFunc(we.apisHandler.GetUserPolls)).Methods("GET")
 	apiRouter.HandleFunc("/polls", we.userAuthWrapFunc(we.apisHandler.CreatePoll)).Methods("POST")
 	apiRouter.HandleFunc("/polls/{id}", we.userAuthWrapFunc(we.apisHandler.GetPoll)).Methods("GET")
 	apiRouter.HandleFunc("/polls/{id}", we.userAuthWrapFunc(we.apisHandler.UpdatePoll)).Methods("PUT")

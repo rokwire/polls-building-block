@@ -28,7 +28,7 @@ type Services interface {
 	GetVersion() string
 
 	// CRUD
-	GetPolls(user *tokenauth.Claims, IDs []string, userID *string, offset *int64, limit *int64, order *string, filterByToMembers bool) ([]model.Poll, error)
+	GetPolls(user *tokenauth.Claims, filter model.PollsFilter, filterByToMembers bool) ([]model.Poll, error)
 	GetPoll(user *tokenauth.Claims, id string) (*model.Poll, error)
 	CreatePoll(user *tokenauth.Claims, poll model.Poll) (*model.Poll, error)
 	UpdatePoll(user *tokenauth.Claims, poll model.Poll) (*model.Poll, error)
@@ -49,8 +49,8 @@ func (s *servicesImpl) GetVersion() string {
 	return s.app.getVersion()
 }
 
-func (s *servicesImpl) GetPolls(user *tokenauth.Claims, IDs []string, userID *string, offset *int64, limit *int64, order *string, filterByToMembers bool) ([]model.Poll, error) {
-	return s.app.getPolls(user, IDs, userID, offset, limit, order, filterByToMembers)
+func (s *servicesImpl) GetPolls(user *tokenauth.Claims, filter model.PollsFilter, filterByToMembers bool) ([]model.Poll, error) {
+	return s.app.getPolls(user, filter, filterByToMembers)
 }
 
 func (s *servicesImpl) GetPoll(user *tokenauth.Claims, id string) (*model.Poll, error) {
@@ -87,7 +87,7 @@ func (s *servicesImpl) SubscribeToPoll(user *tokenauth.Claims, pollID string, re
 
 // Storage is used by core to storage data - DB storage adapter, file storage adapter etc
 type Storage interface {
-	GetPolls(user *tokenauth.Claims, IDs []string, userID *string, offset *int64, limit *int64, order *string, filterByToMembers bool) ([]model.Poll, error)
+	GetPolls(user *tokenauth.Claims, filter model.PollsFilter, filterByToMembers bool) ([]model.Poll, error)
 	GetPoll(user *tokenauth.Claims, id string) (*model.Poll, error)
 	CreatePoll(user *tokenauth.Claims, poll model.Poll) (*model.Poll, error)
 	UpdatePoll(user *tokenauth.Claims, poll model.Poll) (*model.Poll, error)

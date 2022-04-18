@@ -68,25 +68,31 @@ func NewStorageAdapter(config *model.Config) *Adapter {
 }
 
 // GetPolls retrieves all polls with an ability to filter
-func (sa *Adapter) GetPolls(user *tokenauth.Claims, IDs []string, userID *string, offset *int64, limit *int64, order *string, filterByToMembers bool) ([]model.Poll, error) {
-	filter := bson.D{
+func (sa *Adapter) GetPolls(user *tokenauth.Claims, filter model.PollsFilter, filterByToMembers bool) ([]model.Poll, error) {
+	mongoFilter := bson.D{
 		primitive.E{Key: "org_id", Value: user.OrgID},
 	}
-	innerFilter := []interface{}{}
-	if userID != nil {
-		innerFilter = append(innerFilter, bson.D{primitive.E{Key: "poll.user_id", Value: userID}})
+
+	if filter.MyPolls != nil && *filter.MyPolls == true {
+		mongoFilter = append(mongoFilter, primitive.E{Key: "poll.userid", Value: user.Subject})
 	}
-	if len(IDs) > 0 {
+
+	if len(filter.PollIDs) > 0 {
 		reconstructedIDs := []primitive.ObjectID{}
-		for _, id := range IDs {
+		for _, id := range filter.PollIDs {
 			if objID, err := primitive.ObjectIDFromHex(id); err == nil {
 				reconstructedIDs = append(reconstructedIDs, objID)
 			}
 		}
-		filter = append(filter, primitive.E{Key: "_id", Value: bson.M{"$in": reconstructedIDs}})
+		mongoFilter = append(mongoFilter, primitive.E{Key: "_id", Value: bson.M{"$in": reconstructedIDs}})
 	}
+
+	if len(filter.Statuses) > 0 {
+		mongoFilter = append(mongoFilter, primitive.E{Key: "poll.status", Value: bson.M{"$in": filter.Statuses}})
+	}
+
 	if filterByToMembers {
-		filter = append(filter, primitive.E{Key: "$or", Value: []primitive.M{
+		mongoFilter = append(mongoFilter, primitive.E{Key: "$or", Value: []primitive.M{
 			primitive.M{"poll.to_members": primitive.Null{}},
 			primitive.M{"poll.to_members": primitive.M{"$exists": true, "$size": 0}},
 			primitive.M{"poll.to_members.user_id": user.Subject},
@@ -95,20 +101,20 @@ func (sa *Adapter) GetPolls(user *tokenauth.Claims, IDs []string, userID *string
 	}
 
 	findOptions := options.Find()
-	if order != nil && *order == "asc" {
+	if filter.Order != nil && *filter.Order == "asc" {
 		findOptions.SetSort(bson.D{{"_id", 1}})
 	} else {
 		findOptions.SetSort(bson.D{{"_id", -1}})
 	}
-	if limit != nil {
-		findOptions.SetLimit(*limit)
+	if filter.Limit != nil {
+		findOptions.SetLimit(*filter.Limit)
 	}
-	if offset != nil {
-		findOptions.SetSkip(*offset)
+	if filter.Offset != nil {
+		findOptions.SetSkip(*filter.Offset)
 	}
 
 	var list []model.Poll
-	err := sa.db.polls.Find(filter, &list, findOptions)
+	err := sa.db.polls.Find(mongoFilter, &list, findOptions)
 	if err != nil {
 		return nil, err
 	}

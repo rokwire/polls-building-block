@@ -145,6 +145,27 @@ definitions:
     - answer
     - userid
     type: object
+  PollsFilter:
+    properties:
+      group_id:
+        type: string
+      limit:
+        type: integer
+      my_polls:
+        type: boolean
+      offset:
+        type: integer
+      order:
+        type: string
+      poll_ids:
+        items:
+          type: string
+        type: array
+      statuses:
+        items:
+          type: string
+        type: array
+    type: object
   ToMember:
     properties:
       email:
@@ -155,13 +176,6 @@ definitions:
         type: string
       user_id:
         type: string
-    type: object
-  pollIDsRequestBody:
-    properties:
-      ids:
-        items:
-          type: string
-        type: array
     type: object
 host: localhost
 info:
@@ -178,23 +192,11 @@ paths:
       description: Retrieves  all polls by a filter params
       operationId: GetPolls
       parameters:
-      - description: offset
-        in: query
-        name: offset
-        type: string
-      - description: limit - limit the result
-        in: query
-        name: limit
-        type: string
-      - description: 'order - Possible values: asc, desc. Default: desc'
-        in: query
-        name: order
-        type: string
       - description: body json for defined poll ids as request body
         in: body
         name: data
         schema:
-          $ref: '#/definitions/pollIDsRequestBody'
+          $ref: '#/definitions/PollsFilter'
       responses:
         "200":
           description: OK
@@ -296,6 +298,19 @@ paths:
       - UserAuth: []
       tags:
       - Client
+  /polls/{id}/events:
+    post:
+      description: Subscribes to a poll events as SSE
+      operationId: GetPollEvents
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+      - UserAuth: []
+      tags:
+      - Client
   /polls/{id}/start:
     post:
       consumes:
@@ -329,39 +344,6 @@ paths:
       responses:
         "200":
           description: ""
-      security:
-      - UserAuth: []
-      tags:
-      - Client
-  /user/polls:
-    get:
-      description: Retrieves  all user poll that may include additional filter params
-      operationId: GetUserPolls
-      parameters:
-      - description: offset
-        in: query
-        name: offset
-        type: string
-      - description: limit - limit the result
-        in: query
-        name: limit
-        type: string
-      - description: 'order - Possible values: asc, desc. Default: desc'
-        in: query
-        name: order
-        type: string
-      - description: body json for defined poll ids as request body
-        in: body
-        name: data
-        schema:
-          $ref: '#/definitions/pollIDsRequestBody'
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/PollResult'
-            type: array
       security:
       - UserAuth: []
       tags:

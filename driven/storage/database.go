@@ -127,6 +127,16 @@ func (m *database) applyPollsChecks(posts *collectionWrapper) error {
 		}
 	}
 
+	if indexMapping["poll.status_1"] == nil {
+		err := posts.AddIndex(
+			bson.D{
+				primitive.E{Key: "poll.status", Value: 1},
+			}, false)
+		if err != nil {
+			return err
+		}
+	}
+
 	if indexMapping["poll.pin_1_poll.status_1__id_1"] == nil {
 		err := posts.AddIndex(
 			bson.D{
