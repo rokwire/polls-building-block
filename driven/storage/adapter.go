@@ -87,6 +87,14 @@ func (sa *Adapter) GetPolls(user *tokenauth.Claims, filter model.PollsFilter, fi
 		mongoFilter = append(mongoFilter, primitive.E{Key: "_id", Value: bson.M{"$in": reconstructedIDs}})
 	}
 
+	if filter.Pin != nil {
+		mongoFilter = append(mongoFilter, primitive.E{Key: "poll.pin", Value: *filter.Pin})
+	}
+
+	if len(filter.GroupIDs) > 0 {
+		mongoFilter = append(mongoFilter, primitive.E{Key: "poll.group_id", Value: bson.M{"$in": filter.GroupIDs}})
+	}
+
 	if len(filter.Statuses) > 0 {
 		mongoFilter = append(mongoFilter, primitive.E{Key: "poll.status", Value: bson.M{"$in": filter.Statuses}})
 	}

@@ -6,8 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.8] - 2022-04-19
+- Additional filtering by pin and group_ids and API fixes [#1](https://github.com/rokwire/polls-building-block/issues/1)
+
 ## [1.0.7] - 2022-04-18
--Rework GetPolls filtering (add more filter options in the request body) [#1](https://github.com/rokwire/polls-building-block/issues/1)
+- Rework GetPolls filtering (add more filter options in the request body) [#1](https://github.com/rokwire/polls-building-block/issues/1)
 
 ## [1.0.6] - 2022-04-15
 - Implemented support for SSE [#1](https://github.com/rokwire/polls-building-block/issues/1)
