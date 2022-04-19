@@ -75,7 +75,7 @@ func (h ApisHandler) GetPolls(user *tokenauth.Claims, w http.ResponseWriter, r *
 
 	var filter model.PollsFilter
 	bodyData, _ := ioutil.ReadAll(r.Body)
-	if bodyData != nil {
+	if bodyData != nil && len(bodyData) > 0 {
 		err := json.Unmarshal(bodyData, &filter)
 		if err != nil {
 			log.Printf("Error on apis.GetPolls(): %s", err)
