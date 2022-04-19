@@ -47,9 +47,9 @@ type Adapter struct {
 	app *core.Application
 }
 
-// @title Rewards Building Block API
+// @title Polls Building Block v2 API
 // @description RoRewards Building Block API Documentation.
-// @version 1.0.4
+// @version 1.0.8
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 // @host localhost

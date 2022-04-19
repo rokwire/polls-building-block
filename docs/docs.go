@@ -512,8 +512,11 @@ const docTemplate = `{
         "PollsFilter": {
             "type": "object",
             "properties": {
-                "group_id": {
-                    "type": "string"
+                "group_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "limit": {
                     "type": "integer"
@@ -526,6 +529,9 @@ const docTemplate = `{
                 },
                 "order": {
                     "type": "string"
+                },
+                "pin": {
+                    "type": "integer"
                 },
                 "poll_ids": {
                     "type": "array",
@@ -580,11 +586,11 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0.4",
+	Version:          "1.0.8",
 	Host:             "localhost",
 	BasePath:         "/content",
 	Schemes:          []string{"https"},
-	Title:            "Rewards Building Block API",
+	Title:            "Polls Building Block v2 API",
 	Description:      "RoRewards Building Block API Documentation.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

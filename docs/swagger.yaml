@@ -147,8 +147,10 @@ definitions:
     type: object
   PollsFilter:
     properties:
-      group_id:
-        type: string
+      group_ids:
+        items:
+          type: string
+        type: array
       limit:
         type: integer
       my_polls:
@@ -157,6 +159,8 @@ definitions:
         type: integer
       order:
         type: string
+      pin:
+        type: integer
       poll_ids:
         items:
           type: string
@@ -184,8 +188,8 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  title: Rewards Building Block API
-  version: 1.0.4
+  title: Polls Building Block v2 API
+  version: 1.0.8
 paths:
   /polls:
     get:

@@ -5,13 +5,13 @@
     "swagger": "2.0",
     "info": {
         "description": "RoRewards Building Block API Documentation.",
-        "title": "Rewards Building Block API",
+        "title": "Polls Building Block v2 API",
         "contact": {},
         "license": {
             "name": "Apache 2.0",
             "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
         },
-        "version": "1.0.4"
+        "version": "1.0.8"
     },
     "host": "localhost",
     "basePath": "/content",
@@ -508,8 +508,11 @@
         "PollsFilter": {
             "type": "object",
             "properties": {
-                "group_id": {
-                    "type": "string"
+                "group_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "limit": {
                     "type": "integer"
@@ -522,6 +525,9 @@
                 },
                 "order": {
                     "type": "string"
+                },
+                "pin": {
+                    "type": "integer"
                 },
                 "poll_ids": {
                     "type": "array",
