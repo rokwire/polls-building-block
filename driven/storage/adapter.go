@@ -159,8 +159,11 @@ func (sa *Adapter) GetPoll(user *tokenauth.Claims, id string) (*model.Poll, erro
 
 // CreatePoll creates a poll
 func (sa *Adapter) CreatePoll(user *tokenauth.Claims, poll model.Poll) (*model.Poll, error) {
-	poll.DateCreated = time.Now()
 	poll.OrgID = user.OrgID
+	poll.ID = primitive.NewObjectID()
+	poll.UserID = user.Subject
+	poll.UserName = user.Name
+	poll.DateCreated = time.Now()
 
 	_, err := sa.db.polls.InsertOne(poll)
 	if err != nil {

@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.9] - 2022-04-20
+- Fixed ID generation in the create new poll API [#1](https://github.com/rokwire/polls-building-block/issues/1)
+
 ## [1.0.8] - 2022-04-19
 - Additional filtering by pin and group_ids and API fixes [#1](https://github.com/rokwire/polls-building-block/issues/1)
 
