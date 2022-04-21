@@ -157,14 +157,14 @@ definitions:
         type: boolean
       offset:
         type: integer
-      order:
-        type: string
       pin:
         type: integer
       poll_ids:
         items:
           type: string
         type: array
+      responded_polls:
+        type: boolean
       statuses:
         items:
           type: string

@@ -7,14 +7,14 @@ import (
 
 // PollsFilter Wraps all possible filters that could be used for retrieving polls
 type PollsFilter struct {
-	Pin      *int     `json:"pin"`
-	PollIDs  []string `json:"poll_ids,omitempty"`
-	MyPolls  *bool    `json:"my_polls,omitempty"`
-	GroupIDs []string `json:"group_ids,omitempty"`
-	Statuses []string `json:"statuses,omitempty"`
-	Offset   *int64   `json:"offset,omitempty"`
-	Limit    *int64   `json:"limit,omitempty"`
-	Order    *string  `json:"order,omitempty"`
+	Pin            *int     `json:"pin"`
+	PollIDs        []string `json:"poll_ids,omitempty"`
+	MyPolls        *bool    `json:"my_polls,omitempty"`
+	RespondedPolls *bool    `json:"responded_polls,omitempty"`
+	GroupIDs       []string `json:"group_ids,omitempty"`
+	Statuses       []string `json:"statuses,omitempty"`
+	Offset         *int64   `json:"offset,omitempty"`
+	Limit          *int64   `json:"limit,omitempty"`
 } // @name PollsFilter
 
 // PollData data stored for a poll

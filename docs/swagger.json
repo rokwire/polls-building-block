@@ -523,9 +523,6 @@
                 "offset": {
                     "type": "integer"
                 },
-                "order": {
-                    "type": "string"
-                },
                 "pin": {
                     "type": "integer"
                 },
@@ -534,6 +531,9 @@
                     "items": {
                         "type": "string"
                     }
+                },
+                "responded_polls": {
+                    "type": "boolean"
                 },
                 "statuses": {
                     "type": "array",

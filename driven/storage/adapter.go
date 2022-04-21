@@ -73,10 +73,6 @@ func (sa *Adapter) GetPolls(user *tokenauth.Claims, filter model.PollsFilter, fi
 		primitive.E{Key: "org_id", Value: user.OrgID},
 	}
 
-	if filter.MyPolls != nil && *filter.MyPolls == true {
-		mongoFilter = append(mongoFilter, primitive.E{Key: "poll.userid", Value: user.Subject})
-	}
-
 	if len(filter.PollIDs) > 0 {
 		reconstructedIDs := []primitive.ObjectID{}
 		for _, id := range filter.PollIDs {
@@ -85,6 +81,21 @@ func (sa *Adapter) GetPolls(user *tokenauth.Claims, filter model.PollsFilter, fi
 			}
 		}
 		mongoFilter = append(mongoFilter, primitive.E{Key: "_id", Value: bson.M{"$in": reconstructedIDs}})
+	}
+
+	if filter.MyPolls != nil && *filter.MyPolls == true && filter.RespondedPolls != nil && *filter.RespondedPolls == true {
+		mongoFilter = append(mongoFilter, primitive.E{Key: "$or", Value: []primitive.M{
+			{"poll.userid": user.Subject},
+			{"responses.userid": user.Subject},
+		}})
+	} else {
+		if filter.MyPolls != nil && *filter.MyPolls == true {
+			mongoFilter = append(mongoFilter, primitive.E{Key: "poll.userid", Value: user.Subject})
+		}
+
+		if filter.RespondedPolls != nil && *filter.RespondedPolls == true {
+			mongoFilter = append(mongoFilter, primitive.E{Key: "responses.userid", Value: user.Subject})
+		}
 	}
 
 	if filter.Pin != nil {
@@ -109,11 +120,8 @@ func (sa *Adapter) GetPolls(user *tokenauth.Claims, filter model.PollsFilter, fi
 	}
 
 	findOptions := options.Find()
-	if filter.Order != nil && *filter.Order == "asc" {
-		findOptions.SetSort(bson.D{{"_id", 1}})
-	} else {
-		findOptions.SetSort(bson.D{{"_id", -1}})
-	}
+	findOptions.SetSort(bson.D{{"poll.status", 1}, {"_id", -1}})
+
 	if filter.Limit != nil {
 		findOptions.SetLimit(*filter.Limit)
 	}

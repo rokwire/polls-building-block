@@ -527,9 +527,6 @@ const docTemplate = `{
                 "offset": {
                     "type": "integer"
                 },
-                "order": {
-                    "type": "string"
-                },
                 "pin": {
                     "type": "integer"
                 },
@@ -538,6 +535,9 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                },
+                "responded_polls": {
+                    "type": "boolean"
                 },
                 "statuses": {
                     "type": "array",
