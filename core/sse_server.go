@@ -7,7 +7,6 @@ type SSEClient struct {
 	pollID     string
 	userID     string
 	resultChan chan map[string]interface{}
-	closeChan  chan interface{}
 }
 
 // SSEServer struct
@@ -21,7 +20,7 @@ func NewSSEServer() *SSEServer {
 }
 
 // RegisterUserForPoll registers a user for a poll updates
-func (s *SSEServer) RegisterUserForPoll(userID, pollID string, resultChan chan map[string]interface{}, closeChan chan interface{}) {
+func (s *SSEServer) RegisterUserForPoll(userID, pollID string, resultChan chan map[string]interface{}) {
 	var list []SSEClient
 	if val, ok := s.PollClientsMapping[pollID]; ok {
 		list = val
@@ -29,7 +28,7 @@ func (s *SSEServer) RegisterUserForPoll(userID, pollID string, resultChan chan m
 		list = []SSEClient{}
 	}
 
-	list = append(list, SSEClient{pollID: pollID, userID: userID, resultChan: resultChan, closeChan: closeChan})
+	list = append(list, SSEClient{pollID: pollID, userID: userID, resultChan: resultChan})
 	s.PollClientsMapping[pollID] = list
 }
 
@@ -40,7 +39,7 @@ func (s *SSEServer) UnregisterUser(userID string, pollID string) {
 			var newList []SSEClient
 			for _, client := range clients {
 				if client.userID == userID {
-					client.closeChan <- 1
+					close(client.resultChan)
 				} else {
 					newList = append(newList, client)
 				}
@@ -55,7 +54,7 @@ func (s *SSEServer) ClosePoll(pollID string) {
 	if clients, ok := s.PollClientsMapping[pollID]; ok {
 		if len(clients) > 0 {
 			for _, client := range clients {
-				client.closeChan <- 1
+				close(client.resultChan)
 			}
 			delete(s.PollClientsMapping, pollID)
 		}
@@ -67,12 +66,10 @@ func (s *SSEServer) NotifyPollForEvent(pollID string, eventType string) {
 	if list, ok := s.PollClientsMapping[pollID]; ok {
 		if len(list) > 0 {
 			for _, client := range list {
-				go func() {
-					client.resultChan <- map[string]interface{}{
-						"poll_id":    pollID,
-						"event_type": eventType,
-					}
-				}()
+				client.resultChan <- map[string]interface{}{
+					"poll_id":    pollID,
+					"event_type": eventType,
+				}
 			}
 		}
 	}

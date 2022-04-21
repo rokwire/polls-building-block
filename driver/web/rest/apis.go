@@ -19,7 +19,6 @@ package rest
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/rokwire/core-auth-library-go/tokenauth"
 	"io/ioutil"
@@ -317,20 +316,12 @@ func (h ApisHandler) GetPollEvents(user *tokenauth.Claims, w http.ResponseWriter
 	}
 
 	resultChan := make(chan map[string]interface{})
-	closeChan := make(chan interface{})
-	defer close(closeChan)
-	defer fmt.Println("Closing channel.")
 
-	go h.app.Services.SubscribeToPoll(user, id, resultChan, closeChan)
+	go h.app.Services.SubscribeToPoll(user, id, resultChan)
 
 	for {
-		select {
-		case <-closeChan:
-			close(resultChan)
-			w.Header().Set("Content-Type", "application/json; charset=utf-8")
-			w.WriteHeader(http.StatusOK)
-			return
-		case data := <-resultChan:
+		data, ok := <-resultChan
+		if ok {
 			jsonData, err := json.Marshal(data)
 			if err != nil {
 				log.Printf("Error on apis.GetPollEvents(): %s", err)
@@ -338,11 +329,12 @@ func (h ApisHandler) GetPollEvents(user *tokenauth.Claims, w http.ResponseWriter
 			log.Printf(string(jsonData))
 			w.Write(jsonData)
 			flusher.Flush()
+		} else {
+			flusher.Flush()
+			break
 		}
 	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
+	log.Printf("closing event stream for user %s and poll %s", user.Subject, id)
 }
 
 // VotePoll Votes a poll with the specified id

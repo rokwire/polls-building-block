@@ -88,8 +88,8 @@ func (app *Application) votePoll(user *tokenauth.Claims, pollID string, vote mod
 	return app.storage.VotePoll(user, pollID, vote)
 }
 
-func (app *Application) subscribeToPoll(user *tokenauth.Claims, pollID string, resultChan chan map[string]interface{}, closeChan chan interface{}) error {
-	app.sseServer.RegisterUserForPoll(user.Subject, pollID, resultChan, closeChan)
+func (app *Application) subscribeToPoll(user *tokenauth.Claims, pollID string, resultChan chan map[string]interface{}) error {
+	app.sseServer.RegisterUserForPoll(user.Subject, pollID, resultChan)
 	return nil
 }
 

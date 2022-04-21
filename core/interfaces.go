@@ -38,7 +38,7 @@ type Services interface {
 	StartPoll(user *tokenauth.Claims, pollID string) error
 	EndPoll(user *tokenauth.Claims, pollID string) error
 
-	SubscribeToPoll(user *tokenauth.Claims, pollID string, resultChan chan map[string]interface{}, closeChan chan interface{}) error
+	SubscribeToPoll(user *tokenauth.Claims, pollID string, resultChan chan map[string]interface{}) error
 }
 
 type servicesImpl struct {
@@ -81,8 +81,8 @@ func (s *servicesImpl) VotePoll(user *tokenauth.Claims, pollID string, vote mode
 	return s.app.votePoll(user, pollID, vote)
 }
 
-func (s *servicesImpl) SubscribeToPoll(user *tokenauth.Claims, pollID string, resultChan chan map[string]interface{}, closeChan chan interface{}) error {
-	return s.app.subscribeToPoll(user, pollID, resultChan, closeChan)
+func (s *servicesImpl) SubscribeToPoll(user *tokenauth.Claims, pollID string, resultChan chan map[string]interface{}) error {
+	return s.app.subscribeToPoll(user, pollID, resultChan)
 }
 
 // Storage is used by core to storage data - DB storage adapter, file storage adapter etc
