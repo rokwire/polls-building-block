@@ -47,9 +47,9 @@ type Adapter struct {
 	app *core.Application
 }
 
-// @title Rewards Building Block API
+// @title Polls Building Block v2 API
 // @description RoRewards Building Block API Documentation.
-// @version 1.0.4
+// @version 1.0.8
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 // @host localhost
@@ -82,14 +82,14 @@ func (we Adapter) Start() {
 	// handle apis
 	apiRouter := subrouter.PathPrefix("/api").Subrouter()
 	apiRouter.HandleFunc("/polls", we.userAuthWrapFunc(we.apisHandler.GetPolls)).Methods("GET")
-	apiRouter.HandleFunc("/user/polls", we.userAuthWrapFunc(we.apisHandler.GetUserPolls)).Methods("GET")
 	apiRouter.HandleFunc("/polls", we.userAuthWrapFunc(we.apisHandler.CreatePoll)).Methods("POST")
 	apiRouter.HandleFunc("/polls/{id}", we.userAuthWrapFunc(we.apisHandler.GetPoll)).Methods("GET")
 	apiRouter.HandleFunc("/polls/{id}", we.userAuthWrapFunc(we.apisHandler.UpdatePoll)).Methods("PUT")
 	apiRouter.HandleFunc("/polls/{id}", we.userAuthWrapFunc(we.apisHandler.DeletePoll)).Methods("DELETE")
-	apiRouter.HandleFunc("/polls/{id}/vote", we.userAuthWrapFunc(we.apisHandler.VotePoll)).Methods("POST")
-	apiRouter.HandleFunc("/polls/{id}/start", we.userAuthWrapFunc(we.apisHandler.VotePoll)).Methods("POST")
-	apiRouter.HandleFunc("/polls/{id}/end", we.userAuthWrapFunc(we.apisHandler.VotePoll)).Methods("POST")
+	apiRouter.HandleFunc("/polls/{id}/events", we.userAuthWrapFunc(we.apisHandler.GetPollEvents)).Methods("GET")
+	apiRouter.HandleFunc("/polls/{id}/vote", we.userAuthWrapFunc(we.apisHandler.VotePoll)).Methods("PUT")
+	apiRouter.HandleFunc("/polls/{id}/start", we.userAuthWrapFunc(we.apisHandler.StartPoll)).Methods("PUT")
+	apiRouter.HandleFunc("/polls/{id}/end", we.userAuthWrapFunc(we.apisHandler.EndPoll)).Methods("PUT")
 
 	log.Fatal(http.ListenAndServe(":"+we.port, router))
 }

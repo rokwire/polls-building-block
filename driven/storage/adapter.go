@@ -39,46 +39,79 @@ const (
 
 // Adapter implements the Storage interface
 type Adapter struct {
-	db *database
+	db     *database
+	config *model.Config
 }
 
 // Start starts the storage
 func (sa *Adapter) Start() error {
 	err := sa.db.start()
+	if err != nil {
+		return err
+	}
+
+	err = sa.applyMultiTenancy()
 	return err
 }
 
 // NewStorageAdapter creates a new storage adapter instance
-func NewStorageAdapter(mongoDBAuth string, mongoDBName string, mongoTimeout string) *Adapter {
-	timeout, err := strconv.Atoi(mongoTimeout)
+func NewStorageAdapter(config *model.Config) *Adapter {
+	timeout, err := strconv.Atoi(config.MongoTimeout)
 	if err != nil {
 		log.Println("Set default timeout - 500")
 		timeout = 500
 	}
 	timeoutMS := time.Millisecond * time.Duration(timeout)
 
-	db := &database{mongoDBAuth: mongoDBAuth, mongoDBName: mongoDBName, mongoTimeout: timeoutMS}
-	return &Adapter{db: db}
+	db := &database{mongoDBAuth: config.MongoDBAuth, mongoDBName: config.MongoDBName, mongoTimeout: timeoutMS}
+	return &Adapter{db: db, config: config}
 }
 
 // GetPolls retrieves all polls with an ability to filter
-func (sa *Adapter) GetPolls(user *tokenauth.Claims, IDs []string, userID *string, offset *int64, limit *int64, order *string, filterByToMembers bool) ([]model.Poll, error) {
-	filter := bson.D{}
-	innerFilter := []interface{}{}
-	if userID != nil {
-		innerFilter = append(innerFilter, bson.D{primitive.E{Key: "poll.user_id", Value: userID}})
+func (sa *Adapter) GetPolls(user *tokenauth.Claims, filter model.PollsFilter, filterByToMembers bool) ([]model.Poll, error) {
+	mongoFilter := bson.D{
+		primitive.E{Key: "org_id", Value: user.OrgID},
 	}
-	if len(IDs) > 0 {
+
+	if len(filter.PollIDs) > 0 {
 		reconstructedIDs := []primitive.ObjectID{}
-		for _, id := range IDs {
+		for _, id := range filter.PollIDs {
 			if objID, err := primitive.ObjectIDFromHex(id); err == nil {
 				reconstructedIDs = append(reconstructedIDs, objID)
 			}
 		}
-		filter = append(filter, primitive.E{Key: "_id", Value: bson.M{"$in": reconstructedIDs}})
+		mongoFilter = append(mongoFilter, primitive.E{Key: "_id", Value: bson.M{"$in": reconstructedIDs}})
 	}
+
+	if filter.MyPolls != nil && *filter.MyPolls == true && filter.RespondedPolls != nil && *filter.RespondedPolls == true {
+		mongoFilter = append(mongoFilter, primitive.E{Key: "$or", Value: []primitive.M{
+			{"poll.userid": user.Subject},
+			{"responses.userid": user.Subject},
+		}})
+	} else {
+		if filter.MyPolls != nil && *filter.MyPolls == true {
+			mongoFilter = append(mongoFilter, primitive.E{Key: "poll.userid", Value: user.Subject})
+		}
+
+		if filter.RespondedPolls != nil && *filter.RespondedPolls == true {
+			mongoFilter = append(mongoFilter, primitive.E{Key: "responses.userid", Value: user.Subject})
+		}
+	}
+
+	if filter.Pin != nil {
+		mongoFilter = append(mongoFilter, primitive.E{Key: "poll.pin", Value: *filter.Pin})
+	}
+
+	if len(filter.GroupIDs) > 0 {
+		mongoFilter = append(mongoFilter, primitive.E{Key: "poll.group_id", Value: bson.M{"$in": filter.GroupIDs}})
+	}
+
+	if len(filter.Statuses) > 0 {
+		mongoFilter = append(mongoFilter, primitive.E{Key: "poll.status", Value: bson.M{"$in": filter.Statuses}})
+	}
+
 	if filterByToMembers {
-		filter = append(filter, primitive.E{Key: "$or", Value: []primitive.M{
+		mongoFilter = append(mongoFilter, primitive.E{Key: "$or", Value: []primitive.M{
 			primitive.M{"poll.to_members": primitive.Null{}},
 			primitive.M{"poll.to_members": primitive.M{"$exists": true, "$size": 0}},
 			primitive.M{"poll.to_members.user_id": user.Subject},
@@ -87,20 +120,17 @@ func (sa *Adapter) GetPolls(user *tokenauth.Claims, IDs []string, userID *string
 	}
 
 	findOptions := options.Find()
-	if order != nil && *order == "asc" {
-		findOptions.SetSort(bson.D{{"_id", 1}})
-	} else {
-		findOptions.SetSort(bson.D{{"_id", -1}})
+	findOptions.SetSort(bson.D{{"poll.status", 1}, {"_id", -1}})
+
+	if filter.Limit != nil {
+		findOptions.SetLimit(*filter.Limit)
 	}
-	if limit != nil {
-		findOptions.SetLimit(*limit)
-	}
-	if offset != nil {
-		findOptions.SetSkip(*offset)
+	if filter.Offset != nil {
+		findOptions.SetSkip(*filter.Offset)
 	}
 
 	var list []model.Poll
-	err := sa.db.polls.Find(filter, &list, findOptions)
+	err := sa.db.polls.Find(mongoFilter, &list, findOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -113,6 +143,7 @@ func (sa *Adapter) GetPoll(user *tokenauth.Claims, id string) (*model.Poll, erro
 
 	if objID, err := primitive.ObjectIDFromHex(id); err == nil {
 		filter := bson.D{
+			primitive.E{Key: "org_id", Value: user.OrgID},
 			primitive.E{Key: "_id", Value: objID},
 		}
 
@@ -136,11 +167,16 @@ func (sa *Adapter) GetPoll(user *tokenauth.Claims, id string) (*model.Poll, erro
 
 // CreatePoll creates a poll
 func (sa *Adapter) CreatePoll(user *tokenauth.Claims, poll model.Poll) (*model.Poll, error) {
+	poll.OrgID = user.OrgID
+	poll.ID = primitive.NewObjectID()
+	poll.UserID = user.Subject
+	poll.UserName = user.Name
 	poll.DateCreated = time.Now()
+
 	_, err := sa.db.polls.InsertOne(poll)
 	if err != nil {
-		fmt.Printf("error storage.Adapter.UpdatePoll(%s) - %s", poll.ID, err)
-		return nil, fmt.Errorf("error storage.Adapter.UpdatePoll(%s) - %s", poll.ID, err)
+		fmt.Printf("error storage.Adapter.CreatePoll(%s) - %s", poll.ID, err)
+		return nil, fmt.Errorf("error storage.Adapter.CreatePoll(%s) - %s", poll.ID, err)
 	}
 
 	return &poll, nil
@@ -151,7 +187,10 @@ func (sa *Adapter) UpdatePoll(user *tokenauth.Claims, poll model.Poll) (*model.P
 	if len(poll.ID) > 0 {
 
 		poll.DateUpdated = time.Now().UTC()
-		filter := bson.D{primitive.E{Key: "_id", Value: poll.ID}}
+		filter := bson.D{
+			primitive.E{Key: "org_id", Value: user.OrgID},
+			primitive.E{Key: "_id", Value: poll.ID},
+		}
 
 		update := bson.D{
 			primitive.E{Key: "$set", Value: bson.D{
@@ -231,7 +270,10 @@ func (sa *Adapter) EndPoll(user *tokenauth.Claims, pollID string) error {
 
 // DeletePoll deletes a poll
 func (sa *Adapter) DeletePoll(user *tokenauth.Claims, id string) error {
-	filter := bson.D{primitive.E{Key: "_id", Value: id}}
+	filter := bson.D{
+		primitive.E{Key: "org_id", Value: user.OrgID},
+		primitive.E{Key: "_id", Value: id},
+	}
 	_, err := sa.db.polls.DeleteOne(filter, nil)
 	if err != nil {
 		fmt.Printf("error storage.Adapter.DeletePoll(): error while delete poll (%s) - %s", id, err)
@@ -290,7 +332,10 @@ func (m *database) onDataChanged(changeDoc map[string]interface{}) {
 	nsMap := ns.(map[string]interface{})
 	coll := nsMap["coll"]
 
+	record := changeDoc["fullDocument"]
+	recordMap := record.(map[string]interface{})
+
 	if m.listener != nil {
-		m.listener.OnCollectionUpdated(coll.(string))
+		m.listener.OnCollectionUpdated(coll.(string), recordMap)
 	}
 }

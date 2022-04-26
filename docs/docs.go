@@ -34,29 +34,11 @@ const docTemplate = `{
                 "operationId": "GetPolls",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "offset",
-                        "name": "offset",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "limit - limit the result",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "order - Possible values: asc, desc. Default: desc",
-                        "name": "order",
-                        "in": "query"
-                    },
-                    {
                         "description": "body json for defined poll ids as request body",
                         "name": "data",
                         "in": "body",
                         "schema": {
-                            "$ref": "#/definitions/pollIDsRequestBody"
+                            "$ref": "#/definitions/PollsFilter"
                         }
                     }
                 ],
@@ -220,6 +202,28 @@ const docTemplate = `{
                 }
             }
         },
+        "/polls/{id}/events": {
+            "post": {
+                "security": [
+                    {
+                        "UserAuth": []
+                    }
+                ],
+                "description": "Subscribes to a poll events as SSE",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Client"
+                ],
+                "operationId": "GetPollEvents",
+                "responses": {
+                    "200": {
+                        "description": ""
+                    }
+                }
+            }
+        },
         "/polls/{id}/start": {
             "post": {
                 "security": [
@@ -281,59 +285,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/polls": {
-            "get": {
-                "security": [
-                    {
-                        "UserAuth": []
-                    }
-                ],
-                "description": "Retrieves  all user poll that may include additional filter params",
-                "tags": [
-                    "Client"
-                ],
-                "operationId": "GetUserPolls",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "offset",
-                        "name": "offset",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "limit - limit the result",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "order - Possible values: asc, desc. Default: desc",
-                        "name": "order",
-                        "in": "query"
-                    },
-                    {
-                        "description": "body json for defined poll ids as request body",
-                        "name": "data",
-                        "in": "body",
-                        "schema": {
-                            "$ref": "#/definitions/pollIDsRequestBody"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/PollResult"
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/version": {
             "get": {
                 "description": "Gives the service version.",
@@ -387,6 +338,9 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                },
+                "org_id": {
+                    "type": "string"
                 },
                 "pin": {
                     "type": "integer",
@@ -555,6 +509,44 @@ const docTemplate = `{
                 }
             }
         },
+        "PollsFilter": {
+            "type": "object",
+            "properties": {
+                "group_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "my_polls": {
+                    "type": "boolean"
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "pin": {
+                    "type": "integer"
+                },
+                "poll_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "responded_polls": {
+                    "type": "boolean"
+                },
+                "statuses": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "ToMember": {
             "type": "object",
             "properties": {
@@ -569,17 +561,6 @@ const docTemplate = `{
                 },
                 "user_id": {
                     "type": "string"
-                }
-            }
-        },
-        "pollIDsRequestBody": {
-            "type": "object",
-            "properties": {
-                "ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
                 }
             }
         }
@@ -605,11 +586,11 @@ const docTemplate = `{
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
-	Version:          "1.0.4",
+	Version:          "1.0.8",
 	Host:             "localhost",
 	BasePath:         "/content",
 	Schemes:          []string{"https"},
-	Title:            "Rewards Building Block API",
+	Title:            "Polls Building Block v2 API",
 	Description:      "RoRewards Building Block API Documentation.",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,

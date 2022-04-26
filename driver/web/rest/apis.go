@@ -62,91 +62,28 @@ func NewInternalApisHandler(app *core.Application, config *model.Config) Interna
 	return InternalApisHandler{app: app, config: config}
 }
 
-type pollIDsRequestBody struct {
-	IDs []string `json:"ids"`
-} // @name pollIDsRequestBody
-
 // GetPolls Retrieves  all polls by a filter params
 // @Description Retrieves  all polls by a filter params
 // @Tags Client
 // @ID GetPolls
-// @Param offset query string false "offset"
-// @Param limit query string false "limit - limit the result"
-// @Param order query string false "order - Possible values: asc, desc. Default: desc"
-// @Param data body pollIDsRequestBody false "body json for defined poll ids as request body"
+// @Param data body model.PollsFilter false "body json for defined poll ids as request body"
 // @Success 200 {array} model.PollResult
 // @Security UserAuth
 // @Router /polls [get]
 func (h ApisHandler) GetPolls(user *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
-	offsetFilter := getInt64QueryParam(r, "offset")
-	limitFilter := getInt64QueryParam(r, "limit")
-	orderFilter := getStringQueryParam(r, "order")
 
-	var pollIDs []string
+	var filter model.PollsFilter
 	bodyData, _ := ioutil.ReadAll(r.Body)
-	if bodyData != nil {
-		var body pollIDsRequestBody
-		bodyErr := json.Unmarshal(bodyData, &body)
-		if bodyErr == nil {
-			pollIDs = body.IDs
+	if bodyData != nil && len(bodyData) > 0 {
+		err := json.Unmarshal(bodyData, &filter)
+		if err != nil {
+			log.Printf("Error on apis.GetPolls(): %s", err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
 		}
 	}
 
-	resData, err := h.app.Services.GetPolls(user, pollIDs, nil, offsetFilter, limitFilter, orderFilter, true)
-	if err != nil {
-		log.Printf("Error on apis.GetPolls(): %s", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	result := []model.PollResult{}
-	if len(resData) > 0 {
-		for _, entry := range resData {
-			if entry.UserHasAccess(user.Subject) {
-				result = append(result, entry.ToPollResult(user.Subject))
-			}
-		}
-	}
-
-	data, err := json.Marshal(result)
-	if err != nil {
-		log.Printf("Error on apis.GetPolls(): %s", err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-	w.WriteHeader(http.StatusOK)
-	w.Write(data)
-}
-
-// GetUserPolls Retrieves  all user poll that may include additional filter params
-// @Description Retrieves  all user poll that may include additional filter params
-// @Tags Client
-// @ID GetUserPolls
-// @Param offset query string false "offset"
-// @Param limit query string false "limit - limit the result"
-// @Param order query string false "order - Possible values: asc, desc. Default: desc"
-// @Param data body pollIDsRequestBody false "body json for defined poll ids as request body"
-// @Success 200 {array} model.PollResult
-// @Security UserAuth
-// @Router /user/polls [get]
-func (h ApisHandler) GetUserPolls(user *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
-	offsetFilter := getInt64QueryParam(r, "offset")
-	limitFilter := getInt64QueryParam(r, "limit")
-	orderFilter := getStringQueryParam(r, "order")
-
-	var pollIDs []string
-	bodyData, _ := ioutil.ReadAll(r.Body)
-	if bodyData != nil {
-		var body pollIDsRequestBody
-		bodyErr := json.Unmarshal(bodyData, &body)
-		if bodyErr == nil {
-			pollIDs = body.IDs
-		}
-	}
-
-	resData, err := h.app.Services.GetPolls(user, pollIDs, &user.Subject, offsetFilter, limitFilter, orderFilter, true)
+	resData, err := h.app.Services.GetPolls(user, filter, true)
 	if err != nil {
 		log.Printf("Error on apis.GetPolls(): %s", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -353,6 +290,51 @@ func (h ApisHandler) DeletePoll(user *tokenauth.Claims, w http.ResponseWriter, r
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
+}
+
+// GetPollEvents Subscribes to a poll events as SSE
+// @Description  Subscribes to a poll events as SSE
+// @Tags Client
+// @ID GetPollEvents
+// @Produce json
+// @Success 200
+// @Security UserAuth
+// @Router /polls/{id}/events [post]
+func (h ApisHandler) GetPollEvents(user *tokenauth.Claims, w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	flusher, ok := w.(http.Flusher)
+	if !ok {
+		http.Error(w, "Connection doesn't support streaming", http.StatusBadRequest)
+		return
+	}
+
+	resultChan := make(chan map[string]interface{})
+
+	go h.app.Services.SubscribeToPoll(user, id, resultChan)
+
+	for {
+		data, ok := <-resultChan
+		if ok {
+			jsonData, err := json.Marshal(data)
+			if err != nil {
+				log.Printf("Error on apis.GetPollEvents(): %s", err)
+			}
+			log.Printf(string(jsonData))
+			w.Write(jsonData)
+			flusher.Flush()
+		} else {
+			flusher.Flush()
+			break
+		}
+	}
+	log.Printf("closing event stream for user %s and poll %s", user.Subject, id)
 }
 
 // VotePoll Votes a poll with the specified id

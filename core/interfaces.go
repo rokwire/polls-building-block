@@ -28,16 +28,17 @@ type Services interface {
 	GetVersion() string
 
 	// CRUD
-	GetPolls(user *tokenauth.Claims, IDs []string, userID *string, offset *int64, limit *int64, order *string, filterByToMembers bool) ([]model.Poll, error)
+	GetPolls(user *tokenauth.Claims, filter model.PollsFilter, filterByToMembers bool) ([]model.Poll, error)
 	GetPoll(user *tokenauth.Claims, id string) (*model.Poll, error)
 	CreatePoll(user *tokenauth.Claims, poll model.Poll) (*model.Poll, error)
 	UpdatePoll(user *tokenauth.Claims, poll model.Poll) (*model.Poll, error)
+	DeletePoll(user *tokenauth.Claims, id string) error
 
 	VotePoll(user *tokenauth.Claims, pollID string, vote model.PollVote) error
 	StartPoll(user *tokenauth.Claims, pollID string) error
 	EndPoll(user *tokenauth.Claims, pollID string) error
 
-	DeletePoll(user *tokenauth.Claims, id string) error
+	SubscribeToPoll(user *tokenauth.Claims, pollID string, resultChan chan map[string]interface{}) error
 }
 
 type servicesImpl struct {
@@ -48,8 +49,8 @@ func (s *servicesImpl) GetVersion() string {
 	return s.app.getVersion()
 }
 
-func (s *servicesImpl) GetPolls(user *tokenauth.Claims, IDs []string, userID *string, offset *int64, limit *int64, order *string, filterByToMembers bool) ([]model.Poll, error) {
-	return s.app.getPolls(user, IDs, userID, offset, limit, order, filterByToMembers)
+func (s *servicesImpl) GetPolls(user *tokenauth.Claims, filter model.PollsFilter, filterByToMembers bool) ([]model.Poll, error) {
+	return s.app.getPolls(user, filter, filterByToMembers)
 }
 
 func (s *servicesImpl) GetPoll(user *tokenauth.Claims, id string) (*model.Poll, error) {
@@ -80,9 +81,13 @@ func (s *servicesImpl) VotePoll(user *tokenauth.Claims, pollID string, vote mode
 	return s.app.votePoll(user, pollID, vote)
 }
 
+func (s *servicesImpl) SubscribeToPoll(user *tokenauth.Claims, pollID string, resultChan chan map[string]interface{}) error {
+	return s.app.subscribeToPoll(user, pollID, resultChan)
+}
+
 // Storage is used by core to storage data - DB storage adapter, file storage adapter etc
 type Storage interface {
-	GetPolls(user *tokenauth.Claims, IDs []string, userID *string, offset *int64, limit *int64, order *string, filterByToMembers bool) ([]model.Poll, error)
+	GetPolls(user *tokenauth.Claims, filter model.PollsFilter, filterByToMembers bool) ([]model.Poll, error)
 	GetPoll(user *tokenauth.Claims, id string) (*model.Poll, error)
 	CreatePoll(user *tokenauth.Claims, poll model.Poll) (*model.Poll, error)
 	UpdatePoll(user *tokenauth.Claims, poll model.Poll) (*model.Poll, error)

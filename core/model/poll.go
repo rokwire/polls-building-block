@@ -5,6 +5,18 @@ import (
 	"time"
 )
 
+// PollsFilter Wraps all possible filters that could be used for retrieving polls
+type PollsFilter struct {
+	Pin            *int     `json:"pin"`
+	PollIDs        []string `json:"poll_ids,omitempty"`
+	MyPolls        *bool    `json:"my_polls,omitempty"`
+	RespondedPolls *bool    `json:"responded_polls,omitempty"`
+	GroupIDs       []string `json:"group_ids,omitempty"`
+	Statuses       []string `json:"statuses,omitempty"`
+	Offset         *int64   `json:"offset,omitempty"`
+	Limit          *int64   `json:"limit,omitempty"`
+} // @name PollsFilter
+
 // PollData data stored for a poll
 type PollData struct {
 	UserID        string     `json:"userid" bson:"userid" validate:"required"`
@@ -51,10 +63,73 @@ type ToMember struct {
 	Email      string `json:"email" bson:"email"`
 } //@name ToMember
 
+// PollNotification wraps the entire record
+type PollNotification struct {
+	PollData  `json:"poll" bson:"poll"`
+	OrgID     string             `json:"org_id" bson:"org_id"`
+	ID        primitive.ObjectID `json:"_id" bson:"_id"`
+	Responses []PollVote         `json:"responses" bson:"responses,omitempty" validate:"max=0"`
+	Results   []int              `json:"results" bson:"results,omitempty" validate:"max=0"`
+} // @name PollNotification
+
+// ToPollResult converts to PollResult
+func (poll *PollNotification) ToPollResult(currentUserID string) PollResult {
+
+	result := PollResult{
+		PollData: poll.PollData,
+	}
+
+	votes := make(map[int]bool)
+	votersMap := make(map[string]bool)
+
+	result.ID = poll.ID
+	result.PollData = poll.PollData
+
+	count := len(result.PollData.Options)
+	result.Results = make([]int, count)
+
+	if len(poll.Responses) > 0 {
+		for _, e := range poll.Responses {
+			votersMap[e.UserID] = true
+
+			userVoted := poll.UserID == currentUserID
+
+			for _, a := range e.Answer {
+				if a >= 0 && a < count {
+					if userVoted {
+						votes[a] = true
+					}
+					result.Results[a]++
+				}
+			}
+		}
+	} else {
+		copy(result.Results, poll.Results)
+	}
+
+	result.UniqueVotersCount = len(votersMap)
+
+	for _, n := range result.Results {
+		result.Total += n
+	}
+
+	if l := len(votes); l > 0 {
+		result.Voted = make([]int, l)
+		i := 0
+		for k := range votes {
+			result.Voted[i] = k
+			i++
+		}
+	}
+
+	return result
+}
+
 // Poll wraps the entire record
 type Poll struct {
 	PollData  `json:"poll" bson:"poll"`
-	ID        primitive.ObjectID `json:"id" bson:"_id,omitempty"`
+	OrgID     string             `json:"org_id" bson:"org_id"`
+	ID        primitive.ObjectID `json:"id" bson:"_id"`
 	Responses []PollVote         `json:"responses" bson:"responses,omitempty" validate:"max=0"`
 	Results   []int              `json:"results" bson:"results,omitempty" validate:"max=0"`
 } // @name Poll

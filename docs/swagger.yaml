@@ -19,6 +19,8 @@ definitions:
           type: string
         minItems: 2
         type: array
+      org_id:
+        type: string
       pin:
         maximum: 9999
         minimum: 0
@@ -143,6 +145,31 @@ definitions:
     - answer
     - userid
     type: object
+  PollsFilter:
+    properties:
+      group_ids:
+        items:
+          type: string
+        type: array
+      limit:
+        type: integer
+      my_polls:
+        type: boolean
+      offset:
+        type: integer
+      pin:
+        type: integer
+      poll_ids:
+        items:
+          type: string
+        type: array
+      responded_polls:
+        type: boolean
+      statuses:
+        items:
+          type: string
+        type: array
+    type: object
   ToMember:
     properties:
       email:
@@ -154,13 +181,6 @@ definitions:
       user_id:
         type: string
     type: object
-  pollIDsRequestBody:
-    properties:
-      ids:
-        items:
-          type: string
-        type: array
-    type: object
 host: localhost
 info:
   contact: {}
@@ -168,31 +188,19 @@ info:
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  title: Rewards Building Block API
-  version: 1.0.4
+  title: Polls Building Block v2 API
+  version: 1.0.8
 paths:
   /polls:
     get:
       description: Retrieves  all polls by a filter params
       operationId: GetPolls
       parameters:
-      - description: offset
-        in: query
-        name: offset
-        type: string
-      - description: limit - limit the result
-        in: query
-        name: limit
-        type: string
-      - description: 'order - Possible values: asc, desc. Default: desc'
-        in: query
-        name: order
-        type: string
       - description: body json for defined poll ids as request body
         in: body
         name: data
         schema:
-          $ref: '#/definitions/pollIDsRequestBody'
+          $ref: '#/definitions/PollsFilter'
       responses:
         "200":
           description: OK
@@ -294,6 +302,19 @@ paths:
       - UserAuth: []
       tags:
       - Client
+  /polls/{id}/events:
+    post:
+      description: Subscribes to a poll events as SSE
+      operationId: GetPollEvents
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+      - UserAuth: []
+      tags:
+      - Client
   /polls/{id}/start:
     post:
       consumes:
@@ -327,39 +348,6 @@ paths:
       responses:
         "200":
           description: ""
-      security:
-      - UserAuth: []
-      tags:
-      - Client
-  /user/polls:
-    get:
-      description: Retrieves  all user poll that may include additional filter params
-      operationId: GetUserPolls
-      parameters:
-      - description: offset
-        in: query
-        name: offset
-        type: string
-      - description: limit - limit the result
-        in: query
-        name: limit
-        type: string
-      - description: 'order - Possible values: asc, desc. Default: desc'
-        in: query
-        name: order
-        type: string
-      - description: body json for defined poll ids as request body
-        in: body
-        name: data
-        schema:
-          $ref: '#/definitions/pollIDsRequestBody'
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/PollResult'
-            type: array
       security:
       - UserAuth: []
       tags:

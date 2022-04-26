@@ -24,6 +24,10 @@ func NewCoreAuth(app *core.Application, config *model.Config) *CoreAuth {
 	}
 
 	serviceLoader, err := authservice.NewRemoteAuthDataLoader(remoteConfig, []string{"core"}, logs.NewLogger("polls-v2", &logs.LoggerOpts{}))
+	if err != nil {
+		log.Fatalf("Error initializing auth service: %v", err)
+	}
+
 	authService, err := authservice.NewAuthService("polls-v2", config.PollServiceURL, serviceLoader)
 	if err != nil {
 		log.Fatalf("Error initializing auth service: %v", err)

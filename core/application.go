@@ -30,6 +30,7 @@ type Application struct {
 
 	storage      Storage
 	cacheAdapter *cacheadapter.CacheAdapter
+	sseServer    *SSEServer
 }
 
 // Start starts the core part of the application
@@ -43,7 +44,9 @@ func NewApplication(version string, build string, storage Storage, cacheadapter 
 		version:      version,
 		build:        build,
 		storage:      storage,
-		cacheAdapter: cacheadapter}
+		cacheAdapter: cacheadapter,
+		sseServer:    NewSSEServer(),
+	}
 
 	// add the drivers ports/interfaces
 	application.Services = &servicesImpl{app: &application}

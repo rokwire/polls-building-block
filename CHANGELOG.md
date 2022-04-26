@@ -6,8 +6,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.11] - 2022-04-26
+- Update go to 1.18, alpine 3.15[#1](https://github.com/rokwire/polls-building-block/issues/1)
+- Resolve [GHSA-xg75-q3q5-cqmv](https://github.com/advisories/GHSA-xg75-q3q5-cqmv) [#1](https://github.com/rokwire/polls-building-block/issues/1)
+
+## [1.0.10] - 2022-04-21
+- Implemented additional filter for responded_polls[#1](https://github.com/rokwire/polls-building-block/issues/1)
+- Additinal fixes for the event stream [#1](https://github.com/rokwire/polls-building-block/issues/1)
+
+## [1.0.9] - 2022-04-20
+- Fixed ID generation in the create new poll API [#1](https://github.com/rokwire/polls-building-block/issues/1)
+
+## [1.0.8] - 2022-04-19
+- Additional filtering by pin and group_ids and API fixes [#1](https://github.com/rokwire/polls-building-block/issues/1)
+
+## [1.0.7] - 2022-04-18
+- Rework GetPolls filtering (add more filter options in the request body) [#1](https://github.com/rokwire/polls-building-block/issues/1)
+
+## [1.0.6] - 2022-04-15
+- Implemented support for SSE [#1](https://github.com/rokwire/polls-building-block/issues/1)
+
+## [1.0.5] - 2022-04-11
+- Implemented support for subgroups [#1](https://github.com/rokwire/polls-building-block/issues/1)
+
 ## [1.0.4] - 2022-04-07
-- Additional improvements of the polls APIs
+- Additional improvements of the polls APIs [#1](https://github.com/rokwire/polls-building-block/issues/1)
+
+## [1.0.4] - 2022-04-07
+- Additional improvements of the polls APIs [#1](https://github.com/rokwire/polls-building-block/issues/1)
 
 ## [1.0.1] - 2022-04-06
 - Introduce Polls BB 
