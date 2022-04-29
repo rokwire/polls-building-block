@@ -7,7 +7,7 @@ require (
 	github.com/casbin/casbin v1.9.1
 	github.com/gorilla/mux v1.8.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
-	github.com/rokwire/core-auth-library-go v1.0.5
+	github.com/rokwire/core-auth-library-go v1.0.9
 	github.com/rokwire/logging-library-go v1.0.3
 	github.com/swaggo/http-swagger v1.2.6
 	github.com/swaggo/swag v1.8.1
