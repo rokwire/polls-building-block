@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.12] - 2022-04-29
+- Update Core auth library to the latest version and repo [#3](https://github.com/rokwire/polls-building-block/issues/3)
+
 ## [1.0.11] - 2022-04-26
 - Update go to 1.18, alpine 3.15[#1](https://github.com/rokwire/polls-building-block/issues/1)
 - Resolve [GHSA-xg75-q3q5-cqmv](https://github.com/advisories/GHSA-xg75-q3q5-cqmv) [#1](https://github.com/rokwire/polls-building-block/issues/1)
