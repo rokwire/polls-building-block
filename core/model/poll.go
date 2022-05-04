@@ -10,6 +10,7 @@ type PollsFilter struct {
 	Pin            *int     `json:"pin"`
 	PollIDs        []string `json:"poll_ids,omitempty"`
 	MyPolls        *bool    `json:"my_polls,omitempty"`
+	GroupPolls     *bool    `json:"group_polls,omitempty"`
 	RespondedPolls *bool    `json:"responded_polls,omitempty"`
 	GroupIDs       []string `json:"group_ids,omitempty"`
 	Statuses       []string `json:"statuses,omitempty"`
