@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"github.com/rokwire/core-auth-library-go/tokenauth"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/bsontype"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
@@ -69,8 +70,9 @@ func NewStorageAdapter(config *model.Config) *Adapter {
 
 // GetPolls retrieves all polls with an ability to filter
 func (sa *Adapter) GetPolls(user *tokenauth.Claims, filter model.PollsFilter, filterByToMembers bool) ([]model.Poll, error) {
-	mongoFilter := bson.D{
-		primitive.E{Key: "org_id", Value: user.OrgID},
+	mongoFilter := bson.D{}
+	if user != nil {
+		mongoFilter = append(mongoFilter, primitive.E{Key: "org_id", Value: user.OrgID})
 	}
 
 	if len(filter.PollIDs) > 0 {
@@ -96,6 +98,12 @@ func (sa *Adapter) GetPolls(user *tokenauth.Claims, filter model.PollsFilter, fi
 		if filter.RespondedPolls != nil && *filter.RespondedPolls == true {
 			mongoFilter = append(mongoFilter, primitive.E{Key: "responses.userid", Value: user.Subject})
 		}
+	}
+
+	if filter.GroupPolls != nil && *filter.GroupPolls {
+		mongoFilter = append(mongoFilter, primitive.E{Key: "poll.group_id", Value: bson.M{"$exists": true}})
+		mongoFilter = append(mongoFilter, primitive.E{Key: "poll.group_id", Value: bson.M{"$ne": bsontype.Null}})
+		mongoFilter = append(mongoFilter, primitive.E{Key: "poll.group_id", Value: bson.M{"$ne": ""}})
 	}
 
 	if filter.Pin != nil {
