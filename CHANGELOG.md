@@ -15,9 +15,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-## [1.0.11] - 2022-05-04
+## [1.0.13] - 2022-05-04
 ### Added
 - Implement internal API for retrieving of group polls for data migration to groups BB [#5](https://github.com/rokwire/polls-building-block/issues/5)
+
+## [1.0.12] - 2022-04-29
+### Changed
+- Update core auth library to the latest version [#3](https://github.com/rokwire/polls-building-block/issues/3)
+
+## [1.0.11] - 2022-04-26
 
 ## [1.0.10] - 2022-04-21
 ### Added
