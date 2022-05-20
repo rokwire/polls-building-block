@@ -34,7 +34,7 @@ const docTemplate = `{
                 "operationId": "GetPolls",
                 "parameters": [
                     {
-                        "description": "body json for defined poll ids as request body",
+                        "description": "body json for the defined polls filter",
                         "name": "data",
                         "in": "body",
                         "schema": {
@@ -256,28 +256,14 @@ const docTemplate = `{
                         "UserAuth": []
                     }
                 ],
-                "description": "Votes a poll with the specified id",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "Retrieves poll id to group id mapping",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Client"
                 ],
-                "operationId": "VotePoll",
-                "parameters": [
-                    {
-                        "description": "body json",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/PollVote"
-                        }
-                    }
-                ],
+                "operationId": "GetGroupPolls",
                 "responses": {
                     "200": {
                         "description": ""
@@ -512,11 +498,8 @@ const docTemplate = `{
         "PollsFilter": {
             "type": "object",
             "properties": {
-                "group_ids": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                "group_polls": {
+                    "type": "boolean"
                 },
                 "limit": {
                     "type": "integer"

@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.13] - 2022-05-20
+- Add support of group polls and subgroups [#9](https://github.com/rokwire/polls-building-block/issues/9)
+
 ## [1.0.12] - 2022-04-29
 - Update Core auth library to the latest version and repo [#3](https://github.com/rokwire/polls-building-block/issues/3)
 

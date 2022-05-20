@@ -18,7 +18,6 @@
 package core
 
 import (
-	"github.com/rokwire/core-auth-library-go/tokenauth"
 	"polls/core/model"
 	"polls/driven/storage"
 )
@@ -28,17 +27,17 @@ type Services interface {
 	GetVersion() string
 
 	// CRUD
-	GetPolls(user *tokenauth.Claims, filter model.PollsFilter, filterByToMembers bool) ([]model.Poll, error)
-	GetPoll(user *tokenauth.Claims, id string) (*model.Poll, error)
-	CreatePoll(user *tokenauth.Claims, poll model.Poll) (*model.Poll, error)
-	UpdatePoll(user *tokenauth.Claims, poll model.Poll) (*model.Poll, error)
-	DeletePoll(user *tokenauth.Claims, id string) error
+	GetPolls(user *model.User, filter model.PollsFilter, filterByToMembers bool) ([]model.Poll, error)
+	GetPoll(user *model.User, id string) (*model.Poll, error)
+	CreatePoll(user *model.User, poll model.Poll) (*model.Poll, error)
+	UpdatePoll(user *model.User, poll model.Poll) (*model.Poll, error)
+	DeletePoll(user *model.User, id string) error
 
-	VotePoll(user *tokenauth.Claims, pollID string, vote model.PollVote) error
-	StartPoll(user *tokenauth.Claims, pollID string) error
-	EndPoll(user *tokenauth.Claims, pollID string) error
+	VotePoll(user *model.User, pollID string, vote model.PollVote) error
+	StartPoll(user *model.User, pollID string) error
+	EndPoll(user *model.User, pollID string) error
 
-	SubscribeToPoll(user *tokenauth.Claims, pollID string, resultChan chan map[string]interface{}) error
+	SubscribeToPoll(user *model.User, pollID string, resultChan chan map[string]interface{}) error
 }
 
 type servicesImpl struct {
@@ -49,53 +48,52 @@ func (s *servicesImpl) GetVersion() string {
 	return s.app.getVersion()
 }
 
-func (s *servicesImpl) GetPolls(user *tokenauth.Claims, filter model.PollsFilter, filterByToMembers bool) ([]model.Poll, error) {
+func (s *servicesImpl) GetPolls(user *model.User, filter model.PollsFilter, filterByToMembers bool) ([]model.Poll, error) {
 	return s.app.getPolls(user, filter, filterByToMembers)
 }
 
-func (s *servicesImpl) GetPoll(user *tokenauth.Claims, id string) (*model.Poll, error) {
+func (s *servicesImpl) GetPoll(user *model.User, id string) (*model.Poll, error) {
 	return s.app.getPoll(user, id)
 }
 
-func (s *servicesImpl) CreatePoll(user *tokenauth.Claims, poll model.Poll) (*model.Poll, error) {
+func (s *servicesImpl) CreatePoll(user *model.User, poll model.Poll) (*model.Poll, error) {
 	return s.app.createPoll(user, poll)
 }
 
-func (s *servicesImpl) UpdatePoll(user *tokenauth.Claims, poll model.Poll) (*model.Poll, error) {
+func (s *servicesImpl) UpdatePoll(user *model.User, poll model.Poll) (*model.Poll, error) {
 	return s.app.updatePoll(user, poll)
 }
 
-func (s *servicesImpl) DeletePoll(user *tokenauth.Claims, id string) error {
+func (s *servicesImpl) DeletePoll(user *model.User, id string) error {
 	return s.app.deletePoll(user, id)
 }
 
-func (s *servicesImpl) StartPoll(user *tokenauth.Claims, pollID string) error {
+func (s *servicesImpl) StartPoll(user *model.User, pollID string) error {
 	return s.app.startPoll(user, pollID)
 }
 
-func (s *servicesImpl) EndPoll(user *tokenauth.Claims, pollID string) error {
+func (s *servicesImpl) EndPoll(user *model.User, pollID string) error {
 	return s.app.endPoll(user, pollID)
 }
 
-func (s *servicesImpl) VotePoll(user *tokenauth.Claims, pollID string, vote model.PollVote) error {
+func (s *servicesImpl) VotePoll(user *model.User, pollID string, vote model.PollVote) error {
 	return s.app.votePoll(user, pollID, vote)
 }
 
-func (s *servicesImpl) SubscribeToPoll(user *tokenauth.Claims, pollID string, resultChan chan map[string]interface{}) error {
+func (s *servicesImpl) SubscribeToPoll(user *model.User, pollID string, resultChan chan map[string]interface{}) error {
 	return s.app.subscribeToPoll(user, pollID, resultChan)
 }
 
 // Storage is used by core to storage data - DB storage adapter, file storage adapter etc
 type Storage interface {
-	GetPolls(user *tokenauth.Claims, filter model.PollsFilter, filterByToMembers bool) ([]model.Poll, error)
-	GetPoll(user *tokenauth.Claims, id string) (*model.Poll, error)
-	CreatePoll(user *tokenauth.Claims, poll model.Poll) (*model.Poll, error)
-	UpdatePoll(user *tokenauth.Claims, poll model.Poll) (*model.Poll, error)
-	StartPoll(user *tokenauth.Claims, pollID string) error
-	EndPoll(user *tokenauth.Claims, pollID string) error
-	DeletePoll(user *tokenauth.Claims, id string) error
+	GetPolls(user *model.User, filter model.PollsStorageFilter, filterByToMembers bool) ([]model.Poll, error)
+	GetPoll(user *model.User, id string) (*model.Poll, error)
+	CreatePoll(user *model.User, poll model.Poll) (*model.Poll, error)
+	UpdatePoll(user *model.User, poll model.Poll) (*model.Poll, error)
 
-	VotePoll(user *tokenauth.Claims, pollID string, vote model.PollVote) error
+	DeletePoll(user *model.User, id string) error
+
+	VotePoll(user *model.User, pollID string, vote model.PollVote) error
 
 	SetListener(listener storage.CollectionListener)
 }

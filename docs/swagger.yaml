@@ -147,10 +147,8 @@ definitions:
     type: object
   PollsFilter:
     properties:
-      group_ids:
-        items:
-          type: string
-        type: array
+      group_polls:
+        type: boolean
       limit:
         type: integer
       my_polls:
@@ -196,7 +194,7 @@ paths:
       description: Retrieves  all polls by a filter params
       operationId: GetPolls
       parameters:
-      - description: body json for defined poll ids as request body
+      - description: body json for the defined polls filter
         in: body
         name: data
         schema:
@@ -332,17 +330,8 @@ paths:
       - Client
   /polls/{id}/vote:
     post:
-      consumes:
-      - application/json
-      description: Votes a poll with the specified id
-      operationId: VotePoll
-      parameters:
-      - description: body json
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/PollVote'
+      description: Retrieves poll id to group id mapping
+      operationId: GetGroupPolls
       produces:
       - application/json
       responses:

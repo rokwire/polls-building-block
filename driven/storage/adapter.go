@@ -19,7 +19,6 @@ package storage
 
 import (
 	"fmt"
-	"github.com/rokwire/core-auth-library-go/tokenauth"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/bsontype"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -31,11 +30,17 @@ import (
 )
 
 const (
-	statusCreated    = "created"
-	statusStarted    = "started"
-	statusTerminated = "terminated"
-	settingsKey      = "stadium"
-	eventInterval    = 100 * time.Millisecond
+	// PollStatusCreated status created
+	PollStatusCreated = "created"
+
+	// PollStatusStarted status started
+	PollStatusStarted = "started"
+
+	// PollStatusTerminated status terminated
+	PollStatusTerminated = "terminated"
+
+	settingsKey   = "stadium"
+	eventInterval = 100 * time.Millisecond
 )
 
 // Adapter implements the Storage interface
@@ -69,10 +74,10 @@ func NewStorageAdapter(config *model.Config) *Adapter {
 }
 
 // GetPolls retrieves all polls with an ability to filter
-func (sa *Adapter) GetPolls(user *tokenauth.Claims, filter model.PollsFilter, filterByToMembers bool) ([]model.Poll, error) {
+func (sa *Adapter) GetPolls(user *model.User, filter model.PollsStorageFilter, filterByToMembers bool) ([]model.Poll, error) {
 	mongoFilter := bson.D{}
 	if user != nil {
-		mongoFilter = append(mongoFilter, primitive.E{Key: "org_id", Value: user.OrgID})
+		mongoFilter = append(mongoFilter, primitive.E{Key: "org_id", Value: user.Claims.OrgID})
 	}
 
 	if len(filter.PollIDs) > 0 {
@@ -87,16 +92,16 @@ func (sa *Adapter) GetPolls(user *tokenauth.Claims, filter model.PollsFilter, fi
 
 	if filter.MyPolls != nil && *filter.MyPolls == true && filter.RespondedPolls != nil && *filter.RespondedPolls == true {
 		mongoFilter = append(mongoFilter, primitive.E{Key: "$or", Value: []primitive.M{
-			{"poll.userid": user.Subject},
-			{"responses.userid": user.Subject},
+			{"poll.userid": user.Claims.Subject},
+			{"responses.userid": user.Claims.Subject},
 		}})
 	} else {
 		if filter.MyPolls != nil && *filter.MyPolls == true {
-			mongoFilter = append(mongoFilter, primitive.E{Key: "poll.userid", Value: user.Subject})
+			mongoFilter = append(mongoFilter, primitive.E{Key: "poll.userid", Value: user.Claims.Subject})
 		}
 
 		if filter.RespondedPolls != nil && *filter.RespondedPolls == true {
-			mongoFilter = append(mongoFilter, primitive.E{Key: "responses.userid", Value: user.Subject})
+			mongoFilter = append(mongoFilter, primitive.E{Key: "responses.userid", Value: user.Claims.Subject})
 		}
 	}
 
@@ -122,8 +127,8 @@ func (sa *Adapter) GetPolls(user *tokenauth.Claims, filter model.PollsFilter, fi
 		mongoFilter = append(mongoFilter, primitive.E{Key: "$or", Value: []primitive.M{
 			primitive.M{"poll.to_members": primitive.Null{}},
 			primitive.M{"poll.to_members": primitive.M{"$exists": true, "$size": 0}},
-			primitive.M{"poll.to_members.user_id": user.Subject},
-			primitive.M{"poll.user_id": user.Subject},
+			primitive.M{"poll.to_members.user_id": user.Claims.Subject},
+			primitive.M{"poll.user_id": user.Claims.Subject},
 		}})
 	}
 
@@ -147,11 +152,11 @@ func (sa *Adapter) GetPolls(user *tokenauth.Claims, filter model.PollsFilter, fi
 }
 
 // GetPoll retrieves a single poll
-func (sa *Adapter) GetPoll(user *tokenauth.Claims, id string) (*model.Poll, error) {
+func (sa *Adapter) GetPoll(user *model.User, id string) (*model.Poll, error) {
 
 	if objID, err := primitive.ObjectIDFromHex(id); err == nil {
 		filter := bson.D{
-			primitive.E{Key: "org_id", Value: user.OrgID},
+			primitive.E{Key: "org_id", Value: user.Claims.OrgID},
 			primitive.E{Key: "_id", Value: objID},
 		}
 
@@ -174,11 +179,11 @@ func (sa *Adapter) GetPoll(user *tokenauth.Claims, id string) (*model.Poll, erro
 }
 
 // CreatePoll creates a poll
-func (sa *Adapter) CreatePoll(user *tokenauth.Claims, poll model.Poll) (*model.Poll, error) {
-	poll.OrgID = user.OrgID
+func (sa *Adapter) CreatePoll(user *model.User, poll model.Poll) (*model.Poll, error) {
+	poll.OrgID = user.Claims.OrgID
 	poll.ID = primitive.NewObjectID()
-	poll.UserID = user.Subject
-	poll.UserName = user.Name
+	poll.UserID = user.Claims.Subject
+	poll.UserName = user.Claims.Name
 	poll.DateCreated = time.Now()
 
 	_, err := sa.db.polls.InsertOne(poll)
@@ -191,12 +196,12 @@ func (sa *Adapter) CreatePoll(user *tokenauth.Claims, poll model.Poll) (*model.P
 }
 
 // UpdatePoll updates a poll
-func (sa *Adapter) UpdatePoll(user *tokenauth.Claims, poll model.Poll) (*model.Poll, error) {
+func (sa *Adapter) UpdatePoll(user *model.User, poll model.Poll) (*model.Poll, error) {
 	if len(poll.ID) > 0 {
 
 		poll.DateUpdated = time.Now().UTC()
 		filter := bson.D{
-			primitive.E{Key: "org_id", Value: user.OrgID},
+			primitive.E{Key: "org_id", Value: user.Claims.OrgID},
 			primitive.E{Key: "_id", Value: poll.ID},
 		}
 
@@ -228,7 +233,7 @@ func (sa *Adapter) UpdatePoll(user *tokenauth.Claims, poll model.Poll) (*model.P
 }
 
 // StartPoll starts an existing poll
-func (sa *Adapter) StartPoll(user *tokenauth.Claims, pollID string) error {
+func (sa *Adapter) StartPoll(user *model.User, pollID string) error {
 
 	poll, err := sa.GetPoll(user, pollID)
 	if err != nil {
@@ -237,8 +242,8 @@ func (sa *Adapter) StartPoll(user *tokenauth.Claims, pollID string) error {
 	}
 
 	if poll != nil {
-		if poll.Status != statusStarted {
-			poll.Status = statusStarted
+		if poll.Status != PollStatusStarted {
+			poll.Status = PollStatusStarted
 			_, err = sa.UpdatePoll(user, *poll)
 			if err != nil {
 				fmt.Printf("error storage.Adapter.StartPoll(%s) - %s", pollID, err)
@@ -253,7 +258,7 @@ func (sa *Adapter) StartPoll(user *tokenauth.Claims, pollID string) error {
 }
 
 // EndPoll ends an existing poll
-func (sa *Adapter) EndPoll(user *tokenauth.Claims, pollID string) error {
+func (sa *Adapter) EndPoll(user *model.User, pollID string) error {
 	poll, err := sa.GetPoll(user, pollID)
 	if err != nil {
 		fmt.Printf("error storage.Adapter.EndPoll(%s) - %s", pollID, err)
@@ -261,8 +266,8 @@ func (sa *Adapter) EndPoll(user *tokenauth.Claims, pollID string) error {
 	}
 
 	if poll != nil {
-		if poll.Status != statusTerminated {
-			poll.Status = statusTerminated
+		if poll.Status != PollStatusTerminated {
+			poll.Status = PollStatusTerminated
 			_, err = sa.UpdatePoll(user, *poll)
 			if err != nil {
 				fmt.Printf("error storage.Adapter.EndPoll(%s) - %s", pollID, err)
@@ -277,9 +282,9 @@ func (sa *Adapter) EndPoll(user *tokenauth.Claims, pollID string) error {
 }
 
 // DeletePoll deletes a poll
-func (sa *Adapter) DeletePoll(user *tokenauth.Claims, id string) error {
+func (sa *Adapter) DeletePoll(user *model.User, id string) error {
 	filter := bson.D{
-		primitive.E{Key: "org_id", Value: user.OrgID},
+		primitive.E{Key: "org_id", Value: user.Claims.OrgID},
 		primitive.E{Key: "_id", Value: id},
 	}
 	_, err := sa.db.polls.DeleteOne(filter, nil)
@@ -293,7 +298,7 @@ func (sa *Adapter) DeletePoll(user *tokenauth.Claims, id string) error {
 }
 
 // VotePoll votes a poll
-func (sa *Adapter) VotePoll(user *tokenauth.Claims, pollID string, vote model.PollVote) error {
+func (sa *Adapter) VotePoll(user *model.User, pollID string, vote model.PollVote) error {
 
 	if objID, err := primitive.ObjectIDFromHex(pollID); err == nil {
 		now := time.Now().UTC()
