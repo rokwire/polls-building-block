@@ -20,11 +20,11 @@ package storage
 import (
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/bsontype"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"polls/core/model"
+	"polls/driven/groups"
 	"strconv"
 	"time"
 )
@@ -74,7 +74,7 @@ func NewStorageAdapter(config *model.Config) *Adapter {
 }
 
 // GetPolls retrieves all polls with an ability to filter
-func (sa *Adapter) GetPolls(user *model.User, filter model.PollsStorageFilter, filterByToMembers bool) ([]model.Poll, error) {
+func (sa *Adapter) GetPolls(user *model.User, filter model.PollsFilter, filterByToMembers bool, membership *groups.GroupMembership) ([]model.Poll, error) {
 	mongoFilter := bson.D{}
 	if user != nil {
 		mongoFilter = append(mongoFilter, primitive.E{Key: "org_id", Value: user.Claims.OrgID})
@@ -105,12 +105,6 @@ func (sa *Adapter) GetPolls(user *model.User, filter model.PollsStorageFilter, f
 		}
 	}
 
-	if filter.GroupPolls != nil && *filter.GroupPolls {
-		mongoFilter = append(mongoFilter, primitive.E{Key: "poll.group_id", Value: bson.M{"$exists": true}})
-		mongoFilter = append(mongoFilter, primitive.E{Key: "poll.group_id", Value: bson.M{"$ne": bsontype.Null}})
-		mongoFilter = append(mongoFilter, primitive.E{Key: "poll.group_id", Value: bson.M{"$ne": ""}})
-	}
-
 	if filter.Pin != nil {
 		mongoFilter = append(mongoFilter, primitive.E{Key: "poll.pin", Value: *filter.Pin})
 	}
@@ -124,11 +118,21 @@ func (sa *Adapter) GetPolls(user *model.User, filter model.PollsStorageFilter, f
 	}
 
 	if filterByToMembers {
+		var innerFilter primitive.M
+		if membership != nil && len(membership.GroupIDsAsAdmin) > 0 {
+			innerFilter = primitive.M{"$or": []primitive.M{
+				primitive.M{"poll.group_id": bson.M{"$in": membership.GroupIDsAsAdmin}},
+				primitive.M{"poll.to_members.user_id": user.Claims.Subject},
+			}}
+		} else {
+			innerFilter = primitive.M{"poll.to_members.user_id": user.Claims.Subject}
+		}
+
 		mongoFilter = append(mongoFilter, primitive.E{Key: "$or", Value: []primitive.M{
 			primitive.M{"poll.to_members": primitive.Null{}},
 			primitive.M{"poll.to_members": primitive.M{"$exists": true, "$size": 0}},
-			primitive.M{"poll.to_members.user_id": user.Claims.Subject},
 			primitive.M{"poll.user_id": user.Claims.Subject},
+			innerFilter,
 		}})
 	}
 
@@ -152,12 +156,31 @@ func (sa *Adapter) GetPolls(user *model.User, filter model.PollsStorageFilter, f
 }
 
 // GetPoll retrieves a single poll
-func (sa *Adapter) GetPoll(user *model.User, id string) (*model.Poll, error) {
+func (sa *Adapter) GetPoll(user *model.User, id string, filterByToMembers bool, membership *groups.GroupMembership) (*model.Poll, error) {
 
 	if objID, err := primitive.ObjectIDFromHex(id); err == nil {
 		filter := bson.D{
 			primitive.E{Key: "org_id", Value: user.Claims.OrgID},
 			primitive.E{Key: "_id", Value: objID},
+		}
+
+		if filterByToMembers {
+			var innerFilter primitive.M
+			if membership != nil && len(membership.GroupIDsAsAdmin) > 0 {
+				innerFilter = primitive.M{"$or": []primitive.M{
+					primitive.M{"poll.group_id": bson.M{"$in": membership.GroupIDsAsAdmin}},
+					primitive.M{"poll.to_members.user_id": user.Claims.Subject},
+				}}
+			} else {
+				innerFilter = primitive.M{"poll.to_members.user_id": user.Claims.Subject}
+			}
+
+			filter = append(filter, primitive.E{Key: "$or", Value: []primitive.M{
+				primitive.M{"poll.to_members": primitive.Null{}},
+				primitive.M{"poll.to_members": primitive.M{"$exists": true, "$size": 0}},
+				primitive.M{"poll.user_id": user.Claims.Subject},
+				innerFilter,
+			}})
 		}
 
 		var list []model.Poll
@@ -235,7 +258,7 @@ func (sa *Adapter) UpdatePoll(user *model.User, poll model.Poll) (*model.Poll, e
 // StartPoll starts an existing poll
 func (sa *Adapter) StartPoll(user *model.User, pollID string) error {
 
-	poll, err := sa.GetPoll(user, pollID)
+	poll, err := sa.GetPoll(user, pollID, true, nil)
 	if err != nil {
 		fmt.Printf("error storage.Adapter.StartPoll(%s) - %s", pollID, err)
 		return fmt.Errorf("error storage.Adapter.StartPoll(%s) - %s", pollID, err)
@@ -259,7 +282,7 @@ func (sa *Adapter) StartPoll(user *model.User, pollID string) error {
 
 // EndPoll ends an existing poll
 func (sa *Adapter) EndPoll(user *model.User, pollID string) error {
-	poll, err := sa.GetPoll(user, pollID)
+	poll, err := sa.GetPoll(user, pollID, true, nil)
 	if err != nil {
 		fmt.Printf("error storage.Adapter.EndPoll(%s) - %s", pollID, err)
 		return fmt.Errorf("error storage.Adapter.EndPoll(%s) - %s", pollID, err)

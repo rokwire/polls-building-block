@@ -19,6 +19,7 @@ package core
 
 import (
 	"polls/core/model"
+	"polls/driven/groups"
 	"polls/driven/storage"
 )
 
@@ -86,8 +87,8 @@ func (s *servicesImpl) SubscribeToPoll(user *model.User, pollID string, resultCh
 
 // Storage is used by core to storage data - DB storage adapter, file storage adapter etc
 type Storage interface {
-	GetPolls(user *model.User, filter model.PollsStorageFilter, filterByToMembers bool) ([]model.Poll, error)
-	GetPoll(user *model.User, id string) (*model.Poll, error)
+	GetPolls(user *model.User, filter model.PollsFilter, filterByToMembers bool, membership *groups.GroupMembership) ([]model.Poll, error)
+	GetPoll(user *model.User, id string, filterByToMembers bool, membership *groups.GroupMembership) (*model.Poll, error)
 	CreatePoll(user *model.User, poll model.Poll) (*model.Poll, error)
 	UpdatePoll(user *model.User, poll model.Poll) (*model.Poll, error)
 

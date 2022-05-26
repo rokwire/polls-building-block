@@ -82,9 +82,6 @@ func (we Adapter) Start() {
 	// handle apis
 	apiRouter := subrouter.PathPrefix("/api").Subrouter()
 
-	// Internal APIs
-	apiRouter.HandleFunc("/int/poll-to-group-mapping", we.internalAPIKeyAuthWrapFunc(we.internalApisHandler.GetGroupPolls)).Methods("GET")
-
 	// Client APIs
 	apiRouter.HandleFunc("/polls", we.userAuthWrapFunc(we.apisHandler.GetPolls)).Methods("GET")
 	apiRouter.HandleFunc("/polls", we.userAuthWrapFunc(we.apisHandler.CreatePoll)).Methods("POST")

@@ -147,8 +147,11 @@ definitions:
     type: object
   PollsFilter:
     properties:
-      group_polls:
-        type: boolean
+      group_ids:
+        description: GroupPolls     *bool    `json:"group_polls,omitempty"`
+        items:
+          type: string
+        type: array
       limit:
         type: integer
       my_polls:
@@ -330,8 +333,17 @@ paths:
       - Client
   /polls/{id}/vote:
     post:
-      description: Retrieves poll id to group id mapping
-      operationId: GetGroupPolls
+      consumes:
+      - application/json
+      description: Votes a poll with the specified id
+      operationId: VotePoll
+      parameters:
+      - description: body json
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/PollVote'
       produces:
       - application/json
       responses:

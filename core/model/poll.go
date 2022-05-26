@@ -7,37 +7,16 @@ import (
 
 // PollsFilter Wraps all possible filters that could be used for retrieving polls
 type PollsFilter struct {
-	Pin            *int     `json:"pin"`
-	PollIDs        []string `json:"poll_ids,omitempty"`
-	MyPolls        *bool    `json:"my_polls,omitempty"`
-	GroupPolls     *bool    `json:"group_polls,omitempty"`
+	Pin     *int     `json:"pin"`
+	PollIDs []string `json:"poll_ids,omitempty"`
+	MyPolls *bool    `json:"my_polls,omitempty"`
+	//GroupPolls     *bool    `json:"group_polls,omitempty"`
+	GroupIDs       []string `json:"group_ids,omitempty"`
 	RespondedPolls *bool    `json:"responded_polls,omitempty"`
 	Statuses       []string `json:"statuses,omitempty"`
 	Offset         *int64   `json:"offset,omitempty"`
 	Limit          *int64   `json:"limit,omitempty"`
 } // @name PollsFilter
-
-// ToPollsInnerFilter coverts to PollsStorageFilter
-func (f *PollsFilter) ToPollsInnerFilter() PollsStorageFilter {
-	return PollsStorageFilter{
-		PollsFilter: PollsFilter{
-			Pin:            f.Pin,
-			PollIDs:        f.PollIDs,
-			MyPolls:        f.MyPolls,
-			GroupPolls:     f.GroupPolls,
-			RespondedPolls: f.RespondedPolls,
-			Statuses:       f.Statuses,
-			Offset:         f.Offset,
-			Limit:          f.Limit,
-		},
-	}
-}
-
-// PollsStorageFilter used for the storage adapter
-type PollsStorageFilter struct {
-	GroupIDs []string `json:"group_ids,omitempty"`
-	PollsFilter
-}
 
 // PollData data stored for a poll
 type PollData struct {

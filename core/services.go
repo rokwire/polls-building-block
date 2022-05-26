@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"log"
 	"polls/core/model"
+	"polls/driven/groups"
 	"polls/driven/storage"
 )
 
@@ -30,25 +31,29 @@ func (app *Application) getVersion() string {
 }
 
 func (app *Application) getPolls(user *model.User, filter model.PollsFilter, filterByToMembers bool) ([]model.Poll, error) {
-	storageFilter := filter.ToPollsInnerFilter()
 
-	if filter.GroupPolls != nil && *filter.GroupPolls {
-		groupIDs, err := app.groups.GetGroupsMembership(user.Token)
+	var membership *groups.GroupMembership
+	if len(filter.GroupIDs) > 0 {
+		groupMembership, err := app.groups.GetGroupsMembership(user.Token)
 		if err != nil {
 			log.Printf("error app.getPolls() - unable to retrieve user groups - %s", err)
 			return nil, fmt.Errorf("error app.getPolls() - unable to retrieve user groups - %s", err)
 		}
 
-		if len(groupIDs) > 0 {
-			storageFilter.GroupIDs = groupIDs
-		}
+		membership = groupMembership
 	}
 
-	return app.storage.GetPolls(user, storageFilter, filterByToMembers)
+	return app.storage.GetPolls(user, filter, filterByToMembers, membership)
 }
 
 func (app *Application) getPoll(user *model.User, id string) (*model.Poll, error) {
-	return app.storage.GetPoll(user, id)
+	groupMembership, err := app.groups.GetGroupsMembership(user.Token)
+	if err != nil {
+		log.Printf("error app.getPoll() - unable to retrieve user groups - %s", err)
+		return nil, fmt.Errorf("error app.getPoll() - unable to retrieve user groups - %s", err)
+	}
+
+	return app.storage.GetPoll(user, id, true, groupMembership)
 }
 
 func (app *Application) createPoll(user *model.User, poll model.Poll) (*model.Poll, error) {
@@ -77,7 +82,7 @@ func (app *Application) deletePoll(user *model.User, id string) error {
 }
 
 func (app *Application) startPoll(user *model.User, pollID string) error {
-	poll, err := app.storage.GetPoll(user, pollID)
+	poll, err := app.storage.GetPoll(user, pollID, true, nil)
 	if err != nil {
 		return err
 	}
@@ -118,7 +123,7 @@ func (app *Application) startPoll(user *model.User, pollID string) error {
 }
 
 func (app *Application) endPoll(user *model.User, pollID string) error {
-	poll, err := app.storage.GetPoll(user, pollID)
+	poll, err := app.storage.GetPoll(user, pollID, true, nil)
 	if err != nil {
 		return err
 	}

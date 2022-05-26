@@ -27,8 +27,14 @@ type userGroup struct {
 	MembershipStatus string `json:"membership_status"`
 }
 
+// GroupMembership mapping. Better to access map entry by key instead of iterating for check purpose.
+type GroupMembership struct {
+	GroupIDsAsAdmin  []string
+	GroupIDsAsMember []string
+}
+
 // GetGroupsMembership retrieves all groups that a user is a member
-func (a *Adapter) GetGroupsMembership(userToken string) ([]string, error) {
+func (a *Adapter) GetGroupsMembership(userToken string) (*GroupMembership, error) {
 	if userToken != "" {
 
 		url := fmt.Sprintf("%s/api/user/group-memberships", a.baseURL)
@@ -70,16 +76,66 @@ func (a *Adapter) GetGroupsMembership(userToken string) ([]string, error) {
 			return nil, fmt.Errorf("error GetGroupsMembership: request - %s", err)
 		}
 
-		ids := []string{}
+		membership := GroupMembership{}
 		if len(groups) > 0 {
 			for _, group := range groups {
-				if group.MembershipStatus == "member" || group.MembershipStatus == "admin" {
-					ids = append(ids, group.ID)
+				if group.MembershipStatus == "member" {
+					membership.GroupIDsAsMember = append(membership.GroupIDsAsMember, group.ID)
+				} else if group.MembershipStatus == "admin" {
+					membership.GroupIDsAsAdmin = append(membership.GroupIDsAsAdmin, group.ID)
 				}
 			}
 		}
 
-		return ids, nil
+		return &membership, nil
+	}
+	return nil, nil
+}
+
+// GetGroupDetails retrieves group details
+func (a *Adapter) GetGroupDetails(groupID string) (*model.Group, error) {
+	if groupID != "" {
+
+		url := fmt.Sprintf("%s/api/user/group-memberships", "http://192.168.1.20:81/gr/api") //a.baseURL)
+		client := &http.Client{}
+		req, err := http.NewRequest("GET", url, nil)
+		req.Header.Set("INTERNAL-API-KEY", a.internalAPIKey)
+		if err != nil {
+			log.Printf("error GetGroupDetails: request - %s", err)
+			return nil, fmt.Errorf("error GetGroupDetails: request - %s", err)
+		}
+
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Printf("error GetGroupDetails: request - %s", err)
+			return nil, fmt.Errorf("error GetGroupDetails: request - %s", err)
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != 200 {
+			errorBody, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				log.Printf("error GetGroupDetails: request - %s", err)
+				return nil, fmt.Errorf("error GetGroupDetails: request - %s", err)
+			}
+
+			log.Printf("error GetGroupDetails: request - %d. Error: %s, Body: %s", resp.StatusCode, err, string(errorBody))
+			return nil, fmt.Errorf("error GetGroupDetails: request - %d. Error: %s, Body: %s", resp.StatusCode, err, string(errorBody))
+		}
+
+		data, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Printf("error GetGroupDetails: request - %s", err)
+			return nil, fmt.Errorf("error GetGroupDetails: request - %s", err)
+		}
+
+		var group model.Group
+		err = json.Unmarshal(data, &group)
+		if err != nil {
+			log.Printf("error GetGroupDetails: request - %s", err)
+			return nil, fmt.Errorf("error GetGroupDetails: request - %s", err)
+		}
+
+		return &group, nil
 	}
 	return nil, nil
 }
