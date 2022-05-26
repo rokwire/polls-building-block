@@ -96,7 +96,7 @@ func (a *Adapter) GetGroupsMembership(userToken string) (*GroupMembership, error
 func (a *Adapter) GetGroupDetails(groupID string) (*model.Group, error) {
 	if groupID != "" {
 
-		url := fmt.Sprintf("%s/api/user/group-memberships", "http://192.168.1.20:81/gr/api") //a.baseURL)
+		url := fmt.Sprintf("%s/api/user/group-memberships", a.baseURL)
 		client := &http.Client{}
 		req, err := http.NewRequest("GET", url, nil)
 		req.Header.Set("INTERNAL-API-KEY", a.internalAPIKey)
