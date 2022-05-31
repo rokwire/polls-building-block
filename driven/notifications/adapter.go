@@ -15,19 +15,13 @@ type Adapter struct {
 	baseURL        string
 }
 
-// Recipient struct
-type Recipient struct {
-	UserID string `json:"user_id"`
-	Name   string `json:"name"`
-}
-
 // NewNotificationsAdapter creates a new Notifications BB adapter instance
 func NewNotificationsAdapter(config *model.Config) *Adapter {
 	return &Adapter{internalAPIKey: config.InternalAPIKey, baseURL: config.NotificationsHost}
 }
 
 // SendNotification sends notification to a user
-func (a *Adapter) SendNotification(recipients []Recipient, topic *string, title string, text string, data map[string]string) error {
+func (a *Adapter) SendNotification(recipients []model.NotificationRecipient, topic *string, title string, text string, data map[string]string) error {
 	if len(recipients) > 0 {
 		url := fmt.Sprintf("%s/api/int/message", a.baseURL)
 

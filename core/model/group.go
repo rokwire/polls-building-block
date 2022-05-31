@@ -1,6 +1,8 @@
 package model
 
-import "time"
+import (
+	"time"
+)
 
 // Group struct wrapper
 type Group struct {
@@ -39,4 +41,20 @@ func (g *Group) IsGroupAdmin(userID string) bool {
 		}
 	}
 	return false
+}
+
+// GetMembersAsNotificationRecipients Gets members as notification recipients
+func (g *Group) GetMembersAsNotificationRecipients(currentUserID string) []NotificationRecipient {
+	var recipients []NotificationRecipient
+	if len(g.Members) > 0 {
+		for _, member := range g.Members {
+			if member.UserID != currentUserID && (member.Status == "member" || member.Status == "admin") {
+				recipients = append(recipients, NotificationRecipient{
+					UserID: member.UserID,
+					Name:   member.Name,
+				})
+			}
+		}
+	}
+	return recipients
 }

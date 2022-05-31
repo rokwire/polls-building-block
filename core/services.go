@@ -57,7 +57,17 @@ func (app *Application) getPoll(user *model.User, id string) (*model.Poll, error
 }
 
 func (app *Application) createPoll(user *model.User, poll model.Poll) (*model.Poll, error) {
-	return app.storage.CreatePoll(user, poll)
+	createdPoll, err := app.storage.CreatePoll(user, poll)
+	if err != nil {
+		return nil, err
+	}
+
+	err = app.notifyNotificationsBBForPoll(user, createdPoll, "polls", "poll_created", fmt.Sprintf("Poll '%s' has been created", createdPoll.Question))
+	if err != nil {
+		log.Printf("error while sending notification for created poll: %s", err) // dont fail
+	}
+
+	return nil, err
 }
 
 func (app *Application) updatePoll(user *model.User, poll model.Poll) (*model.Poll, error) {
@@ -99,22 +109,9 @@ func (app *Application) startPoll(user *model.User, pollID string) error {
 		return fmt.Errorf("error app.startPoll() - poll not found: %s", pollID)
 	}
 
-	topic := "polls"
-	err = app.notifications.SendNotification(
-		nil,
-		&topic,
-		"Illinois",
-		fmt.Sprintf("Poll '%s' has been started", poll.Question),
-		map[string]string{
-			"type":        "poll",
-			"operation":   "poll_created",
-			"entity_type": "group",
-			"entity_id":   poll.ID.Hex(),
-			"entity_name": poll.Question,
-		},
-	)
+	err = app.notifyNotificationsBBForPoll(user, poll, "polls", "poll_created", fmt.Sprintf("Poll '%s' has been started", poll.Question))
 	if err != nil {
-		log.Printf("error while sending notification for new event: %s", err) // dont fail
+		log.Printf("error while sending notification for started poll: %s", err) // dont fail
 	}
 
 	app.sseServer.NotifyPollForEvent(pollID, "poll_started")
@@ -140,16 +137,33 @@ func (app *Application) endPoll(user *model.User, pollID string) error {
 		return fmt.Errorf("error app.startPoll() - poll not found: %s", pollID)
 	}
 
-	topic := "polls"
+	err = app.notifyNotificationsBBForPoll(user, poll, "polls", "poll_ended", fmt.Sprintf("Poll '%s' has been edned", poll.Question))
+	if err != nil {
+		log.Printf("error while sending notification for ended poll: %s", err) // dont fail
+	}
+
+	app.sseServer.NotifyPollForEvent(pollID, "poll_end")
+	app.sseServer.ClosePoll(pollID)
+
+	return nil
+}
+
+func (app *Application) notifyNotificationsBBForPoll(user *model.User, poll *model.Poll, topic string, operation string, message string) error {
+	recipients, err := app.buildPollNotificationRecipients(user, poll)
+	if err != nil {
+		log.Printf("error while building recipients for notification for poll: %s", err) // dont fail
+		return fmt.Errorf("error while building recipients for notification for poll: %s", err)
+	}
+
 	err = app.notifications.SendNotification(
-		nil,
+		recipients,
 		&topic,
 		"Illinois",
-		fmt.Sprintf("Poll '%s' has been edned", poll.Question),
+		message,
 		map[string]string{
 			"type":        "poll",
-			"operation":   "poll_ended",
-			"entity_type": "group",
+			"operation":   operation,
+			"entity_type": "poll",
 			"entity_id":   poll.ID.Hex(),
 			"entity_name": poll.Question,
 		},
@@ -157,9 +171,6 @@ func (app *Application) endPoll(user *model.User, pollID string) error {
 	if err != nil {
 		log.Printf("error while sending notification for poll end: %s", err) // dont fail
 	}
-
-	app.sseServer.NotifyPollForEvent(pollID, "poll_end")
-	app.sseServer.ClosePoll(pollID)
 
 	return nil
 }
@@ -171,6 +182,20 @@ func (app *Application) votePoll(user *model.User, pollID string, vote model.Pol
 func (app *Application) subscribeToPoll(user *model.User, pollID string, resultChan chan map[string]interface{}) error {
 	app.sseServer.RegisterUserForPoll(user.Claims.Subject, pollID, resultChan)
 	return nil
+}
+
+func (app *Application) buildPollNotificationRecipients(user *model.User, poll *model.Poll) ([]model.NotificationRecipient, error) {
+	if len(poll.ToMembersList) > 0 {
+		return poll.GetPollNotificationRecipients(user.Claims.Subject), nil
+	} else if poll.GroupID != nil {
+		group, err := app.groups.GetGroupDetails(*poll.GroupID)
+		if err != nil {
+			return nil, fmt.Errorf("error while retriving group details: %s", err)
+		}
+		return group.GetMembersAsNotificationRecipients(user.Claims.Subject), nil
+	}
+
+	return nil, nil
 }
 
 // OnCollectionUpdated callback that indicates the reward types collection is changed
