@@ -25,12 +25,13 @@ func (a *Adapter) SendNotification(recipients []model.NotificationRecipient, top
 	if len(recipients) > 0 {
 		url := fmt.Sprintf("%s/api/int/message", a.baseURL)
 
-		bodyData := map[string]interface{}{
-			"priority": 10,
-			"topic":    topic,
-			"subject":  title,
-			"body":     text,
-			"data":     data,
+		bodyData := model.NotificationMessage{
+			Priority:   10,
+			Topic:      topic,
+			Recipients: recipients,
+			Subject:    title,
+			Body:       text,
+			Data:       data,
 		}
 		bodyBytes, err := json.Marshal(bodyData)
 		if err != nil {

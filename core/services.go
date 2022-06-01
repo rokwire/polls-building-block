@@ -67,7 +67,7 @@ func (app *Application) createPoll(user *model.User, poll model.Poll) (*model.Po
 		log.Printf("error while sending notification for created poll: %s", err) // dont fail
 	}
 
-	return nil, err
+	return createdPoll, nil
 }
 
 func (app *Application) updatePoll(user *model.User, poll model.Poll) (*model.Poll, error) {

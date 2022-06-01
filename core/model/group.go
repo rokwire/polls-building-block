@@ -48,7 +48,7 @@ func (g *Group) GetMembersAsNotificationRecipients(currentUserID string) []Notif
 	var recipients []NotificationRecipient
 	if len(g.Members) > 0 {
 		for _, member := range g.Members {
-			if member.UserID != currentUserID && (member.Status == "member" || member.Status == "admin") {
+			if member.UserID != "" && member.UserID != currentUserID && (member.Status == "member" || member.Status == "admin") {
 				recipients = append(recipients, NotificationRecipient{
 					UserID: member.UserID,
 					Name:   member.Name,
