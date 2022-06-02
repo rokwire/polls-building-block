@@ -129,9 +129,9 @@ func (h ApisHandler) GetPoll(user *model.User, w http.ResponseWriter, r *http.Re
 		return
 	}
 
-	if resData == nil || !resData.UserHasAccess(user.Claims.Subject) {
-		log.Printf("Error on apis.GetPoll(%s): access denied", id)
-		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+	if resData == nil {
+		log.Printf("Error on apis.VotePoll(%s): not found", id)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
 
@@ -169,9 +169,9 @@ func (h ApisHandler) UpdatePoll(user *model.User, w http.ResponseWriter, r *http
 		return
 	}
 
-	if resData == nil || !resData.UserHasAccess(user.Claims.Subject) {
-		log.Printf("Error on apis.UpdatePoll(%s): access denied", id)
-		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+	if resData == nil {
+		log.Printf("Error on apis.VotePoll(%s): not found", id)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
 
@@ -355,9 +355,9 @@ func (h ApisHandler) VotePoll(user *model.User, w http.ResponseWriter, r *http.R
 		return
 	}
 
-	if resData == nil || !resData.UserHasAccess(user.Claims.Subject) {
-		log.Printf("Error on apis.VotePoll(%s): access denied", id)
-		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+	if resData == nil {
+		log.Printf("Error on apis.VotePoll(%s): not found", id)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
 
