@@ -92,9 +92,7 @@ func (h ApisHandler) GetPolls(user *model.User, w http.ResponseWriter, r *http.R
 	result := []model.PollResult{}
 	if len(resData) > 0 {
 		for _, entry := range resData {
-			if entry.UserHasAccess(user.Claims.Subject) {
-				result = append(result, entry.ToPollResult(user.Claims.Subject))
-			}
+			result = append(result, entry.ToPollResult(user.Claims.Subject))
 		}
 	}
 

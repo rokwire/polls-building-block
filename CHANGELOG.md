@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.18] - 2022-06-02
+### Fixed
+- Additional fix for group admin should see all private polls [#9](https://github.com/rokwire/polls-building-block/issues/9)
+
 ## [1.0.17] - 2022-06-01
 ### Fixed
 - Additional fixes for polls and the integration with groups and notifications [#9](https://github.com/rokwire/polls-building-block/issues/9)
