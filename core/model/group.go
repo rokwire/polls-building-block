@@ -43,6 +43,19 @@ func (g *Group) IsGroupAdmin(userID string) bool {
 	return false
 }
 
+// IsCurrentUserAdmin checks if the user is a group admin
+func (g *Group) IsCurrentUserAdmin(currentUserID string) bool {
+	for _, member := range g.Members {
+		if member.UserID == currentUserID {
+			if member.Status == "admin" {
+				return true
+			}
+			return false
+		}
+	}
+	return false
+}
+
 // GetMembersAsNotificationRecipients Gets members as notification recipients
 func (g *Group) GetMembersAsNotificationRecipients(currentUserID string, subMembers []ToMember) []NotificationRecipient {
 	var recipients []NotificationRecipient

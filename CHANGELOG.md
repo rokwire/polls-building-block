@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.19] - 2022-06-03
 ### Fixed
+- Allow group admins to delete or end polls [#9](https://github.com/rokwire/polls-building-block/issues/9)
 - Only creator can edit or delete a poll  [#9](https://github.com/rokwire/polls-building-block/issues/9)
 - Additional fix for notifying group members & group sub members with respect to the admins [#9](https://github.com/rokwire/polls-building-block/issues/9)
 

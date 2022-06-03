@@ -95,7 +95,21 @@ func (app *Application) deletePoll(user *model.User, id string) error {
 	}
 
 	if poll == nil || user.Claims.Subject != poll.UserID {
-		return fmt.Errorf("only the creator of a poll can start it")
+		if poll.GroupID != nil && len(*poll.GroupID) > 0 {
+			group, err := app.groups.GetGroupDetails(*poll.GroupID)
+			if err != nil {
+				return err
+			}
+			if group != nil {
+				if !group.IsCurrentUserAdmin(user.Claims.Subject) {
+					return fmt.Errorf("only the creator of a poll or a group admin can delete it")
+				}
+			} else {
+				return fmt.Errorf("only the creator of a poll or a group admin can delete it")
+			}
+		} else {
+			return fmt.Errorf("only the creator of a poll can delete it")
+		}
 	}
 
 	err = app.storage.DeletePoll(user, id)
@@ -148,7 +162,21 @@ func (app *Application) endPoll(user *model.User, pollID string) error {
 	}
 
 	if poll == nil || user.Claims.Subject != poll.UserID {
-		return fmt.Errorf("only the creator of a poll can start it")
+		if poll.GroupID != nil && len(*poll.GroupID) > 0 {
+			group, err := app.groups.GetGroupDetails(*poll.GroupID)
+			if err != nil {
+				return err
+			}
+			if group != nil {
+				if !group.IsCurrentUserAdmin(user.Claims.Subject) {
+					return fmt.Errorf("only the creator of a poll or a group admin can end it")
+				}
+			} else {
+				return fmt.Errorf("only the creator of a poll or a group admin can end it")
+			}
+		} else {
+			return fmt.Errorf("only the creator of a poll can end it")
+		}
 	}
 
 	if poll != nil {
