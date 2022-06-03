@@ -44,15 +44,45 @@ func (g *Group) IsGroupAdmin(userID string) bool {
 }
 
 // GetMembersAsNotificationRecipients Gets members as notification recipients
-func (g *Group) GetMembersAsNotificationRecipients(currentUserID string) []NotificationRecipient {
+func (g *Group) GetMembersAsNotificationRecipients(currentUserID string, subMembers []ToMember) []NotificationRecipient {
 	var recipients []NotificationRecipient
 	if len(g.Members) > 0 {
-		for _, member := range g.Members {
-			if member.UserID != "" && member.UserID != currentUserID && (member.Status == "member" || member.Status == "admin") {
-				recipients = append(recipients, NotificationRecipient{
-					UserID: member.UserID,
-					Name:   member.Name,
-				})
+		if len(subMembers) > 0 {
+
+			//
+			// Send notification to the group admins & the sub member list
+			//
+			userIDmapping := map[string]bool{}
+			for _, member := range g.Members {
+				if member.UserID != "" && member.UserID != currentUserID && (member.Status == "admin") {
+					recipients = append(recipients, NotificationRecipient{
+						UserID: member.UserID,
+						Name:   member.Name,
+					})
+					userIDmapping[member.UserID] = true
+				}
+			}
+
+			for _, toMember := range subMembers {
+				if toMember.UserID != "" && toMember.UserID != currentUserID && !userIDmapping[toMember.UserID] {
+					recipients = append(recipients, NotificationRecipient{
+						UserID: toMember.UserID,
+						Name:   toMember.Name,
+					})
+				}
+			}
+		} else {
+
+			//
+			// Send notification to the group members & group admins
+			//
+			for _, member := range g.Members {
+				if member.UserID != "" && member.UserID != currentUserID && (member.Status == "member" || member.Status == "admin") {
+					recipients = append(recipients, NotificationRecipient{
+						UserID: member.UserID,
+						Name:   member.Name,
+					})
+				}
 			}
 		}
 	}

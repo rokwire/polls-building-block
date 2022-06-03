@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.19] - 2022-06-03
+### Fixed
+- Only creator can edit or delete a poll  [#9](https://github.com/rokwire/polls-building-block/issues/9)
+- Additional fix for notifying group members & group sub members with respect to the admins [#9](https://github.com/rokwire/polls-building-block/issues/9)
+
 ## [1.0.18] - 2022-06-02
 ### Fixed
 - Fix broken poll vote [#9](https://github.com/rokwire/polls-building-block/issues/9)

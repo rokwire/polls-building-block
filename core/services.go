@@ -71,6 +71,15 @@ func (app *Application) createPoll(user *model.User, poll model.Poll) (*model.Po
 }
 
 func (app *Application) updatePoll(user *model.User, poll model.Poll) (*model.Poll, error) {
+	persistedPoll, err := app.storage.GetPoll(user, poll.ID.Hex(), true, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	if persistedPoll == nil || user.Claims.Subject != poll.UserID {
+		return nil, fmt.Errorf("only the creator of a poll can update it")
+	}
+
 	updatedPoll, err := app.storage.UpdatePoll(user, poll)
 	if err != nil {
 		return nil, err
@@ -80,7 +89,16 @@ func (app *Application) updatePoll(user *model.User, poll model.Poll) (*model.Po
 }
 
 func (app *Application) deletePoll(user *model.User, id string) error {
-	err := app.storage.DeletePoll(user, id)
+	poll, err := app.storage.GetPoll(user, id, true, nil)
+	if err != nil {
+		return err
+	}
+
+	if poll == nil || user.Claims.Subject != poll.UserID {
+		return fmt.Errorf("only the creator of a poll can start it")
+	}
+
+	err = app.storage.DeletePoll(user, id)
 	if err != nil {
 		return err
 	}
@@ -95,6 +113,10 @@ func (app *Application) startPoll(user *model.User, pollID string) error {
 	poll, err := app.storage.GetPoll(user, pollID, true, nil)
 	if err != nil {
 		return err
+	}
+
+	if poll == nil || user.Claims.Subject != poll.UserID {
+		return fmt.Errorf("only the creator of a poll can start it")
 	}
 
 	if poll != nil {
@@ -123,6 +145,10 @@ func (app *Application) endPoll(user *model.User, pollID string) error {
 	poll, err := app.storage.GetPoll(user, pollID, true, nil)
 	if err != nil {
 		return err
+	}
+
+	if poll == nil || user.Claims.Subject != poll.UserID {
+		return fmt.Errorf("only the creator of a poll can start it")
 	}
 
 	if poll != nil {
@@ -185,14 +211,14 @@ func (app *Application) subscribeToPoll(user *model.User, pollID string, resultC
 }
 
 func (app *Application) buildPollNotificationRecipients(user *model.User, poll *model.Poll) ([]model.NotificationRecipient, error) {
-	if len(poll.ToMembersList) > 0 {
-		return poll.GetPollNotificationRecipients(user.Claims.Subject), nil
-	} else if poll.GroupID != nil {
+	if poll.GroupID != nil {
 		group, err := app.groups.GetGroupDetails(*poll.GroupID)
 		if err != nil {
 			return nil, fmt.Errorf("error while retriving group details: %s", err)
 		}
-		return group.GetMembersAsNotificationRecipients(user.Claims.Subject), nil
+		return group.GetMembersAsNotificationRecipients(user.Claims.Subject, poll.ToMembersList), nil
+	} else if len(poll.ToMembersList) > 0 {
+		return poll.GetPollNotificationRecipients(user.Claims.Subject), nil
 	}
 
 	return nil, nil
