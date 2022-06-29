@@ -1,6 +1,6 @@
 # Polls Building Block
 
-The Polls Building Block manages poll data for the Rokwire ecosystem.
+The Polls Building Block manages poll data for the Rokwire platform.
 
 ## Documentation
 The functionality provided by this application is documented in the [Wiki](https://github.com/rokwire/polls-building-block/wiki).
