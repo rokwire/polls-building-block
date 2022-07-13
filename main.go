@@ -26,6 +26,8 @@ import (
 	storage "polls/driven/storage"
 	driver "polls/driver/web"
 	"strings"
+
+	"github.com/rokwire/logging-library-go/logs"
 )
 
 var (
@@ -39,6 +41,9 @@ func main() {
 	if len(Version) == 0 {
 		Version = "dev"
 	}
+
+	loggerOpts := logs.LoggerOpts{SuppressRequests: []logs.HttpRequestProperties{logs.NewAwsHealthCheckHttpRequestProperties("/polls/version")}}
+	logger := logs.NewLogger("core", &loggerOpts)
 
 	port := getEnvKey("PORT", true)
 
@@ -65,7 +70,7 @@ func main() {
 		UiucOrgID:      uiucOrgID,
 	}
 
-	storageAdapter := storage.NewStorageAdapter(config)
+	storageAdapter := storage.NewStorageAdapter(config, logger)
 	err := storageAdapter.Start()
 	if err != nil {
 		log.Fatal("Cannot start the mongoDB adapter - " + err.Error())
@@ -77,10 +82,10 @@ func main() {
 	cacheAdapter := cacheadapter.NewCacheAdapter(defaultCacheExpirationSeconds)
 
 	// application
-	application := core.NewApplication(Version, Build, storageAdapter, cacheAdapter)
+	application := core.NewApplication(Version, Build, storageAdapter, cacheAdapter, logger)
 	application.Start()
 
-	webAdapter := driver.NewWebAdapter(host, port, application, config)
+	webAdapter := driver.NewWebAdapter(host, port, application, config, logger)
 
 	webAdapter.Start()
 }
