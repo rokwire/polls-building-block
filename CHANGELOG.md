@@ -5,6 +5,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Set logger [#11](https://github.com/rokwire/polls-building-block/issues/11)
 
 ## [1.0.12] - 2022-04-29
 - Update Core auth library to the latest version and repo [#3](https://github.com/rokwire/polls-building-block/issues/3)
