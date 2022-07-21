@@ -5,16 +5,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+- Prepare the project to become open source [#8](https://github.com/rokwire/polls-building-block/issues/8)
 - Set logger [#11](https://github.com/rokwire/polls-building-block/issues/11)
-
-## [1.0.12] - 2022-04-29
-- Update Core auth library to the latest version and repo [#3](https://github.com/rokwire/polls-building-block/issues/3)
-
-## [1.0.11] - 2022-04-26
-- Update go to 1.18, alpine 3.15[#1](https://github.com/rokwire/polls-building-block/issues/1)
-- Resolve [GHSA-xg75-q3q5-cqmv](https://github.com/advisories/GHSA-xg75-q3q5-cqmv) [#1](https://github.com/rokwire/polls-building-block/issues/1)
-
-## Unreleased
 
 ## [1.0.13] - 2022-05-04
 ### Added
@@ -25,11 +18,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update core auth library to the latest version [#3](https://github.com/rokwire/polls-building-block/issues/3)
 
 ## [1.0.11] - 2022-04-26
+### Changed
+- Update go to 1.18, alpine 3.15[#1](https://github.com/rokwire/polls-building-block/issues/1)
+- Resolve [GHSA-xg75-q3q5-cqmv](https://github.com/advisories/GHSA-xg75-q3q5-cqmv) [#1](https://github.com/rokwire/polls-building-block/issues/1)
 
 ## [1.0.10] - 2022-04-21
 ### Added
 - Implemented additional filter for responded_polls[#1](https://github.com/rokwire/polls-building-block/issues/1)
-- Additinal fixes for the event stream [#1](https://github.com/rokwire/polls-building-block/issues/1)
+- Additional fixes for the event stream [#1](https://github.com/rokwire/polls-building-block/issues/1)
 
 ## [1.0.9] - 2022-04-20
 ### Added
@@ -55,10 +51,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Additional improvements of the polls APIs [#1](https://github.com/rokwire/polls-building-block/issues/1)
 
-## [1.0.4] - 2022-04-07
-### Added
-- Additional improvements of the polls APIs [#1](https://github.com/rokwire/polls-building-block/issues/1)
-
 ## [1.0.1] - 2022-04-06
 ### Added
-- Introduce Polls BB 
+- Introduce Polls BB
