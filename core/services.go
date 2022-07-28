@@ -73,8 +73,9 @@ func (app *Application) updatePoll(user *model.User, poll model.Poll) (*model.Po
 		return nil, err
 	}
 
-	if persistedPoll == nil || user.Claims.Subject != poll.UserID {
-		return nil, fmt.Errorf("only the creator of a poll can update it")
+	err = app.checkPollPermission(user, persistedPoll, "update")
+	if err != nil {
+		return nil, err
 	}
 
 	updatedPoll, err := app.storage.UpdatePoll(user, poll)
@@ -91,22 +92,9 @@ func (app *Application) deletePoll(user *model.User, id string) error {
 		return err
 	}
 
-	if poll == nil || user.Claims.Subject != poll.UserID {
-		if poll.GroupID != nil && len(*poll.GroupID) > 0 {
-			group, err := app.groups.GetGroupDetails(*poll.GroupID)
-			if err != nil {
-				return err
-			}
-			if group != nil {
-				if !group.IsCurrentUserAdmin(user.Claims.Subject) {
-					return fmt.Errorf("only the creator of a poll or a group admin can delete it")
-				}
-			} else {
-				return fmt.Errorf("only the creator of a poll or a group admin can delete it")
-			}
-		} else {
-			return fmt.Errorf("only the creator of a poll can delete it")
-		}
+	err = app.checkPollPermission(user, poll, "delete")
+	if err != nil {
+		return err
 	}
 
 	err = app.storage.DeletePoll(user, id)
@@ -126,8 +114,9 @@ func (app *Application) startPoll(user *model.User, pollID string) error {
 		return err
 	}
 
-	if poll == nil || user.Claims.Subject != poll.UserID {
-		return fmt.Errorf("only the creator of a poll can start it")
+	err = app.checkPollPermission(user, poll, "start")
+	if err != nil {
+		return err
 	}
 
 	if poll != nil {
@@ -158,22 +147,9 @@ func (app *Application) endPoll(user *model.User, pollID string) error {
 		return err
 	}
 
-	if poll == nil || user.Claims.Subject != poll.UserID {
-		if poll.GroupID != nil && len(*poll.GroupID) > 0 {
-			group, err := app.groups.GetGroupDetails(*poll.GroupID)
-			if err != nil {
-				return err
-			}
-			if group != nil {
-				if !group.IsCurrentUserAdmin(user.Claims.Subject) {
-					return fmt.Errorf("only the creator of a poll or a group admin can end it")
-				}
-			} else {
-				return fmt.Errorf("only the creator of a poll or a group admin can end it")
-			}
-		} else {
-			return fmt.Errorf("only the creator of a poll can end it")
-		}
+	err = app.checkPollPermission(user, poll, "end")
+	if err != nil {
+		return err
 	}
 
 	if poll != nil {
@@ -247,6 +223,27 @@ func (app *Application) buildPollNotificationRecipients(user *model.User, poll *
 	}
 
 	return nil, nil
+}
+
+func (app *Application) checkPollPermission(user *model.User, poll *model.Poll, operation string) error {
+	if poll == nil || user.Claims.Subject != poll.UserID {
+		if poll.GroupID != nil && len(*poll.GroupID) > 0 {
+			group, err := app.groups.GetGroupDetails(*poll.GroupID)
+			if err != nil {
+				return err
+			}
+			if group != nil {
+				if !group.IsCurrentUserAdmin(user.Claims.Subject) {
+					return fmt.Errorf("only the creator of a poll or a group admin can %s it", operation)
+				}
+			} else {
+				return fmt.Errorf("only the creator of a poll or a group admin can %s it", operation)
+			}
+		} else {
+			return fmt.Errorf("only the creator of a poll can %s it", operation)
+		}
+	}
+	return nil
 }
 
 // OnCollectionUpdated callback that indicates the reward types collection is changed

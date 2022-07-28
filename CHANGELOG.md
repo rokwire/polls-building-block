@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.20] - 2022-07-28
+### Fixed
+- Allow Group Admins to start/end/delete a group poll [#13](https://github.com/rokwire/polls-building-block/issues/13)
+
 ## [1.0.19] - 2022-06-03
 ### Fixed
 - Allow group admins to delete or end polls [#9](https://github.com/rokwire/polls-building-block/issues/9)
