@@ -16,6 +16,7 @@ package web
 
 import (
 	"fmt"
+	"github.com/rokwire/core-auth-library-go/tokenauth"
 	"log"
 	"net/http"
 	"polls/core"
@@ -42,8 +43,8 @@ func (auth *Auth) clientIDCheck(w http.ResponseWriter, r *http.Request) bool {
 }
 
 // NewAuth creates new auth handler
-func NewAuth(app *core.Application, config *model.Config) *Auth {
-	coreAuth := web.NewCoreAuth(app, config)
+func NewAuth(app *core.Application, config *model.Config, tokenAuth *tokenauth.TokenAuth) *Auth {
+	coreAuth := web.NewCoreAuth(app, tokenAuth)
 	internalAuth := newInternalAuth(config)
 	auth := Auth{coreAuth: coreAuth, internalAuth: internalAuth}
 	return &auth

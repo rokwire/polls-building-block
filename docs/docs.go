@@ -513,6 +513,7 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "group_ids": {
+                    "description": "GroupPolls     *bool    ` + "`" + `json:\"group_polls,omitempty\"` + "`" + `",
                     "type": "array",
                     "items": {
                         "type": "string"

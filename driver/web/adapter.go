@@ -80,9 +80,6 @@ func (we Adapter) Start() {
 	// handle apis
 	apiRouter := subrouter.PathPrefix("/api").Subrouter()
 
-	// Internal APIs
-	apiRouter.HandleFunc("/int/poll-to-group-mapping", we.internalAPIKeyAuthWrapFunc(we.internalApisHandler.GetGroupPolls)).Methods("GET")
-
 	// Client APIs
 	apiRouter.HandleFunc("/polls", we.userAuthWrapFunc(we.apisHandler.GetPolls)).Methods("GET")
 	apiRouter.HandleFunc("/polls", we.userAuthWrapFunc(we.apisHandler.CreatePoll)).Methods("POST")
@@ -132,15 +129,15 @@ func (we Adapter) apiKeyOrTokenWrapFunc(handler apiKeysAuthFunc) http.HandlerFun
 	}
 }
 
-type userAuthFunc = func(*tokenauth.Claims, http.ResponseWriter, *http.Request)
+type userAuthFunc = func(*model.User, http.ResponseWriter, *http.Request)
 
 func (we Adapter) userAuthWrapFunc(handler userAuthFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		utils.LogRequest(req)
 
-		coreAuth, claims := we.auth.coreAuth.Check(req)
-		if coreAuth && claims != nil && !claims.Anonymous {
-			handler(claims, w, req)
+		coreAuth, user := we.auth.coreAuth.Check(req)
+		if coreAuth && user != nil && !user.Claims.Anonymous {
+			handler(user, w, req)
 			return
 		}
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
@@ -156,9 +153,9 @@ func (we Adapter) adminAuthWrapFunc(handler adminAuthFunc) http.HandlerFunc {
 		obj := req.URL.Path // the resource that is going to be accessed.
 		act := req.Method   // the operation that the user performs on the resource.
 
-		coreAuth, claims := we.auth.coreAuth.Check(req)
+		coreAuth, user := we.auth.coreAuth.Check(req)
 		if coreAuth {
-			permissions := strings.Split(claims.Permissions, ",")
+			permissions := strings.Split(user.Claims.Permissions, ",")
 
 			HasAccess := false
 			for _, s := range permissions {
@@ -171,7 +168,7 @@ func (we Adapter) adminAuthWrapFunc(handler adminAuthFunc) http.HandlerFunc {
 				handler(w, req)
 				return
 			}
-			log.Printf("Access control error - Core Subject: %s is trying to apply %s operation for %s\n", claims.Subject, act, obj)
+			log.Printf("Access control error - Core Subject: %s is trying to apply %s operation for %s\n", user.Claims.Subject, act, obj)
 			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 			return
 		}
@@ -197,8 +194,8 @@ func (we Adapter) internalAPIKeyAuthWrapFunc(handler internalAPIKeyAuthFunc) htt
 }
 
 // NewWebAdapter creates new WebAdapter instance
-func NewWebAdapter(host string, port string, app *core.Application, config *model.Config) Adapter {
-	auth := NewAuth(app, config)
+func NewWebAdapter(host string, port string, app *core.Application, tokenAuth *tokenauth.TokenAuth, config *model.Config) Adapter {
+	auth := NewAuth(app, config, tokenAuth)
 	authorization := casbin.NewEnforcer("driver/web/authorization_model.conf", "driver/web/authorization_policy.csv")
 
 	apisHandler := rest.NewApisHandler(app, config)

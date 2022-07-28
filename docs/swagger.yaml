@@ -148,6 +148,7 @@ definitions:
   PollsFilter:
     properties:
       group_ids:
+        description: GroupPolls     *bool    `json:"group_polls,omitempty"`
         items:
           type: string
         type: array
