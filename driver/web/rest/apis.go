@@ -263,20 +263,7 @@ func (h ApisHandler) DeletePoll(user *model.User, w http.ResponseWriter, r *http
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	resData, err := h.app.Services.GetPoll(user, id)
-	if err != nil {
-		log.Printf("Error on apis.GetPoll(%s): %s", id, err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-		return
-	}
-
-	if resData == nil || resData.UserID == user.Claims.Subject {
-		log.Printf("Error on apis.DeletePoll(%s): access denied", id)
-		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-		return
-	}
-
-	err = h.app.Services.DeletePoll(user, id)
+	err := h.app.Services.DeletePoll(user, id)
 	if err != nil {
 		log.Printf("Error on apis.DeletePoll(%s): %s", id, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

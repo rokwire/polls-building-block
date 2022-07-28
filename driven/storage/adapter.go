@@ -218,6 +218,7 @@ func (sa *Adapter) CreatePoll(user *model.User, poll model.Poll) (*model.Poll, e
 
 // UpdatePoll updates a poll
 func (sa *Adapter) UpdatePoll(user *model.User, poll model.Poll) (*model.Poll, error) {
+
 	if len(poll.ID) > 0 {
 
 		poll.DateUpdated = time.Now().UTC()
@@ -304,16 +305,18 @@ func (sa *Adapter) EndPoll(user *model.User, pollID string) error {
 
 // DeletePoll deletes a poll
 func (sa *Adapter) DeletePoll(user *model.User, id string) error {
-	filter := bson.D{
-		primitive.E{Key: "org_id", Value: user.Claims.OrgID},
-		primitive.E{Key: "_id", Value: id},
-	}
-	_, err := sa.db.polls.DeleteOne(filter, nil)
-	if err != nil {
-		fmt.Printf("error storage.Adapter.DeletePoll(): error while delete poll (%s) - %s", id, err)
-		return fmt.Errorf("error storage.Adapter.DeletePoll(): error while delete poll (%s) - %s", id, err)
-	}
+	if objID, err := primitive.ObjectIDFromHex(id); err == nil {
+		filter := bson.D{
+			primitive.E{Key: "org_id", Value: user.Claims.OrgID},
+			primitive.E{Key: "_id", Value: objID},
+		}
+		_, err := sa.db.polls.DeleteOne(filter, nil)
+		if err != nil {
+			fmt.Printf("error storage.Adapter.DeletePoll(): error while delete poll (%s) - %s", id, err)
+			return fmt.Errorf("error storage.Adapter.DeletePoll(): error while delete poll (%s) - %s", id, err)
+		}
 
+	}
 	return nil
 
 }
