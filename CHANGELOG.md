@@ -5,8 +5,33 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.0.19] - 2022-06-03
+### Fixed
+- Allow group admins to delete or end polls [#9](https://github.com/rokwire/polls-building-block/issues/9)
+- Only creator can edit or delete a poll  [#9](https://github.com/rokwire/polls-building-block/issues/9)
+- Additional fix for notifying group members & group sub members with respect to the admins [#9](https://github.com/rokwire/polls-building-block/issues/9)
+
+## [1.0.18] - 2022-06-02
+### Fixed
+- Fix broken poll vote [#9](https://github.com/rokwire/polls-building-block/issues/9)
+- Additional fix for group admin should see all private polls [#9](https://github.com/rokwire/polls-building-block/issues/9)
+
+## [1.0.17] - 2022-06-01
+### Fixed
+- Additional fixes for polls and the integration with groups and notifications [#9](https://github.com/rokwire/polls-building-block/issues/9)
+
+## [1.0.16] - 2022-05-31
+### Changed
+- Rework poll notifications to participants & group members [#9](https://github.com/rokwire/polls-building-block/issues/9)
+
+## [1.0.15] - 2022-05-26
 ### Added
-- Prepare the project to become open source [#8](https://github.com/rokwire/polls-building-block/issues/8)
+- Add more logic for supporting group polls and cover more edge cases [#9](https://github.com/rokwire/polls-building-block/issues/9)
+
+## [1.0.14] - 2022-05-20
+### Added
+- Add support of group polls and subgroups [#9](https://github.com/rokwire/polls-building-block/issues/9)
 
 ## [1.0.13] - 2022-05-04
 ### Added
@@ -50,6 +75,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Additional improvements of the polls APIs [#1](https://github.com/rokwire/polls-building-block/issues/1)
 
+## [1.0.4] - 2022-04-07
+### Added
+- Additional improvements of the polls APIs [#1](https://github.com/rokwire/polls-building-block/issues/1)
+
 ## [1.0.1] - 2022-04-06
 ### Added
-- Introduce Polls BB
+- Introduce Polls BB 
