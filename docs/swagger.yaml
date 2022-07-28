@@ -197,7 +197,7 @@ paths:
       description: Retrieves  all polls by a filter params
       operationId: GetPolls
       parameters:
-      - description: body json for the defined polls filter
+      - description: body json for defined poll ids as request body
         in: body
         name: data
         schema:

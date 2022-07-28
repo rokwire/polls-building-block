@@ -34,7 +34,7 @@ const docTemplate = `{
                 "operationId": "GetPolls",
                 "parameters": [
                     {
-                        "description": "body json for the defined polls filter",
+                        "description": "body json for defined poll ids as request body",
                         "name": "data",
                         "in": "body",
                         "schema": {
