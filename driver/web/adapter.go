@@ -31,7 +31,7 @@ import (
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
-//Adapter entity
+// Adapter entity
 type Adapter struct {
 	host          string
 	port          string
@@ -47,7 +47,7 @@ type Adapter struct {
 
 // @title Polls Building Block v2 API
 // @description RoRewards Building Block API Documentation.
-// @version 1.0.8
+// @version 1.0.21
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 // @host localhost
@@ -66,7 +66,7 @@ type Adapter struct {
 // @in header
 // @name GROUP
 
-//Start starts the module
+// Start starts the module
 func (we Adapter) Start() {
 
 	router := mux.NewRouter().StrictSlash(true)

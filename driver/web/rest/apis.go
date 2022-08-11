@@ -27,13 +27,13 @@ import (
 
 const maxUploadSize = 15 * 1024 * 1024 // 15 mb
 
-//ApisHandler handles the rest APIs implementation
+// ApisHandler handles the rest APIs implementation
 type ApisHandler struct {
 	app    *core.Application
 	config *model.Config
 }
 
-//Version gives the service version
+// Version gives the service version
 // @Description Gives the service version.
 // @Tags Client
 // @ID Version

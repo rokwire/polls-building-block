@@ -190,7 +190,7 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   title: Polls Building Block v2 API
-  version: 1.0.8
+  version: 1.0.21
 paths:
   /polls:
     get:
