@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Fixed
+- Update poll ended notification text [#18](https://github.com/rokwire/polls-building-block/issues/18)
 - Fix detect-secrets and Makefile [#16](https://github.com/rokwire/polls-building-block/issues/16)
 
 ## [1.0.20] - 2022-07-28

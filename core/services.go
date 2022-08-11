@@ -164,7 +164,7 @@ func (app *Application) endPoll(user *model.User, pollID string) error {
 		return fmt.Errorf("error app.startPoll() - poll not found: %s", pollID)
 	}
 
-	err = app.notifyNotificationsBBForPoll(user, poll, "polls", "poll_ended", fmt.Sprintf("Poll '%s' has been edned", poll.Question))
+	err = app.notifyNotificationsBBForPoll(user, poll, "polls", "poll_ended", fmt.Sprintf("Poll '%s' has ended.", poll.Question))
 	if err != nil {
 		log.Printf("error while sending notification for ended poll: %s", err) // dont fail
 	}
