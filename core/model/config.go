@@ -28,4 +28,7 @@ type Config struct {
 	CoreBBHost     string
 	PollServiceURL string
 	UiucOrgID      string
+
+	NotificationsHost string
+	GroupsHost        string
 }

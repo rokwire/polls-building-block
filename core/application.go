@@ -17,10 +17,15 @@ package core
 import (
 	cacheadapter "polls/driven/cache"
 
+	"github.com/rokwire/core-auth-library-go/tokenauth"
+
 	"github.com/rokwire/logging-library-go/logs"
+
+	"polls/driven/groups"
+	"polls/driven/notifications"
 )
 
-//Application represents the core application code based on hexagonal architecture
+// Application represents the core application code based on hexagonal architecture
 type Application struct {
 	version string
 	build   string
@@ -28,9 +33,12 @@ type Application struct {
 	Services Services //expose to the drivers adapters
 	logger   *logs.Logger
 
-	storage      Storage
-	cacheAdapter *cacheadapter.CacheAdapter
-	sseServer    *SSEServer
+	storage       Storage
+	cache         *cacheadapter.CacheAdapter
+	notifications *notifications.Adapter
+	groups        *groups.Adapter
+	sseServer     *SSEServer
+	tokenAuth     *tokenauth.TokenAuth
 }
 
 // Start starts the core part of the application
@@ -39,14 +47,16 @@ func (app *Application) Start() {
 }
 
 // NewApplication creates new Application
-func NewApplication(version string, build string, storage Storage, cacheadapter *cacheadapter.CacheAdapter, logger *logs.Logger) *Application {
+func NewApplication(version string, build string, storage Storage, cacheAdapter *cacheadapter.CacheAdapter,
+	notificationsAdapter *notifications.Adapter, groupsAdapter *groups.Adapter, logger *logs.Logger) *Application {
 	application := Application{
-		version:      version,
-		build:        build,
-		storage:      storage,
-		cacheAdapter: cacheadapter,
-		sseServer:    NewSSEServer(),
-		logger:       logger,
+		version:       version,
+		build:         build,
+		storage:       storage,
+		cache:         cacheAdapter,
+		notifications: notificationsAdapter,
+		groups:        groupsAdapter,
+		sseServer:     NewSSEServer(),
 	}
 
 	// add the drivers ports/interfaces

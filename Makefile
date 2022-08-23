@@ -136,4 +136,3 @@ log-variables: ; $(info $(M) Log info…) @ ## Log the variables values
 	@echo "BUILD_NUMBER:"$(BUILD_NUMBER)
 	@echo "VERSION:"$(VERSION)
 
-
