@@ -17,3 +17,24 @@ tags:
     description: Client applications APIs.
 paths:
   #Client
+  /api/polls:
+    $ref: "./resources/client/polls.yaml"
+  /api/polls/{id}:
+    $ref: "./resources/client/pollsid.yaml"
+  /api/polls/{id}/events:
+    $ref: "./resources/client/pollsid-events.yaml"
+  /api/polls/{id}/vote:
+    $ref: "./resources/client/pollsid-vote.yaml"
+  /api/polls/{id}/start:
+    $ref: "./resources/client/pollsid-start.yaml"
+  /api/polls/{id}/end:
+    $ref: "./resources/client/pollsid-end.yaml"                  
+
+components:
+securitySchemes:
+    bearerAuth:            # arbitrary name for the security scheme
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+schemas:
+  $ref: "./schemas/index.yaml"

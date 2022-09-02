@@ -6,6 +6,8 @@ PollData:
 PollVote:
   $ref: "./application/PollVote.yaml"
 PollFilter:
-  $ref: "./application/PollFilter.yaml"      
+  $ref: "./application/PollFilter.yaml" 
+PollResult:
+  $ref: "./application/PollResult.yaml"       
 ToMember:
   $ref: "./application/ToMember.yaml"
