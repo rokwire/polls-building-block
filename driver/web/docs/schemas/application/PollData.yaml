@@ -1,0 +1,32 @@
+type: object
+properties:
+  userid:
+    type: string
+  username:
+    type: string
+  to_members:
+    type: array
+    $ref: "./ToMember.yaml"  
+  question:
+    type: string
+  options:
+    type: array
+    items:
+      type: string
+  group_id:
+    type: string  
+  pin:
+    type: integer
+  multi_choice:
+    type: boolean      
+  repeat:
+    type: boolean
+  show_results:
+    type: boolean
+  stadium:
+    type: string 
+  date_created:
+    type: string
+  date_updated:
+    type: string   
+ 
