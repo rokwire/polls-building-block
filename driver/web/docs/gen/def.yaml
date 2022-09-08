@@ -1,0 +1,423 @@
+openapi: 3.0.3
+info:
+  title: Rokwire Polls Building Block API
+  description: Polls Building Block API Documentation
+  version: 1.0.21
+servers:
+  - url: 'https://api.rokwire.illinois.edu/polls'
+    description: Production server
+  - url: 'https://api-test.rokwire.illinois.edu/polls'
+    description: Test server
+  - url: 'https://api-dev.rokwire.illinois.edu/polls'
+    description: Development server
+  - url: 'http://localhost/polls'
+    description: Local server
+tags:
+  - name: Client
+    description: Client applications APIs.
+paths:
+  /api/polls:
+    get:
+      tags:
+        - Client
+      summary: Retrieves  all polls by a filter params
+      description: |
+        Retrieves  all polls by a filter params
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Body json for defined poll ids as request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/schemas/PollFilter'
+        required: true
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/schemas/PollResult'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
+    post:
+      tags:
+        - Client
+      summary: Create a new poll
+      description: |
+        Create a new poll
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: model.Poll
+        content:
+          application/json:
+            schema:
+              $ref: '#/schemas/Poll'
+        required: true
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/schemas/Poll'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
+  '/api/polls/{id}':
+    get:
+      tags:
+        - Client
+      summary: Retrieves a poll by id
+      description: |
+        Retrieves a poll by id
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: id
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/schemas/Poll'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
+    put:
+      tags:
+        - Client
+      summary: Updates a reward type with the specified id
+      description: |
+        Updates a reward type with the specified id
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: id
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      requestBody:
+        description: Data body model.Poll
+        content:
+          application/json:
+            schema:
+              $ref: '#/schemas/Poll'
+        required: true
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/schemas/Poll'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
+    delete:
+      tags:
+        - Client
+      summary: Deletes a poll with the specified id
+      description: |
+        Deletes a poll with the specified id
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: id
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
+  '/api/polls/{id}/events':
+    get:
+      tags:
+        - Client
+      summary: Subscribes to a poll events as SSE
+      description: |
+        Subscribes to a poll events as SSE
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: id
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
+  '/api/polls/{id}/vote':
+    put:
+      tags:
+        - Client
+      summary: Votes a poll with the specified id
+      description: |
+        Votes a poll with the specified id
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: id
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      requestBody:
+        description: Data body model.PollVote
+        content:
+          application/json:
+            schema:
+              $ref: '#/schemas/Poll'
+        required: true
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/schemas/PollVote'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
+  '/api/polls/{id}/start':
+    put:
+      tags:
+        - Client
+      summary: Starts an existing poll with the specified id
+      description: |
+        Starts an existing poll with the specified id
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: id
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
+  '/api/polls/{id}/end':
+    put:
+      tags:
+        - Client
+      summary: Finishes an existing poll with the specified id
+      description: |
+        Finishes an existing poll with the specified id
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: id
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
+components: null
+securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
+schemas:
+  Poll:
+    type: object
+    properties:
+      poll:
+        $ref: '#/schemas/PollData'
+      org_id:
+        type: string
+      id:
+        readOnly: true
+        type: string
+      responses:
+        type: array
+        $ref: '#/schemas/PollVote'
+      results:
+        type: array
+        items:
+          type: integer
+  PollData:
+    type: object
+    properties:
+      userid:
+        type: string
+      username:
+        type: string
+      to_members:
+        type: array
+        $ref: '#/schemas/ToMember'
+      question:
+        type: string
+      options:
+        type: array
+        items:
+          type: string
+      group_id:
+        type: string
+      pin:
+        type: integer
+      multi_choice:
+        type: boolean
+      repeat:
+        type: boolean
+      show_results:
+        type: boolean
+      stadium:
+        type: string
+      date_created:
+        type: string
+      date_updated:
+        type: string
+  PollVote:
+    type: object
+    properties:
+      userid:
+        type: string
+      answer:
+        type: array
+        items:
+          type: integer
+      created:
+        type: string
+  PollFilter:
+    type: object
+    properties:
+      pin:
+        type: integer
+      poll_ids:
+        type: array
+        items:
+          type: string
+      my_polls:
+        type: boolean
+      group_ids:
+        type: array
+        items:
+          type: string
+      responded_polls:
+        type: boolean
+      statuses:
+        type: array
+        items:
+          type: string
+      offset:
+        type: integer
+        format: int64
+      limit:
+        type: integer
+        format: int64
+  PollResult:
+    type: object
+    properties:
+      poll:
+        $ref: '#/schemas/Poll'
+      id:
+        readOnly: true
+        type: string
+      voted:
+        type: array
+        items:
+          type: integer
+      results:
+        type: array
+        items:
+          type: integer
+      unique_voters_count:
+        type: integer
+      total:
+        type: integer
+  ToMember:
+    type: object
+    properties:
+      user_id:
+        type: string
+      external_id:
+        type: string
+      name:
+        type: string
+      email:
+        type: string

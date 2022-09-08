@@ -1,0 +1,13 @@
+# application
+Poll:
+  $ref: "./application/Poll.yaml"
+PollData:
+  $ref: "./application/PollData.yaml"
+PollVote:
+  $ref: "./application/PollVote.yaml"
+PollFilter:
+  $ref: "./application/PollFilter.yaml" 
+PollResult:
+  $ref: "./application/PollResult.yaml"       
+ToMember:
+  $ref: "./application/ToMember.yaml"
