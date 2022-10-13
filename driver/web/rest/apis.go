@@ -456,7 +456,7 @@ func (h ApisHandler) GetSurvey(user *model.User, w http.ResponseWriter, r *http.
 
 	data, err := json.Marshal(resData)
 	if err != nil {
-		log.Printf("Error on apis.GetPoll(%s): %s", id, err)
+		log.Printf("Error on apis.GetSurvey(%s): %s", id, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
