@@ -43,6 +43,7 @@ type database struct {
 
 	polls    *collectionWrapper
 	settings *collectionWrapper
+	surveys  *collectionWrapper
 }
 
 func (m *database) start() error {
@@ -86,8 +87,15 @@ func (m *database) start() error {
 	}
 	go polls.Watch(nil)
 
+	surveys := &collectionWrapper{database: m, coll: db.Collection("surveys")}
+	err = m.applySurveysChecks(surveys)
+	if err != nil {
+		return err
+	}
+
 	m.polls = polls
 	m.settings = settings
+	m.surveys = surveys
 
 	return nil
 }
@@ -209,5 +217,12 @@ func (m *database) applySettingsChecks(posts *collectionWrapper) error {
 	}
 
 	log.Println("polls settings passed")
+	return nil
+}
+
+func (m *database) applySurveysChecks(posts *collectionWrapper) error {
+	log.Println("apply surveys checks.....")
+
+	log.Println("surveys passed")
 	return nil
 }

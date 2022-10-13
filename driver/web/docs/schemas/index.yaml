@@ -11,3 +11,13 @@ PollResult:
   $ref: "./application/PollResult.yaml"       
 ToMember:
   $ref: "./application/ToMember.yaml"
+Survey:
+  $ref: "./application/Survey.yaml"
+SurveyData:
+  $ref: "./application/SurveyData.yaml"
+SurveyStats:
+  $ref: "./application/SurveyStats.yaml"
+ActionData:
+  $ref: "./application/ActionData.yaml"
+
+

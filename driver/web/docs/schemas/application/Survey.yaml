@@ -1,0 +1,25 @@
+type: object
+properties:
+  id:
+    readOnly: true
+    type: string
+  user_id:
+    type: string
+  creator_id:
+    type: string
+  org_id:
+    type: string
+  app_id:
+    type: string
+  stats:
+    type: object
+  questions:
+    type: object
+  scored:
+    type: boolean
+  result_rule:
+    type: string
+  type:
+    type: string
+  sensitive:
+    type: boolean

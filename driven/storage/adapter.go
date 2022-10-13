@@ -379,3 +379,86 @@ func (m *database) onDataChanged(changeDoc map[string]interface{}) {
 		m.listener.OnCollectionUpdated(coll.(string), recordMap)
 	}
 }
+
+// Get Survey
+func (sa *Adapter) GetSurvey(id string) (*model.Survey, error) {
+
+	filter := bson.M{"_id": id}
+	var list []model.Survey
+	err := sa.db.surveys.Find(filter, &list, &options.FindOptions{})
+	if err != nil {
+		fmt.Printf("error storage.Adapter.GetSurvey(%s) - %s", id, err)
+		return nil, fmt.Errorf("error storage.Adapter.GetSurvey(%s) - %s", id, err)
+	}
+
+	if len(list) > 0 {
+		entry := list[0]
+		return &entry, nil
+	} else {
+		return nil, nil
+	}
+}
+
+// Create Survey
+func (sa *Adapter) CreateSurvey(survey model.Survey) (*model.Survey, error) {
+
+	_, err := sa.db.surveys.InsertOne(survey)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.CreateSurvey(%s) - %s", survey.ID, err)
+		return nil, fmt.Errorf("error storage.Adapter.CreateSurvey(%s) - %s", survey.ID, err)
+	}
+
+	return &survey, nil
+}
+
+// Update Survey
+func (sa *Adapter) UpdateSurvey(user *model.User, survey model.Survey) (*model.Survey, error) {
+
+	if len(survey.ID) > 0 {
+
+		now := time.Now().UTC()
+		filter := bson.M{"_id": survey.ID, "creator_id": user.Claims.Subject}
+		update := bson.M{"$set": bson.M{
+			"org_id":       survey.OrgID,
+			"app_id":       survey.AppID,
+			"questions":    survey.Questions,
+			"scored":       survey.Scored,
+			"result_rule":  survey.ResultRule,
+			"type":         survey.Type,
+			"stats":        survey.SurveyStats,
+			"sensitive":    survey.Sensitive,
+			"date_updated": now,
+		}}
+
+		result, err := sa.db.surveys.UpdateOne(filter, update, nil)
+		if err != nil {
+			fmt.Printf("error storage.Adapter.UpdatePoll(%s) - %s", survey.ID, err)
+			return nil, fmt.Errorf("error storage.Adapter.UpdatePoll(%s) - %s", survey.ID, err)
+		}
+
+		modifiedCount := result.ModifiedCount
+		if modifiedCount == 0 {
+			return nil, fmt.Errorf("error storage.Adapter.DeleteSurvey(): 403 - Not the creator ", err)
+		}
+	}
+
+	return &survey, nil
+}
+
+// Delete Survey
+func (sa *Adapter) DeleteSurvey(user *model.User, id string) error {
+
+	filter := bson.M{"_id": id, "creator_id": user.Claims.Subject}
+
+	result, err := sa.db.surveys.DeleteOne(filter, nil)
+	if err != nil {
+		return fmt.Errorf("error storage.Adapter.DeleteSurvey(): error while delete survey (%s) - %s", id, err)
+	}
+
+	deletedCount := result.DeletedCount
+	if deletedCount == 0 {
+		return fmt.Errorf("error storage.Adapter.DeleteSurvey(): 403 - Not the creator (%s) - %s", id, err)
+	}
+
+	return nil
+}

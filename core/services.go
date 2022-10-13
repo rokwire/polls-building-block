@@ -21,6 +21,9 @@ import (
 	"polls/core/model"
 	"polls/driven/groups"
 	"polls/driven/storage"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 func (app *Application) getVersion() string {
@@ -266,4 +269,25 @@ func (app *Application) OnCollectionUpdated(collection string, record map[string
 			app.sseServer.NotifyPollUpdate(poll.ID.Hex(), poll)
 		}
 	}
+}
+
+func (app *Application) getSurvey(id string) (*model.Survey, error) {
+	return app.storage.GetSurvey(id)
+}
+
+func (app *Application) createSurvey(user *model.User, survey model.Survey) (*model.Survey, error) {
+	survey.ID = uuid.NewString()
+	survey.CreatorID = user.Claims.Subject
+	survey.UserID = user.Claims.Subject
+	survey.DateCreated = time.Now().UTC()
+	return app.storage.CreateSurvey(survey)
+}
+
+func (app *Application) updateSurvey(user *model.User, survey model.Survey, id string) (*model.Survey, error) {
+	survey.ID = id
+	return app.storage.UpdateSurvey(user, survey)
+}
+
+func (app *Application) deleteSurvey(user *model.User, id string) error {
+	return app.storage.DeleteSurvey(user, id)
 }
