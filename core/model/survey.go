@@ -4,9 +4,14 @@ import (
 	"time"
 )
 
+type SurveyResponse struct {
+	ID     string `json:"id" bson:"_id"`
+	UserID string `json:"user_id" bson:"user_id"`
+	Survey Survey `json:"survey" bson:"survey"`
+}
+
 type Survey struct {
 	ID          string                `json:"id" bson:"_id"`
-	UserID      string                `json:"user_id" bson:"user_id"`
 	CreatorID   string                `json:"creator_id" bson:"creator_id"`
 	OrgID       string                `json:"org_id" bson:"org_id"`
 	AppID       string                `json:"app_id" bson:"app_id"`

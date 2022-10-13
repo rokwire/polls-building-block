@@ -278,7 +278,6 @@ func (app *Application) getSurvey(id string) (*model.Survey, error) {
 func (app *Application) createSurvey(user *model.User, survey model.Survey) (*model.Survey, error) {
 	survey.ID = uuid.NewString()
 	survey.CreatorID = user.Claims.Subject
-	survey.UserID = user.Claims.Subject
 	survey.DateCreated = time.Now().UTC()
 	return app.storage.CreateSurvey(survey)
 }
