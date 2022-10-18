@@ -40,7 +40,7 @@ type Services interface {
 	//CRUD Surveys
 	GetSurvey(id string) (*model.Survey, error)
 	CreateSurvey(user *model.User, survey model.Survey) (*model.Survey, error)
-	UpdateSurvey(user *model.User, survey model.Survey, id string) (*model.Survey, error) //TODO: Update for user as well need to ensrue
+	UpdateSurvey(user *model.User, survey model.Survey, id string) error
 	DeleteSurvey(user *model.User, id string) error
 }
 
@@ -96,7 +96,7 @@ func (s *servicesImpl) CreateSurvey(user *model.User, survey model.Survey) (*mod
 	return s.app.createSurvey(user, survey)
 }
 
-func (s *servicesImpl) UpdateSurvey(user *model.User, survey model.Survey, id string) (*model.Survey, error) {
+func (s *servicesImpl) UpdateSurvey(user *model.User, survey model.Survey, id string) error {
 	return s.app.updateSurvey(user, survey, id)
 }
 
@@ -119,6 +119,6 @@ type Storage interface {
 
 	GetSurvey(id string) (*model.Survey, error)
 	CreateSurvey(survey model.Survey) (*model.Survey, error)
-	UpdateSurvey(user *model.User, survey model.Survey) (*model.Survey, error)
+	UpdateSurvey(user *model.User, survey model.Survey) error
 	DeleteSurvey(user *model.User, id string) error
 }

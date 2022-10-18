@@ -385,7 +385,7 @@ func (sa *Adapter) GetSurvey(id string) (*model.Survey, error) {
 
 	filter := bson.M{"_id": id}
 	var list []model.Survey
-	err := sa.db.surveys.Find(filter, &list, &options.FindOptions{})
+	err := sa.db.surveys.FindOne(filter, &list, nil)
 	if err != nil {
 		fmt.Printf("error storage.Adapter.GetSurvey(%s) - %s", id, err)
 		return nil, fmt.Errorf("error storage.Adapter.GetSurvey(%s) - %s", id, err)
@@ -412,15 +412,13 @@ func (sa *Adapter) CreateSurvey(survey model.Survey) (*model.Survey, error) {
 }
 
 // Update Survey
-func (sa *Adapter) UpdateSurvey(user *model.User, survey model.Survey) (*model.Survey, error) {
+func (sa *Adapter) UpdateSurvey(user *model.User, survey model.Survey) error {
 
 	if len(survey.ID) > 0 {
 
 		now := time.Now().UTC()
 		filter := bson.M{"_id": survey.ID, "creator_id": user.Claims.Subject}
 		update := bson.M{"$set": bson.M{
-			"org_id":       survey.OrgID,
-			"app_id":       survey.AppID,
 			"questions":    survey.Questions,
 			"scored":       survey.Scored,
 			"result_rule":  survey.ResultRule,
@@ -433,16 +431,16 @@ func (sa *Adapter) UpdateSurvey(user *model.User, survey model.Survey) (*model.S
 		result, err := sa.db.surveys.UpdateOne(filter, update, nil)
 		if err != nil {
 			fmt.Printf("error storage.Adapter.UpdatePoll(%s) - %s", survey.ID, err)
-			return nil, fmt.Errorf("error storage.Adapter.UpdatePoll(%s) - %s", survey.ID, err)
+			return fmt.Errorf("error storage.Adapter.UpdatePoll(%s) - %s", survey.ID, err)
 		}
 
 		modifiedCount := result.ModifiedCount
 		if modifiedCount == 0 {
-			return nil, fmt.Errorf("error storage.Adapter.DeleteSurvey(): 403 - Not the creator ", err)
+			return fmt.Errorf("error storage.Adapter.DeleteSurvey(): 403 - Not the creator ", err)
 		}
 	}
 
-	return &survey, nil
+	return nil
 }
 
 // Delete Survey

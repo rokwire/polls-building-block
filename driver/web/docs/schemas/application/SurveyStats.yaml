@@ -6,8 +6,8 @@ properties:
     type: integer
   scored:
     type: integer
-  # scores:
-  #   type: array
-  #   items:
-  #     type: integer
-  #     format: float
+  scores:
+    type: array
+    items:
+      type: integer
+      format: float

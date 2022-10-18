@@ -279,10 +279,12 @@ func (app *Application) createSurvey(user *model.User, survey model.Survey) (*mo
 	survey.ID = uuid.NewString()
 	survey.CreatorID = user.Claims.Subject
 	survey.DateCreated = time.Now().UTC()
+	survey.AppID = user.Claims.AppID
+	survey.OrgID = user.Claims.OrgID
 	return app.storage.CreateSurvey(survey)
 }
 
-func (app *Application) updateSurvey(user *model.User, survey model.Survey, id string) (*model.Survey, error) {
+func (app *Application) updateSurvey(user *model.User, survey model.Survey, id string) error {
 	survey.ID = id
 	return app.storage.UpdateSurvey(user, survey)
 }

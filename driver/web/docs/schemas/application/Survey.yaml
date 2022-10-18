@@ -3,8 +3,6 @@ properties:
   id:
     readOnly: true
     type: string
-  user_id:
-    type: string
   creator_id:
     type: string
   org_id:

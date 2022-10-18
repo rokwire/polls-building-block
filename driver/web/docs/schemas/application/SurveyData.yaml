@@ -21,7 +21,7 @@ properties:
   follow_up_rule:
     type: string
   score_rule:
-    type: boolean
+    type: string
   response:
     type: object
   type:
@@ -34,12 +34,10 @@ properties:
     items: {}
     nullable: true
   options:
-    type: array
-    items: {}
-  nullable: true
+    type: object
+    nullable: true
   action:
     $ref: "./ActionData.yaml"
-    nullable: true
   yes_no:
     type: boolean
     nullable: true
@@ -82,4 +80,3 @@ properties:
       nullable: true
   survey:
       $ref: "./Survey.yaml"
-      nullable: true
