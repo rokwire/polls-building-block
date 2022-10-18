@@ -11,19 +11,22 @@ import (
 
 // Adapter implements the Notifications interface
 type Adapter struct {
-	internalAPIKey string
-	baseURL        string
+	host               string
+	internalAPIKey     string
+	notificationsAppID string
+	notificationsOrgID string
 }
 
 // NewNotificationsAdapter creates a new Notifications BB adapter instance
-func NewNotificationsAdapter(config *model.Config) *Adapter {
-	return &Adapter{internalAPIKey: config.InternalAPIKey, baseURL: config.NotificationsHost}
+// NewNotificationsAdapter creates a new notifications BB adapter
+func NewNotificationsAdapter(notificationHost string, internalAPIKey string, ntAppID string, ntOrgID string) *Adapter {
+	return &Adapter{host: notificationHost, internalAPIKey: internalAPIKey, notificationsAppID: ntAppID, notificationsOrgID: ntOrgID}
 }
 
 // SendNotification sends notification to a user
 func (a *Adapter) SendNotification(recipients []model.NotificationRecipient, topic *string, title string, text string, data map[string]string) error {
 	if len(recipients) > 0 {
-		url := fmt.Sprintf("%s/api/int/message", a.baseURL)
+		url := fmt.Sprintf("%s/api/int/v2/message", a.host)
 
 		bodyData := model.NotificationMessage{
 			Priority:   10,

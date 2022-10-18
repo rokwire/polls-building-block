@@ -15,9 +15,6 @@
 package main
 
 import (
-	"github.com/rokwire/core-auth-library-go/authservice"
-	"github.com/rokwire/core-auth-library-go/tokenauth"
-	"github.com/rokwire/logging-library-go/logs"
 	"log"
 	"os"
 	"polls/core"
@@ -28,6 +25,10 @@ import (
 	storage "polls/driven/storage"
 	driver "polls/driver/web"
 	"strings"
+
+	"github.com/rokwire/core-auth-library-go/authservice"
+	"github.com/rokwire/core-auth-library-go/tokenauth"
+	"github.com/rokwire/logging-library-go/logs"
 )
 
 var (
@@ -108,7 +109,11 @@ func main() {
 		log.Printf("Storage started")
 	}
 
-	notificationsAdapter := notifications.NewNotificationsAdapter(config)
+	//notifications BB adapter
+	ntAppID := getEnvKey("POLLS_NOTIFICATIONS_APP_ID", true)
+	ntOrgID := getEnvKey("POLLS_NOTIFICATIONS_ORG_ID", true)
+	notificationHost := getEnvKey("POLLS_NOTIFICATIONS_BB_HOST", true)
+	notificationsBBAdapter := notifications.NewNotificationsAdapter(notificationHost, internalAPIKey, ntAppID, ntOrgID)
 
 	groupsAdapter := groups.NewGroupsAdapter(config)
 
@@ -116,7 +121,7 @@ func main() {
 	cacheAdapter := cacheadapter.NewCacheAdapter(defaultCacheExpirationSeconds)
 
 	// application
-	application := core.NewApplication(Version, Build, storageAdapter, cacheAdapter, notificationsAdapter, groupsAdapter)
+	application := core.NewApplication(Version, Build, storageAdapter, cacheAdapter, notificationsBBAdapter, groupsAdapter)
 	application.Start()
 
 	webAdapter := driver.NewWebAdapter(host, port, application, tokenAuth, config)
