@@ -292,3 +292,23 @@ func (app *Application) updateSurvey(user *model.User, survey model.Survey, id s
 func (app *Application) deleteSurvey(user *model.User, id string) error {
 	return app.storage.DeleteSurvey(user, id)
 }
+
+func (app *Application) getSurveyResponse(id string) (*model.SurveyResponse, error) {
+	return app.storage.GetSurveyResponse(id)
+}
+
+func (app *Application) createSurveyResponse(user *model.User, surveyResponse model.SurveyResponse) (*model.SurveyResponse, error) {
+	surveyResponse.ID = uuid.NewString()
+	surveyResponse.UserID = user.Claims.Subject
+	surveyResponse.DateCreated = time.Now().UTC()
+	return app.storage.CreateSurveyResponse(surveyResponse)
+}
+
+func (app *Application) updateSurveyResponse(user *model.User, surveyResponse model.SurveyResponse, id string) error {
+	surveyResponse.ID = id
+	return app.storage.UpdateSurveyResponse(user, surveyResponse)
+}
+
+func (app *Application) deleteSurveyResponse(user *model.User, id string) error {
+	return app.storage.DeleteSurvey(user, id)
+}

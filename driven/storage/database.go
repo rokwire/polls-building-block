@@ -41,9 +41,10 @@ type database struct {
 	db       *mongo.Database
 	dbClient *mongo.Client
 
-	polls    *collectionWrapper
-	settings *collectionWrapper
-	surveys  *collectionWrapper
+	polls           *collectionWrapper
+	settings        *collectionWrapper
+	surveys         *collectionWrapper
+	surveyResponses *collectionWrapper
 }
 
 func (m *database) start() error {
@@ -93,9 +94,16 @@ func (m *database) start() error {
 		return err
 	}
 
+	surveyResponses := &collectionWrapper{database: m, coll: db.Collection("surveyresponses")}
+	err = m.applySurveysChecks(surveyResponses)
+	if err != nil {
+		return err
+	}
+
 	m.polls = polls
 	m.settings = settings
 	m.surveys = surveys
+	m.surveyResponses = surveyResponses
 
 	return nil
 }
@@ -224,5 +232,12 @@ func (m *database) applySurveysChecks(posts *collectionWrapper) error {
 	log.Println("apply surveys checks.....")
 
 	log.Println("surveys passed")
+	return nil
+}
+
+func (m *database) applySurveyResponsesChecks(posts *collectionWrapper) error {
+	log.Println("apply survey responses checks.....")
+
+	log.Println("survey responses passed")
 	return nil
 }

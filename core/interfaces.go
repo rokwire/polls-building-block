@@ -42,6 +42,12 @@ type Services interface {
 	CreateSurvey(user *model.User, survey model.Survey) (*model.Survey, error)
 	UpdateSurvey(user *model.User, survey model.Survey, id string) error
 	DeleteSurvey(user *model.User, id string) error
+
+	//CRUD Survey Response
+	GetSurveyResponse(id string) (*model.SurveyResponse, error)
+	CreateSurveyResponse(user *model.User, surveyResponse model.SurveyResponse) (*model.SurveyResponse, error)
+	UpdateSurveyResponse(user *model.User, surveyResponse model.SurveyResponse, id string) error
+	DeleteSurveyResponse(user *model.User, id string) error
 }
 
 type servicesImpl struct {
@@ -104,6 +110,22 @@ func (s *servicesImpl) DeleteSurvey(user *model.User, id string) error {
 	return s.app.deleteSurvey(user, id)
 }
 
+func (s *servicesImpl) GetSurveyResponse(id string) (*model.SurveyResponse, error) {
+	return s.app.getSurveyResponse(id)
+}
+
+func (s *servicesImpl) CreateSurveyResponse(user *model.User, surveyResponse model.SurveyResponse) (*model.SurveyResponse, error) {
+	return s.app.createSurveyResponse(user, surveyResponse)
+}
+
+func (s *servicesImpl) UpdateSurveyResponse(user *model.User, surveyResponse model.SurveyResponse, id string) error {
+	return s.app.updateSurveyResponse(user, surveyResponse, id)
+}
+
+func (s *servicesImpl) DeleteSurveyResponse(user *model.User, id string) error {
+	return s.app.deleteSurveyResponse(user, id)
+}
+
 // Storage is used by core to storage data - DB storage adapter, file storage adapter etc
 type Storage interface {
 	GetPolls(user *model.User, filter model.PollsFilter, filterByToMembers bool, membership *groups.GroupMembership) ([]model.Poll, error)
@@ -121,4 +143,9 @@ type Storage interface {
 	CreateSurvey(survey model.Survey) (*model.Survey, error)
 	UpdateSurvey(user *model.User, survey model.Survey) error
 	DeleteSurvey(user *model.User, id string) error
+
+	GetSurveyResponse(id string) (*model.SurveyResponse, error)
+	CreateSurveyResponse(surveyResponse model.SurveyResponse) (*model.SurveyResponse, error)
+	UpdateSurveyResponse(user *model.User, surveyResponse model.SurveyResponse) error
+	DeleteSurveyResponse(user *model.User, id string) error
 }

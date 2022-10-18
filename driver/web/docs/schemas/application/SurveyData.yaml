@@ -31,7 +31,7 @@ properties:
     type: array
     items:
       type: object
-    additionalProperties: {}
+      additionalProperties: {}
   action:
     $ref: "./ActionData.yaml"
   yes_no:
@@ -74,5 +74,5 @@ properties:
   body:
     type: string
     nullable: true
-  # survey:
-  #   $ref: "./Survey.yaml"
+  survey:
+    $ref: "./Survey.yaml"

@@ -1,0 +1,10 @@
+type: object
+properties:
+  id:
+    readOnly: true
+    type: string
+  user_id:
+    readOnly: true
+    type: string
+  survey:
+    $ref: "./Survey.yaml"

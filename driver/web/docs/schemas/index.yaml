@@ -19,5 +19,7 @@ SurveyStats:
   $ref: "./application/SurveyStats.yaml"
 ActionData:
   $ref: "./application/ActionData.yaml"
+SurveyResponse:
+  $ref: "./application/SurveyResponse.yaml"
 
 

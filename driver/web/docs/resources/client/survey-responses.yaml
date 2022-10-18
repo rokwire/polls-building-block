@@ -1,0 +1,23 @@
+post:
+   tags:
+   - Client
+   summary: Create a new survey response
+   description: Create a new survey response
+   security:
+     - bearerAuth: []
+   requestBody:
+     description:  model.SurveyResponse
+     content:
+       application/json:
+         schema:
+           $ref: "../../schemas/application/SurveyResponse.yaml"  
+     required: true      
+   responses:
+     200:
+       description: Success
+     400:
+       description: Bad request
+     401:
+       description: Unauthorized
+     500:
+       description: Internal error  

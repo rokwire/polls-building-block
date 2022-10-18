@@ -32,7 +32,11 @@ paths:
   /api/surveys:
     $ref: "./resources/client/surveys.yaml"     
   /api/surveys/{id}:
-    $ref: "./resources/client/surveysid.yaml"             
+    $ref: "./resources/client/surveysid.yaml"
+  /api/surveys/response:
+    $ref: "./resources/client/survey-responses.yaml"     
+  /api/surveys/response/{id}:
+    $ref: "./resources/client/surveyid-responses.yaml"             
 
 components:
   securitySchemes:
