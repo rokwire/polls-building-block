@@ -4,12 +4,6 @@ import (
 	"time"
 )
 
-type SurveyResponse struct {
-	ID     string `json:"id" bson:"_id"`
-	UserID string `json:"user_id" bson:"user_id"`
-	Survey Survey `json:"survey" bson:"survey"`
-}
-
 type Survey struct {
 	ID          string                `json:"id" bson:"_id"`
 	CreatorID   string                `json:"creator_id" bson:"creator_id"`
@@ -33,8 +27,6 @@ type SurveyStats struct {
 }
 
 type SurveyData struct {
-	ID                  string      `json:"id" bson:"_id"`
-	Key                 string      `json:"key" bson:"key"`
 	Section             *string     `json:"section" bson:"section"`
 	AllowSkip           bool        `json:"allow_skip" bson:"allow_skip"`
 	Text                string      `json:"text" bson:"text"`

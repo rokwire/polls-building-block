@@ -1,17 +1,11 @@
 type: object
 properties:
-  id:
-    type: string
-  key:
-    type: string
   section:
     type: string
   allow_skip:
-    type: string
+    type: boolean
   text:
-    type: array
-    items:
-      type: string
+    type: string
   more_info:
     type: string  
   default_follow_up_key:
@@ -34,8 +28,10 @@ properties:
     items: {}
     nullable: true
   options:
-    type: object
-    nullable: true
+    type: array
+    items:
+      type: object
+    additionalProperties: {}
   action:
     $ref: "./ActionData.yaml"
   yes_no:
@@ -50,33 +46,33 @@ properties:
   ask_time:
     type: boolean
   minimum:
-      type: integer
-      format: float
-      nullable: true
+    type: integer
+    format: float
+    nullable: true
   maximum:
-      type: integer
-      format: float
-      nullable: true
+    type: integer
+    format: float
+    nullable: true
   whole_num:
-      type: boolean
-      nullable: true
+    type: boolean
+    nullable: true
   slider:
-      type: boolean
-      nullable: true
+    type: boolean
+    nullable: true
   self_score:
-      type: boolean
-      nullable: true
+    type: boolean
+    nullable: true
   min_length:
-      type: integer
-      nullable: true
+    type: integer
+    nullable: true
   max_length:
-      type: integer
-      nullable: true
+    type: integer
+    nullable: true
   data_format:
-      type: object
-      nullable: true
+    type: object
+    nullable: true
   body:
-      type: string
-      nullable: true
-  survey:
-      $ref: "./Survey.yaml"
+    type: string
+    nullable: true
+  # survey:
+  #   $ref: "./Survey.yaml"

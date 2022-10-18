@@ -7,7 +7,7 @@ properties:
   scored:
     type: integer
   scores:
-    type: array
-    items:
+    type: object
+    additionalProperties:
       type: integer
       format: float

@@ -543,41 +543,38 @@ components:
         id:
           readOnly: true
           type: string
-        user_id:
-          type: string
         creator_id:
+          readOnly: true
           type: string
         org_id:
+          readOnly: true
           type: string
         app_id:
+          readOnly: true
           type: string
-        stats:
-          type: object
         questions:
           type: object
+          additionalProperties:
+            $ref: '#/components/schemas/SurveyData'
         scored:
           type: boolean
         result_rule:
           type: string
         type:
           type: string
+        stats:
+          $ref: '#/components/schemas/SurveyStats'
         sensitive:
           type: boolean
     SurveyData:
       type: object
       properties:
-        id:
-          type: string
-        key:
-          type: string
         section:
           type: string
         allow_skip:
-          type: string
+          type: boolean
         text:
-          type: array
-          items:
-            type: string
+          type: string
         more_info:
           type: string
         default_follow_up_key:
@@ -587,7 +584,7 @@ components:
         follow_up_rule:
           type: string
         score_rule:
-          type: boolean
+          type: string
         response:
           type: object
         type:
@@ -601,11 +598,11 @@ components:
           nullable: true
         options:
           type: array
-          items: {}
-        nullable: true
+          items:
+            type: object
+          additionalProperties: {}
         action:
           $ref: '#/components/schemas/ActionData'
-          nullable: true
         yes_no:
           type: boolean
           nullable: true
@@ -646,9 +643,6 @@ components:
         body:
           type: string
           nullable: true
-        survey:
-          $ref: '#/components/schemas/Survey'
-          nullable: true
     SurveyStats:
       type: object
       properties:
@@ -658,6 +652,11 @@ components:
           type: integer
         scored:
           type: integer
+        scores:
+          type: object
+          additionalProperties:
+            type: integer
+            format: float
     ActionData:
       type: object
       properties:
