@@ -5,8 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-## Fixed
+## Added
 - Set appID and orgID for notifications [#26](https://github.com/rokwire/polls-building-block/issues/26)
+
+## Fixed
 - Fix docs [#21](https://github.com/rokwire/polls-building-block/issues/21)
 
 ## [1.0.21] - 2022-08-11

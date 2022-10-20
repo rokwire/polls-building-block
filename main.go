@@ -110,10 +110,10 @@ func main() {
 	}
 
 	//notifications BB adapter
-	ntAppID := getEnvKey("POLLS_NOTIFICATIONS_APP_ID", true)
-	ntOrgID := getEnvKey("POLLS_NOTIFICATIONS_ORG_ID", true)
+	appID := getEnvKey("POLLS_APP_ID", true)
+	orgID := getEnvKey("POLLS_ORG_ID", true)
 	notificationHost := getEnvKey("POLLS_NOTIFICATIONS_BB_HOST", true)
-	notificationsBBAdapter := notifications.NewNotificationsAdapter(notificationHost, internalAPIKey, ntAppID, ntOrgID)
+	notificationsBBAdapter := notifications.NewNotificationsAdapter(notificationHost, internalAPIKey, appID, orgID)
 
 	groupsAdapter := groups.NewGroupsAdapter(config)
 

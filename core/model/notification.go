@@ -9,6 +9,8 @@ type NotificationMessage struct {
 	Sender     *NotificationSender     `json:"sender,omitempty" bson:"sender,omitempty"`
 	Body       string                  `json:"body" bson:"body"`
 	Data       map[string]string       `json:"data" bson:"data"`
+	AppID      string                  `json:"app_id" bson:"app_id"`
+	OrgID      string                  `json:"org_id" bson:"org_id"`
 }
 
 // NotificationRecipient recipients wrapper struct
