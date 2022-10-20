@@ -385,7 +385,6 @@ func (sa *Adapter) GetSurvey(user *model.User, id string) (*model.Survey, error)
 
 	filter := bson.M{"_id": id}
 	var entry model.Survey
-	// err := sa.db.surveys.Find(filter, &list, &options.FindOptions{})
 	err := sa.db.surveys.FindOne(filter, &entry, nil)
 	if err != nil {
 		fmt.Printf("error storage.Adapter.GetSurvey(%s) - %s", id, err)
