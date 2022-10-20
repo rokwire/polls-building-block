@@ -38,7 +38,7 @@ type Services interface {
 	SubscribeToPoll(user *model.User, pollID string, resultChan chan map[string]interface{}) error
 
 	//CRUD Surveys
-	GetSurvey(id string) (*model.Survey, error)
+	GetSurvey(user *model.User, id string) (*model.Survey, error)
 	CreateSurvey(user *model.User, survey model.Survey) (*model.Survey, error)
 	UpdateSurvey(user *model.User, survey model.Survey, id string) error
 	DeleteSurvey(user *model.User, id string) error
@@ -94,8 +94,8 @@ func (s *servicesImpl) SubscribeToPoll(user *model.User, pollID string, resultCh
 	return s.app.subscribeToPoll(user, pollID, resultChan)
 }
 
-func (s *servicesImpl) GetSurvey(id string) (*model.Survey, error) {
-	return s.app.getSurvey(id)
+func (s *servicesImpl) GetSurvey(user *model.User, id string) (*model.Survey, error) {
+	return s.app.getSurvey(user, id)
 }
 
 func (s *servicesImpl) CreateSurvey(user *model.User, survey model.Survey) (*model.Survey, error) {
@@ -139,7 +139,7 @@ type Storage interface {
 
 	SetListener(listener storage.CollectionListener)
 
-	GetSurvey(id string) (*model.Survey, error)
+	GetSurvey(user *model.User, id string) (*model.Survey, error)
 	CreateSurvey(survey model.Survey) (*model.Survey, error)
 	UpdateSurvey(user *model.User, survey model.Survey) error
 	DeleteSurvey(user *model.User, id string) error

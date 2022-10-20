@@ -381,22 +381,23 @@ func (m *database) onDataChanged(changeDoc map[string]interface{}) {
 }
 
 // Get Survey
-func (sa *Adapter) GetSurvey(id string) (*model.Survey, error) {
+func (sa *Adapter) GetSurvey(user *model.User, id string) (*model.Survey, error) {
 
 	filter := bson.M{"_id": id}
-	var list []model.Survey
-	err := sa.db.surveys.Find(filter, &list, &options.FindOptions{})
+	var entry model.Survey
+	err := sa.db.surveys.FindOne(filter, &entry, nil)
 	if err != nil {
 		fmt.Printf("error storage.Adapter.GetSurvey(%s) - %s", id, err)
 		return nil, fmt.Errorf("error storage.Adapter.GetSurvey(%s) - %s", id, err)
 	}
 
-	if len(list) > 0 {
-		entry := list[0]
-		return &entry, nil
+	if entry.AppID != user.Claims.AppID || entry.OrgID != user.Claims.OrgID {
+		fmt.Printf("error storage.Adapter.GetSurvey(%s) - 403 incorrect AppID or OrgID", id)
+		return nil, fmt.Errorf("error storage.Adapter.GetSurvey(%s) - 403 incorrect AppID or OrgID", id)
 	} else {
-		return nil, nil
+		return &entry, nil
 	}
+
 }
 
 // Create Survey
@@ -436,7 +437,7 @@ func (sa *Adapter) UpdateSurvey(user *model.User, survey model.Survey) error {
 
 		modifiedCount := result.ModifiedCount
 		if modifiedCount == 0 {
-			return fmt.Errorf("error storage.Adapter.DeleteSurvey(): 403 - Not the creator ", err)
+			return fmt.Errorf("error storage.Adapter.DeleteSurvey(): 403 - Not the creator ")
 		}
 	}
 
