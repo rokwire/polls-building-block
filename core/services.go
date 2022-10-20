@@ -293,8 +293,8 @@ func (app *Application) deleteSurvey(user *model.User, id string) error {
 	return app.storage.DeleteSurvey(user, id)
 }
 
-func (app *Application) getSurveyResponse(id string) (*model.SurveyResponse, error) {
-	return app.storage.GetSurveyResponse(id)
+func (app *Application) getSurveyResponse(user *model.User, id string) (*model.SurveyResponse, error) {
+	return app.storage.GetSurveyResponse(user, id)
 }
 
 func (app *Application) createSurveyResponse(user *model.User, surveyResponse model.SurveyResponse) (*model.SurveyResponse, error) {

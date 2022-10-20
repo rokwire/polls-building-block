@@ -7,6 +7,8 @@ import (
 type SurveyResponse struct {
 	ID          string     `json:"id" bson:"_id"`
 	UserID      string     `json:"user_id" bson:"user_id"`
+	OrgID       string     `json:"org_id" bson:"org_id"`
+	AppID       string     `json:"app_id" bson:"app_id"`
 	Survey      Survey     `json:"survey" bson:"survey"`
 	DateCreated time.Time  `json:"date_created" bson:"date_created"`
 	DateUpdated *time.Time `json:"date_updated" bson:"date_updated"`

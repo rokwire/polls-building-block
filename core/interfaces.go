@@ -44,7 +44,7 @@ type Services interface {
 	DeleteSurvey(user *model.User, id string) error
 
 	//CRUD Survey Response
-	GetSurveyResponse(id string) (*model.SurveyResponse, error)
+	GetSurveyResponse(user *model.User, id string) (*model.SurveyResponse, error)
 	CreateSurveyResponse(user *model.User, surveyResponse model.SurveyResponse) (*model.SurveyResponse, error)
 	UpdateSurveyResponse(user *model.User, surveyResponse model.SurveyResponse, id string) error
 	DeleteSurveyResponse(user *model.User, id string) error
@@ -110,8 +110,8 @@ func (s *servicesImpl) DeleteSurvey(user *model.User, id string) error {
 	return s.app.deleteSurvey(user, id)
 }
 
-func (s *servicesImpl) GetSurveyResponse(id string) (*model.SurveyResponse, error) {
-	return s.app.getSurveyResponse(id)
+func (s *servicesImpl) GetSurveyResponse(user *model.User, id string) (*model.SurveyResponse, error) {
+	return s.app.getSurveyResponse(user, id)
 }
 
 func (s *servicesImpl) CreateSurveyResponse(user *model.User, surveyResponse model.SurveyResponse) (*model.SurveyResponse, error) {
@@ -144,7 +144,7 @@ type Storage interface {
 	UpdateSurvey(user *model.User, survey model.Survey) error
 	DeleteSurvey(user *model.User, id string) error
 
-	GetSurveyResponse(id string) (*model.SurveyResponse, error)
+	GetSurveyResponse(user *model.User, id string) (*model.SurveyResponse, error)
 	CreateSurveyResponse(surveyResponse model.SurveyResponse) (*model.SurveyResponse, error)
 	UpdateSurveyResponse(user *model.User, surveyResponse model.SurveyResponse) error
 	DeleteSurveyResponse(user *model.User, id string) error

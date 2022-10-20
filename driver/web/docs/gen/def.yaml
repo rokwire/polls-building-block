@@ -761,7 +761,6 @@ components:
           nullable: true
         survey:
           $ref: '#/components/schemas/Survey'
-          nullable: true
     SurveyStats:
       type: object
       properties:

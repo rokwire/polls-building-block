@@ -605,7 +605,7 @@ func (h ApisHandler) GetSurveyResponse(user *model.User, w http.ResponseWriter, 
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	resData, err := h.app.Services.GetSurveyResponse(id)
+	resData, err := h.app.Services.GetSurveyResponse(user, id)
 	if err != nil {
 		log.Printf("Error on apis.GetSurveyResponse(%s): %s", id, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

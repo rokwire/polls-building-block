@@ -462,21 +462,21 @@ func (sa *Adapter) DeleteSurvey(user *model.User, id string) error {
 }
 
 // Get SurveyResponse
-func (sa *Adapter) GetSurveyResponse(id string) (*model.SurveyResponse, error) {
+func (sa *Adapter) GetSurveyResponse(user *model.User, id string) (*model.SurveyResponse, error) {
 
 	filter := bson.M{"_id": id}
-	var list []model.SurveyResponse
-	err := sa.db.surveyResponses.Find(filter, &list, &options.FindOptions{})
+	var entry model.SurveyResponse
+	err := sa.db.surveyResponses.FindOne(filter, &entry, nil)
 	if err != nil {
-		fmt.Printf("error storage.Adapter.GetSurveyResonse(%s) - %s", id, err)
+		fmt.Printf("error storage.Adapter.GetSurveyResponse(%s) - %s", id, err)
 		return nil, fmt.Errorf("error storage.Adapter.GetSurveyResponse(%s) - %s", id, err)
 	}
 
-	if len(list) > 0 {
-		entry := list[0]
-		return &entry, nil
+	if entry.AppID != user.Claims.AppID || entry.OrgID != user.Claims.OrgID {
+		fmt.Printf("error storage.Adapter.GetSurveyResponse(%s) - 403 incorrect AppID or OrgID", id)
+		return nil, fmt.Errorf("error storage.Adapter.GetSurveyResponse(%s) - 403 incorrect AppID or OrgID", id)
 	} else {
-		return nil, nil
+		return &entry, nil
 	}
 }
 
