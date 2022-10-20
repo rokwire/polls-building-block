@@ -74,5 +74,5 @@ properties:
   body:
     type: string
     nullable: true
-  # survey:
-  #   $ref: "./Survey.yaml"
+  survey:
+    $ref: "./Survey.yaml"

@@ -643,6 +643,8 @@ components:
         body:
           type: string
           nullable: true
+        survey:
+          $ref: '#/components/schemas/Survey'
     SurveyStats:
       type: object
       properties:

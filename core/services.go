@@ -271,8 +271,8 @@ func (app *Application) OnCollectionUpdated(collection string, record map[string
 	}
 }
 
-func (app *Application) getSurvey(id string) (*model.Survey, error) {
-	return app.storage.GetSurvey(id)
+func (app *Application) getSurvey(user *model.User, id string) (*model.Survey, error) {
+	return app.storage.GetSurvey(user, id)
 }
 
 func (app *Application) createSurvey(user *model.User, survey model.Survey) (*model.Survey, error) {
