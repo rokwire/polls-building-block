@@ -1,0 +1,382 @@
+basePath: /content
+definitions:
+  Poll:
+    properties:
+      date_created:
+        type: string
+      date_updated:
+        type: string
+      geo_fence:
+        type: boolean
+      group_id:
+        type: string
+      id:
+        type: string
+      multi_choice:
+        type: boolean
+      options:
+        items:
+          type: string
+        minItems: 2
+        type: array
+      org_id:
+        type: string
+      pin:
+        maximum: 9999
+        minimum: 0
+        type: integer
+      question:
+        type: string
+      repeat:
+        type: boolean
+      responses:
+        items:
+          $ref: '#/definitions/PollVote'
+        maxItems: 0
+        type: array
+      results:
+        items:
+          type: integer
+        maxItems: 0
+        type: array
+      show_results:
+        type: boolean
+      stadium:
+        type: string
+      status:
+        enum:
+        - created
+        - started
+        type: string
+      to_members:
+        description: nil or empty means everyone; non-empty means visible to those
+          user ids
+        items:
+          $ref: '#/definitions/ToMember'
+        type: array
+      userid:
+        type: string
+      username:
+        type: string
+    required:
+    - options
+    - question
+    - status
+    - userid
+    - username
+    type: object
+  PollResult:
+    properties:
+      date_created:
+        type: string
+      date_updated:
+        type: string
+      geo_fence:
+        type: boolean
+      group_id:
+        type: string
+      id:
+        type: string
+      multi_choice:
+        type: boolean
+      options:
+        items:
+          type: string
+        minItems: 2
+        type: array
+      pin:
+        maximum: 9999
+        minimum: 0
+        type: integer
+      question:
+        type: string
+      repeat:
+        type: boolean
+      results:
+        items:
+          type: integer
+        type: array
+      show_results:
+        type: boolean
+      stadium:
+        type: string
+      status:
+        enum:
+        - created
+        - started
+        type: string
+      to_members:
+        description: nil or empty means everyone; non-empty means visible to those
+          user ids
+        items:
+          $ref: '#/definitions/ToMember'
+        type: array
+      total:
+        type: integer
+      unique_voters_count:
+        type: integer
+      userid:
+        type: string
+      username:
+        type: string
+      voted:
+        items:
+          type: integer
+        type: array
+    required:
+    - options
+    - question
+    - status
+    - userid
+    - username
+    type: object
+  PollVote:
+    properties:
+      answer:
+        items:
+          type: integer
+        minItems: 1
+        type: array
+      created:
+        type: string
+      userid:
+        type: string
+    required:
+    - answer
+    - userid
+    type: object
+  PollsFilter:
+    properties:
+      group_ids:
+        description: GroupPolls     *bool    `json:"group_polls,omitempty"`
+        items:
+          type: string
+        type: array
+      limit:
+        type: integer
+      my_polls:
+        type: boolean
+      offset:
+        type: integer
+      pin:
+        type: integer
+      poll_ids:
+        items:
+          type: string
+        type: array
+      responded_polls:
+        type: boolean
+      statuses:
+        items:
+          type: string
+        type: array
+    type: object
+  ToMember:
+    properties:
+      email:
+        type: string
+      external_id:
+        type: string
+      name:
+        type: string
+      user_id:
+        type: string
+    type: object
+host: localhost
+info:
+  contact: {}
+  description: RoRewards Building Block API Documentation.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Polls Building Block v2 API
+  version: 1.0.21
+paths:
+  /polls:
+    get:
+      description: Retrieves  all polls by a filter params
+      operationId: GetPolls
+      parameters:
+      - description: body json for defined poll ids as request body
+        in: body
+        name: data
+        schema:
+          $ref: '#/definitions/PollsFilter'
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/PollResult'
+            type: array
+      security:
+      - UserAuth: []
+      tags:
+      - Client
+    post:
+      consumes:
+      - application/json
+      description: Create a new poll
+      operationId: CreatePoll
+      parameters:
+      - description: body json
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/Poll'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Poll'
+      security:
+      - UserAuth: []
+      tags:
+      - Client
+  /polls/{id}:
+    delete:
+      description: Deletes a poll with the specified id
+      operationId: DeletePoll
+      responses:
+        "200":
+          description: ""
+      security:
+      - UserAuth: []
+      tags:
+      - Client
+    get:
+      consumes:
+      - application/json
+      description: Retrieves a poll by id
+      operationId: GetPoll
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Poll'
+        "401":
+          description: ""
+      security:
+      - UserAuth: []
+      tags:
+      - Client
+    put:
+      consumes:
+      - application/json
+      description: Updates a reward type with the specified id
+      operationId: UpdatePoll
+      parameters:
+      - description: body json
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/Poll'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Poll'
+        "401":
+          description: ""
+      security:
+      - UserAuth: []
+      tags:
+      - Client
+  /polls/{id}/end:
+    post:
+      consumes:
+      - application/json
+      description: Finishes an existing poll with the specified id
+      operationId: EndPoll
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+      - UserAuth: []
+      tags:
+      - Client
+  /polls/{id}/events:
+    post:
+      description: Subscribes to a poll events as SSE
+      operationId: GetPollEvents
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+      - UserAuth: []
+      tags:
+      - Client
+  /polls/{id}/start:
+    post:
+      consumes:
+      - application/json
+      description: Starts an existing poll with the specified id
+      operationId: StartPoll
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+      - UserAuth: []
+      tags:
+      - Client
+  /polls/{id}/vote:
+    post:
+      consumes:
+      - application/json
+      description: Votes a poll with the specified id
+      operationId: VotePoll
+      parameters:
+      - description: body json
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/PollVote'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ""
+      security:
+      - UserAuth: []
+      tags:
+      - Client
+  /version:
+    get:
+      description: Gives the service version.
+      operationId: Version
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: ""
+      tags:
+      - Client
+schemes:
+- https
+securityDefinitions:
+  AdminGroupAuth:
+    in: header
+    name: GROUP
+    type: apiKey
+  AdminUserAuth:
+    in: header (add Bearer prefix to the Authorization value)
+    name: Authorization
+    type: apiKey
+  InternalApiAuth:
+    in: header (add INTERNAL-API-KEY with correct value as a header)
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

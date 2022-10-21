@@ -176,27 +176,28 @@ func (app *Application) endPoll(user *model.User, pollID string) error {
 }
 
 func (app *Application) notifyNotificationsBBForPoll(user *model.User, poll *model.Poll, topic string, operation string, message string) error {
-	recipients, err := app.buildPollNotificationRecipients(user, poll)
-	if err != nil {
-		log.Printf("error while building recipients for notification for poll: %s", err) // dont fail
-		return fmt.Errorf("error while building recipients for notification for poll: %s", err)
-	}
-
-	err = app.notifications.SendNotification(
-		recipients,
-		&topic,
-		"Illinois",
-		message,
-		map[string]string{
-			"type":        "poll",
-			"operation":   operation,
-			"entity_type": "poll",
-			"entity_id":   poll.ID.Hex(),
-			"entity_name": poll.Question,
-		},
-	)
-	if err != nil {
-		log.Printf("error while sending notification for poll end: %s", err) // dont fail
+	if poll.GroupID != nil {
+		app.groups.SendGroupNotification(*poll.GroupID, model.GroupNotification{
+			Members: poll.ToMembersList.ToNotificationRecipients(),
+			Sender: model.Sender{
+				Type: "user",
+				User: &model.UserRef{
+					UserID: user.Claims.Subject,
+					Name:   user.Claims.Name,
+				},
+			},
+			Topic:   &topic,
+			Subject: "Illinois",
+			Body:    message,
+			Data: map[string]string{
+				"group_id":    *poll.GroupID,
+				"type":        "poll",
+				"operation":   operation,
+				"entity_type": "poll",
+				"entity_id":   poll.ID.Hex(),
+				"entity_name": poll.Question,
+			},
+		})
 	}
 
 	return nil
@@ -209,20 +210,6 @@ func (app *Application) votePoll(user *model.User, pollID string, vote model.Pol
 func (app *Application) subscribeToPoll(user *model.User, pollID string, resultChan chan map[string]interface{}) error {
 	app.sseServer.RegisterUserForPoll(user.Claims.Subject, pollID, resultChan)
 	return nil
-}
-
-func (app *Application) buildPollNotificationRecipients(user *model.User, poll *model.Poll) ([]model.NotificationRecipient, error) {
-	if poll.GroupID != nil {
-		group, err := app.groups.GetGroupDetails(*poll.GroupID)
-		if err != nil {
-			return nil, fmt.Errorf("error while retriving group details: %s", err)
-		}
-		return group.GetMembersAsNotificationRecipients(user.Claims.Subject, poll.ToMembersList), nil
-	} else if len(poll.ToMembersList) > 0 {
-		return poll.GetPollNotificationRecipients(user.Claims.Subject), nil
-	}
-
-	return nil, nil
 }
 
 func (app *Application) checkPollPermission(user *model.User, poll *model.Poll, operation string) error {

@@ -139,3 +139,33 @@ func (a *Adapter) GetGroupDetails(groupID string) (*model.Group, error) {
 	}
 	return nil, nil
 }
+
+// SendGroupNotification Sends a notification to members of a group
+func (a *Adapter) SendGroupNotification(groupID string, notification model.GroupNotification) {
+	go a.sendGroupNotification(groupID, notification)
+}
+
+// SendGroupNotification Sends a group notification
+func (a *Adapter) sendGroupNotification(groupID string, notification model.GroupNotification) {
+	if groupID != "" && notification.Subject != "" && notification.Body != "" {
+
+		url := fmt.Sprintf("%s/api/int/group/%s/notification", a.baseURL, groupID)
+		client := &http.Client{}
+		req, err := http.NewRequest("GET", url, nil)
+		req.Header.Set("INTERNAL-API-KEY", a.internalAPIKey)
+		if err != nil {
+			log.Printf("error SendGroupNotification: request - %s", err)
+			return
+		}
+
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Printf("error SendGroupNotification: request - %s", err)
+			return
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != 200 {
+			log.Printf("error SendGroupNotification: request - %d. Error: %s", resp.StatusCode, err)
+		}
+	}
+}
