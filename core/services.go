@@ -179,7 +179,7 @@ func (app *Application) notifyNotificationsBBForPoll(user *model.User, poll *mod
 	if poll.GroupID != nil {
 		app.groups.SendGroupNotification(*poll.GroupID, model.GroupNotification{
 			Members: poll.ToMembersList.ToNotificationRecipients(),
-			Sender: model.Sender{
+			Sender: &model.Sender{
 				Type: "user",
 				User: &model.UserRef{
 					UserID: user.Claims.Subject,

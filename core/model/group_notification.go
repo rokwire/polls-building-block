@@ -4,7 +4,7 @@ package model
 type GroupNotification struct {
 	MemberStatuses []string          `json:"member_statuses"` // default: ["admin", "member"]
 	Members        []UserRef         `json:"members"`
-	Sender         Sender            `json:"sender"`
+	Sender         *Sender           `json:"sender"`
 	Subject        string            `json:"subject"`
 	Topic          *string           `json:"topic"`
 	Body           string            `json:"body"`
