@@ -513,7 +513,7 @@ func (sa *Adapter) UpdateSurveyResponse(user *model.User, surveyResponse model.S
 
 		modifiedCount := result.ModifiedCount
 		if modifiedCount == 0 {
-			return fmt.Errorf("error storage.Adapter.DeleteSurveyResponse(): 403 - Not the user ", err)
+			return fmt.Errorf("error storage.Adapter.DeleteSurveyResponse(): 403 - Not the user ")
 		}
 	}
 

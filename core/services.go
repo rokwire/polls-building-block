@@ -301,6 +301,8 @@ func (app *Application) createSurveyResponse(user *model.User, surveyResponse mo
 	surveyResponse.ID = uuid.NewString()
 	surveyResponse.UserID = user.Claims.Subject
 	surveyResponse.DateCreated = time.Now().UTC()
+	surveyResponse.AppID = user.Claims.AppID
+	surveyResponse.OrgID = user.Claims.OrgID
 	return app.storage.CreateSurveyResponse(surveyResponse)
 }
 
@@ -310,5 +312,5 @@ func (app *Application) updateSurveyResponse(user *model.User, surveyResponse mo
 }
 
 func (app *Application) deleteSurveyResponse(user *model.User, id string) error {
-	return app.storage.DeleteSurvey(user, id)
+	return app.storage.DeleteSurveyResponse(user, id)
 }
