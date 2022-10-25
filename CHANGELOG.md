@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created CRUD APIs for Surveys [#23](https://github.com/rokwire/polls-building-block/issues/23)
 - Created CRUD APIs for Survey Responses [#24](https://github.com/rokwire/polls-building-block/issues/24)
+
 ## Fixed
  - Fix docs [#21](https://github.com/rokwire/polls-building-block/issues/21)
 

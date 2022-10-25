@@ -33,10 +33,10 @@ paths:
     $ref: "./resources/client/surveys.yaml"     
   /api/surveys/{id}:
     $ref: "./resources/client/surveysid.yaml"
-  /api/surveys/response:
+  /api/survey-responses:
     $ref: "./resources/client/survey-responses.yaml"     
-  /api/surveys/response/{id}:
-    $ref: "./resources/client/surveyid-responses.yaml"             
+  /api/survey-responses/{id}:
+    $ref: "./resources/client/survey-responsesid.yaml"             
 
 components:
   securitySchemes:

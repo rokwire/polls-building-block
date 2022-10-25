@@ -95,7 +95,7 @@ func (m *database) start() error {
 	}
 
 	surveyResponses := &collectionWrapper{database: m, coll: db.Collection("surveyresponses")}
-	err = m.applySurveysChecks(surveyResponses)
+	err = m.applySurveyResponsesChecks(surveyResponses)
 	if err != nil {
 		return err
 	}
@@ -228,15 +228,30 @@ func (m *database) applySettingsChecks(posts *collectionWrapper) error {
 	return nil
 }
 
-func (m *database) applySurveysChecks(posts *collectionWrapper) error {
+func (m *database) applySurveysChecks(surveys *collectionWrapper) error {
 	log.Println("apply surveys checks.....")
+
+	err := surveys.AddIndex(bson.D{primitive.E{Key: "org_id", Value: 1}, primitive.E{Key: "app_id", Value: 1}, primitive.E{Key: "creator_id", Value: 1}}, false)
+	if err != nil {
+		return err
+	}
 
 	log.Println("surveys passed")
 	return nil
 }
 
-func (m *database) applySurveyResponsesChecks(posts *collectionWrapper) error {
+func (m *database) applySurveyResponsesChecks(surveyResponses *collectionWrapper) error {
 	log.Println("apply survey responses checks.....")
+
+	err := surveyResponses.AddIndex(bson.D{primitive.E{Key: "org_id", Value: 1}, primitive.E{Key: "app_id", Value: 1}, primitive.E{Key: "user_id", Value: 1}}, false)
+	if err != nil {
+		return err
+	}
+
+	err = surveyResponses.AddIndex(bson.D{primitive.E{Key: "survey._id", Value: 1}}, false)
+	if err != nil {
+		return err
+	}
 
 	log.Println("survey responses passed")
 	return nil

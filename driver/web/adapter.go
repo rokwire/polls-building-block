@@ -94,10 +94,10 @@ func (we Adapter) Start() {
 	apiRouter.HandleFunc("/surveys", we.userAuthWrapFunc(we.apisHandler.CreateSurvey)).Methods("POST")
 	apiRouter.HandleFunc("/surveys/{id}", we.userAuthWrapFunc(we.apisHandler.UpdateSurvey)).Methods("PUT")
 	apiRouter.HandleFunc("/surveys/{id}", we.userAuthWrapFunc(we.apisHandler.DeleteSurvey)).Methods("DELETE")
-	apiRouter.HandleFunc("/surveys/response/{id}", we.userAuthWrapFunc(we.apisHandler.GetSurveyResponse)).Methods("GET")
-	apiRouter.HandleFunc("/surveys/response", we.userAuthWrapFunc(we.apisHandler.CreateSurveyResponse)).Methods("POST")
-	apiRouter.HandleFunc("/surveys/response/{id}", we.userAuthWrapFunc(we.apisHandler.UpdateSurveyResponse)).Methods("PUT")
-	apiRouter.HandleFunc("/surveys/response/{id}", we.userAuthWrapFunc(we.apisHandler.DeleteSurveyResponse)).Methods("DELETE")
+	apiRouter.HandleFunc("/survey-responses/{id}", we.userAuthWrapFunc(we.apisHandler.GetSurveyResponse)).Methods("GET")
+	apiRouter.HandleFunc("/survey-responses", we.userAuthWrapFunc(we.apisHandler.CreateSurveyResponse)).Methods("POST")
+	apiRouter.HandleFunc("/survey-responses/{id}", we.userAuthWrapFunc(we.apisHandler.UpdateSurveyResponse)).Methods("PUT")
+	apiRouter.HandleFunc("/survey-responses/{id}", we.userAuthWrapFunc(we.apisHandler.DeleteSurveyResponse)).Methods("DELETE")
 
 	log.Fatal(http.ListenAndServe(":"+we.port, router))
 }

@@ -20,10 +20,10 @@ properties:
     type: object
   type:
     type: string
-  ok_answer:
+  correct_answer:
     type: object
     nullable: true
-  ok_answers:
+  correct_answers:
     type: array
     items: {}
     nullable: true
@@ -37,9 +37,6 @@ properties:
     type: boolean
     nullable: true
   allow_multiple:
-    type: boolean
-    nullable: true
-  check_all:
     type: boolean
     nullable: true
   ask_time:
@@ -73,5 +70,3 @@ properties:
   body:
     type: string
     nullable: true
-  survey:
-    $ref: "./Survey.yaml"

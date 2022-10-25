@@ -12,7 +12,9 @@ properties:
   app_id:
     readOnly: true
     type: string
-  questions:
+  title: 
+    type: string
+  data:
     type: object
     additionalProperties:
       $ref: "./SurveyData.yaml"
@@ -26,3 +28,7 @@ properties:
     $ref: "./SurveyStats.yaml"
   sensitive:
     type: boolean
+  default_data_key:
+    type: string
+  default_data_key_rule:
+    type: string

@@ -21,6 +21,7 @@ import (
 	"net/http"
 	"polls/core"
 	"polls/core/model"
+	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -546,7 +547,6 @@ func (h ApisHandler) UpdateSurvey(user *model.User, w http.ResponseWriter, r *ht
 
 	err = h.app.Services.UpdateSurvey(user, item, id)
 	if err != nil {
-
 		log.Printf("Error on apis.UpdateSurvey(%s): %s", id, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
