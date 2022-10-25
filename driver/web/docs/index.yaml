@@ -28,13 +28,17 @@ paths:
   /api/polls/{id}/start:
     $ref: "./resources/client/pollsid-start.yaml"
   /api/polls/{id}/end:
-    $ref: "./resources/client/pollsid-end.yaml"                  
+    $ref: "./resources/client/pollsid-end.yaml"
+  /api/surveys:
+    $ref: "./resources/client/surveys.yaml"     
+  /api/surveys/{id}:
+    $ref: "./resources/client/surveysid.yaml"             
 
 components:
-securitySchemes:
-    bearerAuth:            # arbitrary name for the security scheme
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-schemas:
-  $ref: "./schemas/index.yaml"
+  securitySchemes:
+      bearerAuth:            # arbitrary name for the security scheme
+        type: http
+        scheme: bearer
+        bearerFormat: JWT
+  schemas:
+    $ref: "./schemas/index.yaml"

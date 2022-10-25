@@ -90,6 +90,10 @@ func (we Adapter) Start() {
 	apiRouter.HandleFunc("/polls/{id}/vote", we.userAuthWrapFunc(we.apisHandler.VotePoll)).Methods("PUT")
 	apiRouter.HandleFunc("/polls/{id}/start", we.userAuthWrapFunc(we.apisHandler.StartPoll)).Methods("PUT")
 	apiRouter.HandleFunc("/polls/{id}/end", we.userAuthWrapFunc(we.apisHandler.EndPoll)).Methods("PUT")
+	apiRouter.HandleFunc("/surveys/{id}", we.userAuthWrapFunc(we.apisHandler.GetSurvey)).Methods("GET")
+	apiRouter.HandleFunc("/surveys", we.userAuthWrapFunc(we.apisHandler.CreateSurvey)).Methods("POST")
+	apiRouter.HandleFunc("/surveys/{id}", we.userAuthWrapFunc(we.apisHandler.UpdateSurvey)).Methods("PUT")
+	apiRouter.HandleFunc("/surveys/{id}", we.userAuthWrapFunc(we.apisHandler.DeleteSurvey)).Methods("DELETE")
 
 	log.Fatal(http.ListenAndServe(":"+we.port, router))
 }

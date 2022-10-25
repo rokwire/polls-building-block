@@ -1,0 +1,34 @@
+type: object
+properties:
+  id:
+    readOnly: true
+    type: string
+  creator_id:
+    readOnly: true
+    type: string
+  org_id:
+    readOnly: true
+    type: string
+  app_id:
+    readOnly: true
+    type: string
+  title: 
+    type: string
+  data:
+    type: object
+    additionalProperties:
+      $ref: "./SurveyData.yaml"
+  scored:
+    type: boolean
+  result_rule:
+    type: string
+  type:
+    type: string
+  stats:
+    $ref: "./SurveyStats.yaml"
+  sensitive:
+    type: boolean
+  default_data_key:
+    type: string
+  default_data_key_rule:
+    type: string

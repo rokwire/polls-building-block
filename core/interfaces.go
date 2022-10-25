@@ -24,7 +24,7 @@ import (
 type Services interface {
 	GetVersion() string
 
-	// CRUD
+	// CRUD Polls
 	GetPolls(user *model.User, filter model.PollsFilter, filterByToMembers bool) ([]model.Poll, error)
 	GetPoll(user *model.User, id string) (*model.Poll, error)
 	CreatePoll(user *model.User, poll model.Poll) (*model.Poll, error)
@@ -36,6 +36,12 @@ type Services interface {
 	EndPoll(user *model.User, pollID string) error
 
 	SubscribeToPoll(user *model.User, pollID string, resultChan chan map[string]interface{}) error
+
+	//CRUD Surveys
+	GetSurvey(user *model.User, id string) (*model.Survey, error)
+	CreateSurvey(user *model.User, survey model.Survey) (*model.Survey, error)
+	UpdateSurvey(user *model.User, survey model.Survey, id string) error
+	DeleteSurvey(user *model.User, id string) error
 }
 
 type servicesImpl struct {
@@ -82,6 +88,22 @@ func (s *servicesImpl) SubscribeToPoll(user *model.User, pollID string, resultCh
 	return s.app.subscribeToPoll(user, pollID, resultChan)
 }
 
+func (s *servicesImpl) GetSurvey(user *model.User, id string) (*model.Survey, error) {
+	return s.app.getSurvey(user, id)
+}
+
+func (s *servicesImpl) CreateSurvey(user *model.User, survey model.Survey) (*model.Survey, error) {
+	return s.app.createSurvey(user, survey)
+}
+
+func (s *servicesImpl) UpdateSurvey(user *model.User, survey model.Survey, id string) error {
+	return s.app.updateSurvey(user, survey, id)
+}
+
+func (s *servicesImpl) DeleteSurvey(user *model.User, id string) error {
+	return s.app.deleteSurvey(user, id)
+}
+
 // Storage is used by core to storage data - DB storage adapter, file storage adapter etc
 type Storage interface {
 	GetPolls(user *model.User, filter model.PollsFilter, filterByToMembers bool, membership *groups.GroupMembership) ([]model.Poll, error)
@@ -94,4 +116,9 @@ type Storage interface {
 	VotePoll(user *model.User, pollID string, vote model.PollVote) error
 
 	SetListener(listener storage.CollectionListener)
+
+	GetSurvey(user *model.User, id string) (*model.Survey, error)
+	CreateSurvey(survey model.Survey) (*model.Survey, error)
+	UpdateSurvey(user *model.User, survey model.Survey) error
+	DeleteSurvey(user *model.User, id string) error
 }
