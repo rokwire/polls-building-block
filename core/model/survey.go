@@ -1,9 +1,24 @@
+// Copyright 2022 Board of Trustees of the University of Illinois.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package model
 
 import (
 	"time"
 )
 
+// Survey wraps the entire record
 type Survey struct {
 	ID          string                `json:"id" bson:"_id"`
 	CreatorID   string                `json:"creator_id" bson:"creator_id"`
@@ -19,6 +34,7 @@ type Survey struct {
 	DateUpdated *time.Time            `json:"date_updated" bson:"date_updated"`
 }
 
+// SurveyStats are stats of a Survey
 type SurveyStats struct {
 	Total    int                `json:"total" bson:"total"`
 	Complete int                `json:"complete" bson:"complete"`
@@ -26,6 +42,7 @@ type SurveyStats struct {
 	Scores   map[string]float32 `json:"scores" bson:"scores"`
 }
 
+// SurveyData is data stored for a Survey
 type SurveyData struct {
 	Section             *string     `json:"section" bson:"section"`
 	AllowSkip           bool        `json:"allow_skip" bson:"allow_skip"`
@@ -78,11 +95,13 @@ type SurveyData struct {
 	Survey *Survey `json:"survey,omitempty" bson:"survey,omitempty"`
 }
 
+// SurveyResponseFollowUp is the response follow up to Survey
 type SurveyResponseFollowUp struct {
 	Key   interface{} `json:"key" bson:"key"`
 	Value SurveyData  `json:"value" bson:"value"`
 }
 
+// ActionData is the wrapped within SurveyData
 type ActionData struct {
 	Type  string  `json:"type" bson:"type"`
 	Label *string `json:"label" bson:"label"`
