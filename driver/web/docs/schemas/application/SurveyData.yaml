@@ -31,7 +31,6 @@ properties:
     type: array
     items:
       type: object
-      additionalProperties: {}
   action:
     $ref: "./ActionData.yaml"
   yes_no:

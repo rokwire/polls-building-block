@@ -380,10 +380,10 @@ func (m *database) onDataChanged(changeDoc map[string]interface{}) {
 	}
 }
 
-// Get Survey
+// GetSurvey retrieves a single survey
 func (sa *Adapter) GetSurvey(user *model.User, id string) (*model.Survey, error) {
 
-	filter := bson.M{"_id": id}
+	filter := bson.M{"_id": id, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
 	var entry model.Survey
 	err := sa.db.surveys.FindOne(filter, &entry, nil)
 	if err != nil {
@@ -391,16 +391,10 @@ func (sa *Adapter) GetSurvey(user *model.User, id string) (*model.Survey, error)
 		return nil, fmt.Errorf("error storage.Adapter.GetSurvey(%s) - %s", id, err)
 	}
 
-	if entry.AppID != user.Claims.AppID || entry.OrgID != user.Claims.OrgID {
-		fmt.Printf("error storage.Adapter.GetSurvey(%s) - 403 incorrect AppID or OrgID", id)
-		return nil, fmt.Errorf("error storage.Adapter.GetSurvey(%s) - 403 incorrect AppID or OrgID", id)
-	} else {
-		return &entry, nil
-	}
-
+	return &entry, nil
 }
 
-// Create Survey
+// CreateSurvey creates a poll
 func (sa *Adapter) CreateSurvey(survey model.Survey) (*model.Survey, error) {
 
 	_, err := sa.db.surveys.InsertOne(survey)
@@ -412,13 +406,13 @@ func (sa *Adapter) CreateSurvey(survey model.Survey) (*model.Survey, error) {
 	return &survey, nil
 }
 
-// Update Survey
+// UpdateSurvey updates a survey
 func (sa *Adapter) UpdateSurvey(user *model.User, survey model.Survey) error {
 
 	if len(survey.ID) > 0 {
 
 		now := time.Now().UTC()
-		filter := bson.M{"_id": survey.ID, "creator_id": user.Claims.Subject}
+		filter := bson.M{"_id": survey.ID, "creator_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
 		update := bson.M{"$set": bson.M{
 			"questions":    survey.Questions,
 			"scored":       survey.Scored,
@@ -429,34 +423,25 @@ func (sa *Adapter) UpdateSurvey(user *model.User, survey model.Survey) error {
 			"date_updated": now,
 		}}
 
-		result, err := sa.db.surveys.UpdateOne(filter, update, nil)
+		_, err := sa.db.surveys.UpdateOne(filter, update, nil)
 		if err != nil {
 			fmt.Printf("error storage.Adapter.UpdateSurvey(%s) - %s", survey.ID, err)
 			return fmt.Errorf("error storage.Adapter.UpdateSurvey(%s) - %s", survey.ID, err)
 		}
 
-		modifiedCount := result.ModifiedCount
-		if modifiedCount == 0 {
-			return fmt.Errorf("error storage.Adapter.DeleteSurvey(): 403 - Not the creator ")
-		}
 	}
 
 	return nil
 }
 
-// Delete Survey
+// DeleteSurvey deletes a survey
 func (sa *Adapter) DeleteSurvey(user *model.User, id string) error {
 
-	filter := bson.M{"_id": id, "creator_id": user.Claims.Subject}
+	filter := bson.M{"_id": id, "creator_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
 
-	result, err := sa.db.surveys.DeleteOne(filter, nil)
+	_, err := sa.db.surveys.DeleteOne(filter, nil)
 	if err != nil {
 		return fmt.Errorf("error storage.Adapter.DeleteSurvey(): error while delete survey (%s) - %s", id, err)
-	}
-
-	deletedCount := result.DeletedCount
-	if deletedCount == 0 {
-		return fmt.Errorf("error storage.Adapter.DeleteSurvey(): 403 - Not the creator (%s) - %s", id, err)
 	}
 
 	return nil

@@ -21,7 +21,6 @@ import (
 	"net/http"
 	"polls/core"
 	"polls/core/model"
-	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -456,15 +455,10 @@ func (h ApisHandler) GetSurvey(user *model.User, w http.ResponseWriter, r *http.
 
 	data, err := json.Marshal(resData)
 	if err != nil {
-		if strings.Contains(err.Error(), "403") {
-			log.Printf("Error on apis.GetSurvey(%s): %s", id, err)
-			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-			return
-		} else {
-			log.Printf("Error on apis.GetSurvey(%s): %s", id, err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
+
+		log.Printf("Error on apis.GetSurvey(%s): %s", id, err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 
 	}
 
@@ -552,15 +546,10 @@ func (h ApisHandler) UpdateSurvey(user *model.User, w http.ResponseWriter, r *ht
 
 	err = h.app.Services.UpdateSurvey(user, item, id)
 	if err != nil {
-		if strings.Contains(err.Error(), "403") {
-			log.Printf("Error on apis.DeleteSurvey(%s): %s", id, err)
-			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-			return
-		} else {
-			log.Printf("Error on apis.UpdateSurvey(%s): %s", id, err)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
+
+		log.Printf("Error on apis.UpdateSurvey(%s): %s", id, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 
 	}
 
@@ -581,15 +570,10 @@ func (h ApisHandler) DeleteSurvey(user *model.User, w http.ResponseWriter, r *ht
 
 	err := h.app.Services.DeleteSurvey(user, id)
 	if err != nil {
-		if strings.Contains(err.Error(), "403") {
-			log.Printf("Error on apis.DeleteSurvey(%s): %s", id, err)
-			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-			return
-		} else {
-			log.Printf("Error on apis.DeleteSurvey(%s): %s", id, err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
-		}
+
+		log.Printf("Error on apis.DeleteSurvey(%s): %s", id, err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 
 	}
 
