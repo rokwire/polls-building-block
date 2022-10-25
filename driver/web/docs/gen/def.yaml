@@ -552,7 +552,9 @@ components:
         app_id:
           readOnly: true
           type: string
-        questions:
+        title:
+          type: string
+        data:
           type: object
           additionalProperties:
             $ref: '#/components/schemas/SurveyData'
@@ -566,6 +568,10 @@ components:
           $ref: '#/components/schemas/SurveyStats'
         sensitive:
           type: boolean
+        default_data_key:
+          type: string
+        default_data_key_rule:
+          type: string
     SurveyData:
       type: object
       properties:
@@ -589,10 +595,10 @@ components:
           type: object
         type:
           type: string
-        ok_answer:
+        correct_answer:
           type: object
           nullable: true
-        ok_answers:
+        correct_answers:
           type: array
           items: {}
           nullable: true
@@ -600,16 +606,12 @@ components:
           type: array
           items:
             type: object
-          additionalProperties: {}
         action:
           $ref: '#/components/schemas/ActionData'
         yes_no:
           type: boolean
           nullable: true
         allow_multiple:
-          type: boolean
-          nullable: true
-        check_all:
           type: boolean
           nullable: true
         ask_time:
@@ -643,8 +645,6 @@ components:
         body:
           type: string
           nullable: true
-        survey:
-          $ref: '#/components/schemas/Survey'
     SurveyStats:
       type: object
       properties:

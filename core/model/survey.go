@@ -20,18 +20,21 @@ import (
 
 // Survey wraps the entire record
 type Survey struct {
-	ID          string                `json:"id" bson:"_id"`
-	CreatorID   string                `json:"creator_id" bson:"creator_id"`
-	OrgID       string                `json:"org_id" bson:"org_id"`
-	AppID       string                `json:"app_id" bson:"app_id"`
-	Questions   map[string]SurveyData `json:"questions" bson:"questions"`
-	Scored      bool                  `json:"scored" bson:"scored"`
-	ResultRule  string                `json:"result_rule" bson:"result_rule"`
-	Type        string                `json:"type" bson:"type"`
-	SurveyStats *SurveyStats          `json:"stats" bson:"stats"`
-	Sensitive   bool                  `json:"sensitive" bson:"sensitive"`
-	DateCreated time.Time             `json:"date_created" bson:"date_created"`
-	DateUpdated *time.Time            `json:"date_updated" bson:"date_updated"`
+	ID                 string                `json:"id" bson:"_id"`
+	CreatorID          string                `json:"creator_id" bson:"creator_id"`
+	OrgID              string                `json:"org_id" bson:"org_id"`
+	AppID              string                `json:"app_id" bson:"app_id"`
+	Title              string                `json:"title" bson:"title"`
+	Data               map[string]SurveyData `json:"data" bson:"data"`
+	Scored             bool                  `json:"scored" bson:"scored"`
+	ResultRule         string                `json:"result_rule" bson:"result_rule"`
+	Type               string                `json:"type" bson:"type"`
+	SurveyStats        *SurveyStats          `json:"stats" bson:"stats"`
+	Sensitive          bool                  `json:"sensitive" bson:"sensitive"`
+	DefaultDataKey     *string               `json:"default_data_key" bson:"default_data_key"`
+	DefaultDataKeyRule *string               `json:"default_data_key_rule" bson:"default_data_key_rule"`
+	DateCreated        time.Time             `json:"date_created" bson:"date_created"`
+	DateUpdated        *time.Time            `json:"date_updated" bson:"date_updated"`
 }
 
 // SurveyStats are stats of a Survey
@@ -57,17 +60,17 @@ type SurveyData struct {
 	Type string `json:"type" bson:"type"`
 
 	// Shared
-	OkAnswer  interface{}              `json:"ok_answer,omitempty" bson:"ok_answer,omitempty"`
-	OkAnswers []interface{}            `json:"ok_answers,omitempty" bson:"ok_answers,omitempty"`
-	Options   []map[string]interface{} `json:"options,omitempty" bson:"options,omitempty"`
-	Action    *ActionData              `json:"action,omitempty" bson:"action,omitempty"`
+	CorrectAnswer  interface{}              `json:"correct_answer,omitempty" bson:"correct_answer,omitempty"`
+	CorrectAnswers []interface{}            `json:"correct_answers,omitempty" bson:"correct_answers,omitempty"`
+	Options        []map[string]interface{} `json:"options,omitempty" bson:"options,omitempty"`
+	Action         *ActionData              `json:"action,omitempty" bson:"action,omitempty"`
+	SelfScore      *bool                    `json:"self_score,omitempty" bson:"self_score,omitempty"`
 
 	// True/False
 	YesNo *bool `json:"yes_no,omitempty" bson:"yes_no,omitempty"`
 
 	// Multiple Choice
 	AllowMultiple *bool `json:"allow_multiple,omitempty" bson:"allow_multiple,omitempty"`
-	CheckAll      *bool `json:"check_all,omitempty" bson:"check_all,omitempty"`
 
 	// DateTime
 	StartTime *time.Time `json:"start_time,omitempty" bson:"start_time,omitempty"`
@@ -75,11 +78,10 @@ type SurveyData struct {
 	AskTime   *bool      `json:"ask_time,omitempty" bson:"ask_time,omitempty"`
 
 	// Numeric
-	Minimum   *float64 `json:"minimum,omitempty" bson:"minimum,omitempty"`
-	Maximum   *float64 `json:"maximum,omitempty" bson:"maximum,omitempty"`
-	WholeNum  *bool    `json:"whole_num,omitempty" bson:"whole_num,omitempty"`
-	Slider    *bool    `json:"slider,omitempty" bson:"slider,omitempty"`
-	SelfScore *bool    `json:"self_score,omitempty" bson:"self_score,omitempty"`
+	Minimum  *float64 `json:"minimum,omitempty" bson:"minimum,omitempty"`
+	Maximum  *float64 `json:"maximum,omitempty" bson:"maximum,omitempty"`
+	WholeNum *bool    `json:"whole_num,omitempty" bson:"whole_num,omitempty"`
+	Slider   *bool    `json:"slider,omitempty" bson:"slider,omitempty"`
 
 	// Text
 	MinLength *int `json:"min_length,omitempty" bson:"min_length,omitempty"`
@@ -90,15 +92,6 @@ type SurveyData struct {
 
 	// Response
 	Body *string `json:"body,omitempty" bson:"body,omitempty"`
-
-	// Survey
-	Survey *Survey `json:"survey,omitempty" bson:"survey,omitempty"`
-}
-
-// SurveyResponseFollowUp is the response follow up to Survey
-type SurveyResponseFollowUp struct {
-	Key   interface{} `json:"key" bson:"key"`
-	Value SurveyData  `json:"value" bson:"value"`
 }
 
 // ActionData is the wrapped within SurveyData
