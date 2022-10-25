@@ -720,12 +720,7 @@ func (h ApisHandler) UpdateSurveyResponse(user *model.User, w http.ResponseWrite
 			log.Printf("Error on apis.DeleteSurveyResponse(%s): %s", id, errDb)
 			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 			return
-		} else {
-			log.Printf("Error on apis.UpdateSurveyResponse(%s): %s", id, errDb)
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
 		}
-
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -749,12 +744,7 @@ func (h ApisHandler) DeleteSurveyResponse(user *model.User, w http.ResponseWrite
 			log.Printf("Error on apis.DeleteSurveyResponse(%s): %s", id, err)
 			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 			return
-		} else {
-			log.Printf("Error on apis.DeleteSurveyResponse(%s): %s", id, err)
-			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-			return
 		}
-
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
