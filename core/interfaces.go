@@ -18,6 +18,7 @@ import (
 	"polls/core/model"
 	"polls/driven/groups"
 	"polls/driven/storage"
+	"time"
 )
 
 // Services exposes APIs for the driver adapters
@@ -45,6 +46,7 @@ type Services interface {
 
 	//CRUD Survey Response
 	GetSurveyResponse(user *model.User, id string) (*model.SurveyResponse, error)
+	GetSurveyResponses(user *model.User, surveyID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error)
 	CreateSurveyResponse(user *model.User, survey model.Survey) (*model.SurveyResponse, error)
 	UpdateSurveyResponse(user *model.User, id string, survey model.Survey) error
 	DeleteSurveyResponse(user *model.User, id string) error
@@ -114,6 +116,10 @@ func (s *servicesImpl) GetSurveyResponse(user *model.User, id string) (*model.Su
 	return s.app.getSurveyResponse(user, id)
 }
 
+func (s *servicesImpl) GetSurveyResponses(user *model.User, surveyID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+	return s.app.getSurveyResponses(user, surveyID, startDate, endDate, limit, offset)
+}
+
 func (s *servicesImpl) CreateSurveyResponse(user *model.User, survey model.Survey) (*model.SurveyResponse, error) {
 	return s.app.createSurveyResponse(user, survey)
 }
@@ -145,6 +151,7 @@ type Storage interface {
 	DeleteSurvey(user *model.User, id string) error
 
 	GetSurveyResponse(user *model.User, id string) (*model.SurveyResponse, error)
+	GetSurveyResponses(user *model.User, surveyID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error)
 	CreateSurveyResponse(surveyResponse model.SurveyResponse) (*model.SurveyResponse, error)
 	UpdateSurveyResponse(user *model.User, id string, surveyResponse model.Survey) error
 	DeleteSurveyResponse(user *model.User, id string) error

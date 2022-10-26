@@ -382,7 +382,6 @@ func (m *database) onDataChanged(changeDoc map[string]interface{}) {
 
 // GetSurvey retrieves a single survey
 func (sa *Adapter) GetSurvey(user *model.User, id string) (*model.Survey, error) {
-
 	filter := bson.M{"_id": id, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
 	var entry model.Survey
 	err := sa.db.surveys.FindOne(filter, &entry, nil)
@@ -396,7 +395,6 @@ func (sa *Adapter) GetSurvey(user *model.User, id string) (*model.Survey, error)
 
 // CreateSurvey creates a poll
 func (sa *Adapter) CreateSurvey(survey model.Survey) (*model.Survey, error) {
-
 	_, err := sa.db.surveys.InsertOne(survey)
 	if err != nil {
 		fmt.Printf("error storage.Adapter.CreateSurvey(%s) - %s", survey.ID, err)
@@ -408,9 +406,7 @@ func (sa *Adapter) CreateSurvey(survey model.Survey) (*model.Survey, error) {
 
 // UpdateSurvey updates a survey
 func (sa *Adapter) UpdateSurvey(user *model.User, survey model.Survey) error {
-
 	if len(survey.ID) > 0 {
-
 		now := time.Now().UTC()
 		filter := bson.M{"_id": survey.ID, "creator_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
 		update := bson.M{"$set": bson.M{
@@ -435,7 +431,6 @@ func (sa *Adapter) UpdateSurvey(user *model.User, survey model.Survey) error {
 			fmt.Printf("storage.Adapter.UpdateSurvey(%s) invalid id", survey.ID)
 			return fmt.Errorf("storage.Adapter.UpdateSurvey(%s) invalid id", survey.ID)
 		}
-
 	}
 
 	return nil
@@ -443,9 +438,7 @@ func (sa *Adapter) UpdateSurvey(user *model.User, survey model.Survey) error {
 
 // DeleteSurvey deletes a survey
 func (sa *Adapter) DeleteSurvey(user *model.User, id string) error {
-
 	filter := bson.M{"_id": id, "creator_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
-
 	res, err := sa.db.surveys.DeleteOne(filter, nil)
 	if err != nil {
 		return fmt.Errorf("error storage.Adapter.DeleteSurvey(): error while delete survey (%s) - %s", id, err)
@@ -460,7 +453,6 @@ func (sa *Adapter) DeleteSurvey(user *model.User, id string) error {
 
 // GetSurveyResponse gets a survey response by ID
 func (sa *Adapter) GetSurveyResponse(user *model.User, id string) (*model.SurveyResponse, error) {
-
 	filter := bson.M{"_id": id, "user_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
 	var entry model.SurveyResponse
 	err := sa.db.surveyResponses.FindOne(filter, &entry, nil)
@@ -468,27 +460,55 @@ func (sa *Adapter) GetSurveyResponse(user *model.User, id string) (*model.Survey
 		fmt.Printf("error storage.Adapter.GetSurveyResponse(%s) - %s", id, err)
 		return nil, fmt.Errorf("error storage.Adapter.GetSurveyResponse(%s) - %s", id, err)
 	}
-
 	return &entry, nil
+}
+
+// GetSurveyResponses gets matching surveys for a user
+func (sa *Adapter) GetSurveyResponses(user *model.User, surveyID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+	filter := bson.M{"user_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
+	if len(surveyID) > 0 {
+		filter["survey._id"] = surveyID
+	}
+	if startDate != nil || endDate != nil {
+		dateFilter := bson.M{}
+		if startDate != nil {
+			dateFilter["$gte"] = startDate
+		}
+		if endDate != nil {
+			dateFilter["$lt"] = endDate
+		}
+		filter["date_created"] = dateFilter
+	}
+
+	opts := options.Find().SetSort(bson.M{"date_created": -1})
+	if limit != nil {
+		opts.SetLimit(int64(*limit))
+	}
+	if offset != nil {
+		opts.SetSkip(int64(*offset))
+	}
+	var results []model.SurveyResponse
+	err := sa.db.surveyResponses.Find(filter, &results, opts)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.GetSurveyResponses - %s", err)
+		return nil, fmt.Errorf("error storage.Adapter.GetSurveyResponses - %s", err)
+	}
+	return results, nil
 }
 
 // CreateSurveyResponse creates a new survey response
 func (sa *Adapter) CreateSurveyResponse(surveyResponse model.SurveyResponse) (*model.SurveyResponse, error) {
-
 	_, err := sa.db.surveyResponses.InsertOne(surveyResponse)
 	if err != nil {
 		fmt.Printf("error storage.Adapter.CreateSurveyResponse(%s) - %s", surveyResponse.ID, err)
 		return nil, fmt.Errorf("error storage.Adapter.CreateSurveyResponse(%s) - %s", surveyResponse.ID, err)
 	}
-
 	return &surveyResponse, nil
 }
 
 // UpdateSurveyResponse updates an existing service response
 func (sa *Adapter) UpdateSurveyResponse(user *model.User, id string, survey model.Survey) error {
-
 	if len(id) > 0 {
-
 		now := time.Now().UTC()
 		filter := bson.M{"_id": id, "user_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
 		update := bson.M{"$set": bson.M{
@@ -505,17 +525,13 @@ func (sa *Adapter) UpdateSurveyResponse(user *model.User, id string, survey mode
 			fmt.Printf("storage.Adapter.UpdateSurveyResponse(%s) invalid id", id)
 			return fmt.Errorf("storage.Adapter.UpdateSurveyResponse(%s) invalid id", id)
 		}
-
 	}
-
 	return nil
 }
 
 // DeleteSurveyResponse deletes a survey response
 func (sa *Adapter) DeleteSurveyResponse(user *model.User, id string) error {
-
 	filter := bson.M{"_id": id, "user_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
-
 	res, err := sa.db.surveyResponses.DeleteOne(filter, nil)
 	if err != nil {
 		fmt.Printf("error storage.Adapter.DeleteSurveyResponse(%s) - %s", id, err)
@@ -525,6 +541,5 @@ func (sa *Adapter) DeleteSurveyResponse(user *model.User, id string) error {
 		fmt.Printf("storage.Adapter.DeleteSurveyResponse(%s) invalid id", id)
 		return fmt.Errorf("storage.Adapter.DeleteSurveyResponse(%s) invalid id", id)
 	}
-
 	return nil
 }

@@ -16,11 +16,14 @@ package rest
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"polls/core"
 	"polls/core/model"
+	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -579,6 +582,87 @@ func (h ApisHandler) DeleteSurvey(user *model.User, w http.ResponseWriter, r *ht
 	w.WriteHeader(http.StatusOK)
 }
 
+// GetSurveyResponses retrieves SurveyResponses for the current user
+// @Description Retrieves SurveyResponses for the current user
+// @Tags Client
+// @ID GetSurveyResponse
+// @Accept json
+// @Produce json
+// @Success 200 {array} model.SurveyResponse
+// @Failure 401
+// @Security UserAuth
+// @Router /survey-responses [get]
+func (h ApisHandler) GetSurveyResponses(user *model.User, w http.ResponseWriter, r *http.Request) {
+	surveyID := r.URL.Query().Get("survey_id")
+	startDateRaw := r.URL.Query().Get("start_date")
+	var startDate *time.Time
+	if len(startDateRaw) > 0 {
+		dateParsed, err := time.Parse(time.RFC3339, startDateRaw)
+		if err != nil {
+			err = fmt.Errorf("error on apis.GetSurveyResponses: invalid start date - %v", err)
+			log.Println(err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		startDate = &dateParsed
+	}
+	endDateRaw := r.URL.Query().Get("end_date")
+	var endDate *time.Time
+	if len(endDateRaw) > 0 {
+		dateParsed, err := time.Parse(time.RFC3339, endDateRaw)
+		if err != nil {
+			err = fmt.Errorf("error on apis.GetSurveyResponses: invalid end date - %v", err)
+			log.Println(err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		endDate = &dateParsed
+	}
+
+	limitRaw := r.URL.Query().Get("limit")
+	limit := 20
+	if len(limitRaw) > 0 {
+		intParsed, err := strconv.Atoi(limitRaw)
+		if err != nil {
+			err = fmt.Errorf("error on apis.GetSurveyResponses: invalid limit - %v", err)
+			log.Println(err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		limit = intParsed
+	}
+	offsetRaw := r.URL.Query().Get("offset")
+	offset := 0
+	if len(offsetRaw) > 0 {
+		intParsed, err := strconv.Atoi(offsetRaw)
+		if err != nil {
+			err = fmt.Errorf("error on apis.GetSurveyResponses: invalid offset - %v", err)
+			log.Println(err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		offset = intParsed
+	}
+
+	resData, err := h.app.Services.GetSurveyResponses(user, surveyID, startDate, endDate, &limit, &offset)
+	if err != nil {
+		log.Printf("Error on apis.GetSurveyResponses: %s", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	data, err := json.Marshal(resData)
+	if err != nil {
+		log.Printf("Error on apis.GetSurveyResponse: %s", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
+}
+
 // GetSurveyResponse Retrieves a SurveyResponse by id
 // @Description Retrieves a SurveyResponse by id
 // @Tags Client
@@ -588,7 +672,7 @@ func (h ApisHandler) DeleteSurvey(user *model.User, w http.ResponseWriter, r *ht
 // @Success 200 {object} model.SurveyResponse
 // @Failure 401
 // @Security UserAuth
-// @Router /surveys/response/{id} [get]
+// @Router /survey-responses/{id} [get]
 func (h ApisHandler) GetSurveyResponse(user *model.User, w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -627,7 +711,7 @@ func (h ApisHandler) GetSurveyResponse(user *model.User, w http.ResponseWriter, 
 // @Accept json
 // @Success 200 {object} model.SurveyResponse
 // @Security UserAuth
-// @Router /surveys/response [post]
+// @Router /survey-responses [post]
 func (h ApisHandler) CreateSurveyResponse(user *model.User, w http.ResponseWriter, r *http.Request) {
 
 	data, err := ioutil.ReadAll(r.Body)
@@ -674,7 +758,7 @@ func (h ApisHandler) CreateSurveyResponse(user *model.User, w http.ResponseWrite
 // @Success 200 {object} model.SurveyResponse
 // @Failure 401
 // @Security UserAuth
-// @Router /surveys/response/{id} [put]
+// @Router /survey-responses/{id} [put]
 func (h ApisHandler) UpdateSurveyResponse(user *model.User, w http.ResponseWriter, r *http.Request) {
 
 	vars := mux.Vars(r)
@@ -713,7 +797,7 @@ func (h ApisHandler) UpdateSurveyResponse(user *model.User, w http.ResponseWrite
 // @ID DeleteSurveyResponse
 // @Success 200
 // @Security UserAuth
-// @Router /surveys/response/{id} [delete]
+// @Router /survey-responses/{id} [delete]
 func (h ApisHandler) DeleteSurveyResponse(user *model.User, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]

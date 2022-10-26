@@ -95,6 +95,7 @@ func (we Adapter) Start() {
 	apiRouter.HandleFunc("/surveys/{id}", we.userAuthWrapFunc(we.apisHandler.UpdateSurvey)).Methods("PUT")
 	apiRouter.HandleFunc("/surveys/{id}", we.userAuthWrapFunc(we.apisHandler.DeleteSurvey)).Methods("DELETE")
 	apiRouter.HandleFunc("/survey-responses/{id}", we.userAuthWrapFunc(we.apisHandler.GetSurveyResponse)).Methods("GET")
+	apiRouter.HandleFunc("/survey-responses", we.userAuthWrapFunc(we.apisHandler.GetSurveyResponses)).Methods("GET")
 	apiRouter.HandleFunc("/survey-responses", we.userAuthWrapFunc(we.apisHandler.CreateSurveyResponse)).Methods("POST")
 	apiRouter.HandleFunc("/survey-responses/{id}", we.userAuthWrapFunc(we.apisHandler.UpdateSurveyResponse)).Methods("PUT")
 	apiRouter.HandleFunc("/survey-responses/{id}", we.userAuthWrapFunc(we.apisHandler.DeleteSurveyResponse)).Methods("DELETE")
