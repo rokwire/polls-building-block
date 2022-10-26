@@ -1,24 +1,22 @@
-/*
- *   Copyright (c) 2020 Board of Trustees of the University of Illinois.
- *   All rights reserved.
-
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
-
- *   http://www.apache.org/licenses/LICENSE-2.0
-
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
- */
+// Copyright 2022 Board of Trustees of the University of Illinois.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 package web
 
 import (
 	"fmt"
+	"github.com/rokwire/core-auth-library-go/tokenauth"
 	"log"
 	"net/http"
 	"polls/core"
@@ -45,8 +43,8 @@ func (auth *Auth) clientIDCheck(w http.ResponseWriter, r *http.Request) bool {
 }
 
 // NewAuth creates new auth handler
-func NewAuth(app *core.Application, config *model.Config) *Auth {
-	coreAuth := web.NewCoreAuth(app, config)
+func NewAuth(app *core.Application, config *model.Config, tokenAuth *tokenauth.TokenAuth) *Auth {
+	coreAuth := web.NewCoreAuth(app, tokenAuth)
 	internalAuth := newInternalAuth(config)
 	auth := Auth{coreAuth: coreAuth, internalAuth: internalAuth}
 	return &auth

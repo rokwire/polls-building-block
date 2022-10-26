@@ -1,25 +1,21 @@
-/*
- *   Copyright (c) 2020 Board of Trustees of the University of Illinois.
- *   All rights reserved.
-
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
-
- *   http://www.apache.org/licenses/LICENSE-2.0
-
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *   limitations under the License.
- */
+// Copyright 2022 Board of Trustees of the University of Illinois.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 package web
 
 import (
 	"fmt"
-	"github.com/rokwire/core-auth-library-go/tokenauth"
 	"log"
 	"net/http"
 	"polls/core"
@@ -28,12 +24,14 @@ import (
 	"polls/utils"
 	"strings"
 
+	"github.com/rokwire/core-auth-library-go/tokenauth"
+
 	"github.com/casbin/casbin"
 	"github.com/gorilla/mux"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
-//Adapter entity
+// Adapter entity
 type Adapter struct {
 	host          string
 	port          string
@@ -49,7 +47,7 @@ type Adapter struct {
 
 // @title Polls Building Block v2 API
 // @description RoRewards Building Block API Documentation.
-// @version 1.0.8
+// @version 1.0.21
 // @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 // @host localhost
@@ -68,7 +66,7 @@ type Adapter struct {
 // @in header
 // @name GROUP
 
-//Start starts the module
+// Start starts the module
 func (we Adapter) Start() {
 
 	router := mux.NewRouter().StrictSlash(true)
@@ -82,9 +80,6 @@ func (we Adapter) Start() {
 	// handle apis
 	apiRouter := subrouter.PathPrefix("/api").Subrouter()
 
-	// Internal APIs
-	apiRouter.HandleFunc("/int/poll-to-group-mapping", we.internalAPIKeyAuthWrapFunc(we.internalApisHandler.GetGroupPolls)).Methods("GET")
-
 	// Client APIs
 	apiRouter.HandleFunc("/polls", we.userAuthWrapFunc(we.apisHandler.GetPolls)).Methods("GET")
 	apiRouter.HandleFunc("/polls", we.userAuthWrapFunc(we.apisHandler.CreatePoll)).Methods("POST")
@@ -95,13 +90,21 @@ func (we Adapter) Start() {
 	apiRouter.HandleFunc("/polls/{id}/vote", we.userAuthWrapFunc(we.apisHandler.VotePoll)).Methods("PUT")
 	apiRouter.HandleFunc("/polls/{id}/start", we.userAuthWrapFunc(we.apisHandler.StartPoll)).Methods("PUT")
 	apiRouter.HandleFunc("/polls/{id}/end", we.userAuthWrapFunc(we.apisHandler.EndPoll)).Methods("PUT")
+	apiRouter.HandleFunc("/surveys/{id}", we.userAuthWrapFunc(we.apisHandler.GetSurvey)).Methods("GET")
+	apiRouter.HandleFunc("/surveys", we.userAuthWrapFunc(we.apisHandler.CreateSurvey)).Methods("POST")
+	apiRouter.HandleFunc("/surveys/{id}", we.userAuthWrapFunc(we.apisHandler.UpdateSurvey)).Methods("PUT")
+	apiRouter.HandleFunc("/surveys/{id}", we.userAuthWrapFunc(we.apisHandler.DeleteSurvey)).Methods("DELETE")
+	apiRouter.HandleFunc("/survey-responses/{id}", we.userAuthWrapFunc(we.apisHandler.GetSurveyResponse)).Methods("GET")
+	apiRouter.HandleFunc("/survey-responses", we.userAuthWrapFunc(we.apisHandler.CreateSurveyResponse)).Methods("POST")
+	apiRouter.HandleFunc("/survey-responses/{id}", we.userAuthWrapFunc(we.apisHandler.UpdateSurveyResponse)).Methods("PUT")
+	apiRouter.HandleFunc("/survey-responses/{id}", we.userAuthWrapFunc(we.apisHandler.DeleteSurveyResponse)).Methods("DELETE")
 
 	log.Fatal(http.ListenAndServe(":"+we.port, router))
 }
 
 func (we Adapter) serveDoc(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("access-control-allow-origin", "*")
-	http.ServeFile(w, r, "./docs/swagger.yaml")
+	http.ServeFile(w, r, "./driver/web/docs/gen/def.yaml")
 }
 
 func (we Adapter) serveDocUI() http.Handler {
@@ -134,15 +137,15 @@ func (we Adapter) apiKeyOrTokenWrapFunc(handler apiKeysAuthFunc) http.HandlerFun
 	}
 }
 
-type userAuthFunc = func(*tokenauth.Claims, http.ResponseWriter, *http.Request)
+type userAuthFunc = func(*model.User, http.ResponseWriter, *http.Request)
 
 func (we Adapter) userAuthWrapFunc(handler userAuthFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		utils.LogRequest(req)
 
-		coreAuth, claims := we.auth.coreAuth.Check(req)
-		if coreAuth && claims != nil && !claims.Anonymous {
-			handler(claims, w, req)
+		coreAuth, user := we.auth.coreAuth.Check(req)
+		if coreAuth && user != nil && !user.Claims.Anonymous {
+			handler(user, w, req)
 			return
 		}
 		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
@@ -158,9 +161,9 @@ func (we Adapter) adminAuthWrapFunc(handler adminAuthFunc) http.HandlerFunc {
 		obj := req.URL.Path // the resource that is going to be accessed.
 		act := req.Method   // the operation that the user performs on the resource.
 
-		coreAuth, claims := we.auth.coreAuth.Check(req)
+		coreAuth, user := we.auth.coreAuth.Check(req)
 		if coreAuth {
-			permissions := strings.Split(claims.Permissions, ",")
+			permissions := strings.Split(user.Claims.Permissions, ",")
 
 			HasAccess := false
 			for _, s := range permissions {
@@ -173,7 +176,7 @@ func (we Adapter) adminAuthWrapFunc(handler adminAuthFunc) http.HandlerFunc {
 				handler(w, req)
 				return
 			}
-			log.Printf("Access control error - Core Subject: %s is trying to apply %s operation for %s\n", claims.Subject, act, obj)
+			log.Printf("Access control error - Core Subject: %s is trying to apply %s operation for %s\n", user.Claims.Subject, act, obj)
 			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
 			return
 		}
@@ -199,8 +202,8 @@ func (we Adapter) internalAPIKeyAuthWrapFunc(handler internalAPIKeyAuthFunc) htt
 }
 
 // NewWebAdapter creates new WebAdapter instance
-func NewWebAdapter(host string, port string, app *core.Application, config *model.Config) Adapter {
-	auth := NewAuth(app, config)
+func NewWebAdapter(host string, port string, app *core.Application, tokenAuth *tokenauth.TokenAuth, config *model.Config) Adapter {
+	auth := NewAuth(app, config, tokenAuth)
 	authorization := casbin.NewEnforcer("driver/web/authorization_model.conf", "driver/web/authorization_policy.csv")
 
 	apisHandler := rest.NewApisHandler(app, config)

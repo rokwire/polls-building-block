@@ -1,0 +1,16 @@
+type: object
+properties:
+  poll:
+    $ref: "./PollData.yaml"
+  org_id:
+    type: string
+  id:
+    readOnly: true
+    type: string   
+  responses:
+    type: array
+    $ref: "./PollVote.yaml"
+  results:
+    type: array
+    items:
+      type: integer  

@@ -8,7 +8,7 @@ WORKDIR /polls-app
 COPY . .
 RUN make
 
-FROM alpine:3.15
+FROM alpine:3.16.2
 
 #we need timezone database
 RUN apk --no-cache add tzdata
