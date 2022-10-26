@@ -32,6 +32,12 @@ properties:
     type: string
   default_data_key_rule:
     type: string
+  constants:
+    type: object
+  strings:
+    type: object
+  sub_rules:
+    type: object
   date_created:
     type: string
     readOnly: true

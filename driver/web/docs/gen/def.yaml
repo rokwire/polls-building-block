@@ -760,6 +760,12 @@ components:
           type: string
         default_data_key_rule:
           type: string
+        constants:
+          type: object
+        strings:
+          type: object
+        sub_rules:
+          type: object
         date_created:
           type: string
           readOnly: true
@@ -786,6 +792,8 @@ components:
           type: string
         score_rule:
           type: string
+        replace:
+          type: bool
         response:
           type: object
         type:

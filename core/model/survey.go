@@ -31,21 +31,24 @@ type SurveyResponse struct {
 
 // Survey wraps the entire record
 type Survey struct {
-	ID                 string                `json:"id" bson:"_id"`
-	CreatorID          string                `json:"creator_id" bson:"creator_id"`
-	OrgID              string                `json:"org_id" bson:"org_id"`
-	AppID              string                `json:"app_id" bson:"app_id"`
-	Title              string                `json:"title" bson:"title"`
-	Data               map[string]SurveyData `json:"data" bson:"data"`
-	Scored             bool                  `json:"scored" bson:"scored"`
-	ResultRule         string                `json:"result_rule" bson:"result_rule"`
-	Type               string                `json:"type" bson:"type"`
-	SurveyStats        *SurveyStats          `json:"stats" bson:"stats"`
-	Sensitive          bool                  `json:"sensitive" bson:"sensitive"`
-	DefaultDataKey     *string               `json:"default_data_key" bson:"default_data_key"`
-	DefaultDataKeyRule *string               `json:"default_data_key_rule" bson:"default_data_key_rule"`
-	DateCreated        time.Time             `json:"date_created" bson:"date_created"`
-	DateUpdated        *time.Time            `json:"date_updated" bson:"date_updated"`
+	ID                 string                 `json:"id" bson:"_id"`
+	CreatorID          string                 `json:"creator_id" bson:"creator_id"`
+	OrgID              string                 `json:"org_id" bson:"org_id"`
+	AppID              string                 `json:"app_id" bson:"app_id"`
+	Title              string                 `json:"title" bson:"title"`
+	Data               map[string]SurveyData  `json:"data" bson:"data"`
+	Scored             bool                   `json:"scored" bson:"scored"`
+	ResultRule         string                 `json:"result_rule" bson:"result_rule"`
+	Type               string                 `json:"type" bson:"type"`
+	SurveyStats        *SurveyStats           `json:"stats" bson:"stats"`
+	Sensitive          bool                   `json:"sensitive" bson:"sensitive"`
+	DefaultDataKey     *string                `json:"default_data_key" bson:"default_data_key"`
+	DefaultDataKeyRule *string                `json:"default_data_key_rule" bson:"default_data_key_rule"`
+	Constants          map[string]interface{} `json:"constants" bson:"constants"`
+	Strings            map[string]interface{} `json:"strings" bson:"strings"`
+	SubRules           map[string]interface{} `json:"sub_rules" bson:"sub_rules"`
+	DateCreated        time.Time              `json:"date_created" bson:"date_created"`
+	DateUpdated        *time.Time             `json:"date_updated" bson:"date_updated"`
 }
 
 // SurveyStats are stats of a Survey
