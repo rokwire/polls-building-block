@@ -14,7 +14,7 @@ FROM alpine:3.16.2
 RUN apk --no-cache add tzdata
 
 COPY --from=builder /polls-app/bin/polls /
-COPY --from=builder /polls-app/docs/swagger.yaml /docs/swagger.yaml
+COPY --from=builder /polls-app/driver/web/docs/gen/def.yaml /driver/web/docs/gen/def.yaml
 
 COPY --from=builder /polls-app/driver/web/authorization_model.conf /driver/web/authorization_model.conf
 COPY --from=builder /polls-app/driver/web/authorization_policy.csv /driver/web/authorization_policy.csv
