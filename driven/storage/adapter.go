@@ -458,7 +458,7 @@ func (sa *Adapter) DeleteSurvey(user *model.User, id string) error {
 	return nil
 }
 
-// Get SurveyResponse
+// GetSurveyResponse gets a survey response by ID
 func (sa *Adapter) GetSurveyResponse(user *model.User, id string) (*model.SurveyResponse, error) {
 
 	filter := bson.M{"_id": id, "user_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
@@ -472,7 +472,7 @@ func (sa *Adapter) GetSurveyResponse(user *model.User, id string) (*model.Survey
 	return &entry, nil
 }
 
-// Create SurveyResponse
+// CreateSurveyResponse creates a new survey response
 func (sa *Adapter) CreateSurveyResponse(surveyResponse model.SurveyResponse) (*model.SurveyResponse, error) {
 
 	_, err := sa.db.surveyResponses.InsertOne(surveyResponse)
@@ -484,26 +484,26 @@ func (sa *Adapter) CreateSurveyResponse(surveyResponse model.SurveyResponse) (*m
 	return &surveyResponse, nil
 }
 
-// Update SurveyResponse
-func (sa *Adapter) UpdateSurveyResponse(user *model.User, surveyResponse model.SurveyResponse) error {
+// UpdateSurveyResponse updates an existing service response
+func (sa *Adapter) UpdateSurveyResponse(user *model.User, id string, survey model.Survey) error {
 
-	if len(surveyResponse.ID) > 0 {
+	if len(id) > 0 {
 
 		now := time.Now().UTC()
-		filter := bson.M{"_id": surveyResponse.ID, "user_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
+		filter := bson.M{"_id": id, "user_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
 		update := bson.M{"$set": bson.M{
-			"survey":       surveyResponse.Survey,
+			"survey":       survey,
 			"date_updated": now,
 		}}
 
 		res, err := sa.db.surveyResponses.UpdateOne(filter, update, nil)
 		if err != nil {
-			fmt.Printf("error storage.Adapter.UpdateSurveyResponse(%s) - %s", surveyResponse.ID, err)
-			return fmt.Errorf("error storage.Adapter.UpdateSurveyResponse(%s) - %s", surveyResponse.ID, err)
+			fmt.Printf("error storage.Adapter.UpdateSurveyResponse(%s) - %s", id, err)
+			return fmt.Errorf("error storage.Adapter.UpdateSurveyResponse(%s) - %s", id, err)
 		}
 		if res.ModifiedCount != 1 {
-			fmt.Printf("storage.Adapter.UpdateSurveyResponse(%s) invalid id", surveyResponse.ID)
-			return fmt.Errorf("storage.Adapter.UpdateSurveyResponse(%s) invalid id", surveyResponse.ID)
+			fmt.Printf("storage.Adapter.UpdateSurveyResponse(%s) invalid id", id)
+			return fmt.Errorf("storage.Adapter.UpdateSurveyResponse(%s) invalid id", id)
 		}
 
 	}
@@ -511,7 +511,7 @@ func (sa *Adapter) UpdateSurveyResponse(user *model.User, surveyResponse model.S
 	return nil
 }
 
-// Delete SurveyResponse
+// DeleteSurveyResponse deletes a survey response
 func (sa *Adapter) DeleteSurveyResponse(user *model.User, id string) error {
 
 	filter := bson.M{"_id": id, "user_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}

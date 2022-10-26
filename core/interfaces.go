@@ -45,8 +45,8 @@ type Services interface {
 
 	//CRUD Survey Response
 	GetSurveyResponse(user *model.User, id string) (*model.SurveyResponse, error)
-	CreateSurveyResponse(user *model.User, surveyResponse model.SurveyResponse) (*model.SurveyResponse, error)
-	UpdateSurveyResponse(user *model.User, surveyResponse model.SurveyResponse, id string) error
+	CreateSurveyResponse(user *model.User, survey model.Survey) (*model.SurveyResponse, error)
+	UpdateSurveyResponse(user *model.User, id string, survey model.Survey) error
 	DeleteSurveyResponse(user *model.User, id string) error
 }
 
@@ -114,12 +114,12 @@ func (s *servicesImpl) GetSurveyResponse(user *model.User, id string) (*model.Su
 	return s.app.getSurveyResponse(user, id)
 }
 
-func (s *servicesImpl) CreateSurveyResponse(user *model.User, surveyResponse model.SurveyResponse) (*model.SurveyResponse, error) {
-	return s.app.createSurveyResponse(user, surveyResponse)
+func (s *servicesImpl) CreateSurveyResponse(user *model.User, survey model.Survey) (*model.SurveyResponse, error) {
+	return s.app.createSurveyResponse(user, survey)
 }
 
-func (s *servicesImpl) UpdateSurveyResponse(user *model.User, surveyResponse model.SurveyResponse, id string) error {
-	return s.app.updateSurveyResponse(user, surveyResponse, id)
+func (s *servicesImpl) UpdateSurveyResponse(user *model.User, id string, survey model.Survey) error {
+	return s.app.updateSurveyResponse(user, id, survey)
 }
 
 func (s *servicesImpl) DeleteSurveyResponse(user *model.User, id string) error {
@@ -146,6 +146,6 @@ type Storage interface {
 
 	GetSurveyResponse(user *model.User, id string) (*model.SurveyResponse, error)
 	CreateSurveyResponse(surveyResponse model.SurveyResponse) (*model.SurveyResponse, error)
-	UpdateSurveyResponse(user *model.User, surveyResponse model.SurveyResponse) error
+	UpdateSurveyResponse(user *model.User, id string, surveyResponse model.Survey) error
 	DeleteSurveyResponse(user *model.User, id string) error
 }

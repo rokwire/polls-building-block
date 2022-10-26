@@ -21,7 +21,6 @@ import (
 	"net/http"
 	"polls/core"
 	"polls/core/model"
-	"strings"
 
 	"github.com/gorilla/mux"
 )
@@ -570,7 +569,6 @@ func (h ApisHandler) DeleteSurvey(user *model.User, w http.ResponseWriter, r *ht
 
 	err := h.app.Services.DeleteSurvey(user, id)
 	if err != nil {
-
 		log.Printf("Error on apis.DeleteSurvey(%s): %s", id, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
@@ -639,7 +637,7 @@ func (h ApisHandler) CreateSurveyResponse(user *model.User, w http.ResponseWrite
 		return
 	}
 
-	var item model.SurveyResponse
+	var item model.Survey
 	err = json.Unmarshal(data, &item)
 	if err != nil {
 		log.Printf("Error on apis.CreateSurveyResponse: %s", err)
@@ -690,7 +688,7 @@ func (h ApisHandler) UpdateSurveyResponse(user *model.User, w http.ResponseWrite
 		return
 	}
 
-	var item model.SurveyResponse
+	var item model.Survey
 	err = json.Unmarshal(data, &item)
 	if err != nil {
 		log.Printf("Error on apis.UpdateSurveyResponse(%s): %s", id, err)
@@ -698,13 +696,11 @@ func (h ApisHandler) UpdateSurveyResponse(user *model.User, w http.ResponseWrite
 		return
 	}
 
-	errDb := h.app.Services.UpdateSurveyResponse(user, item, id)
+	err = h.app.Services.UpdateSurveyResponse(user, id, item)
 	if err != nil {
-		if strings.Contains(err.Error(), "403") {
-			log.Printf("Error on apis.DeleteSurveyResponse(%s): %s", id, errDb)
-			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-			return
-		}
+		log.Printf("Error on apis.DeleteSurveyResponse(%s): %s", id, err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -724,11 +720,9 @@ func (h ApisHandler) DeleteSurveyResponse(user *model.User, w http.ResponseWrite
 
 	err := h.app.Services.DeleteSurveyResponse(user, id)
 	if err != nil {
-		if strings.Contains(err.Error(), "403") {
-			log.Printf("Error on apis.DeleteSurveyResponse(%s): %s", id, err)
-			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
-			return
-		}
+		log.Printf("Error on apis.DeleteSurveyResponse(%s): %s", id, err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")

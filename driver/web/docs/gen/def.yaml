@@ -314,6 +314,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Survey'
         '400':
           description: Bad request
         '401':
@@ -425,11 +429,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SurveyResponse'
+              $ref: '#/components/schemas/Survey'
         required: true
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SurveyResponse'
         '400':
           description: Bad request
         '401':
@@ -489,7 +497,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SurveyResponse'
+              $ref: '#/components/schemas/Survey'
         required: true
       responses:
         '200':
@@ -663,11 +671,11 @@ components:
           readOnly: true
           type: string
         org_id:
-          readOnly: true
           type: string
+          readOnly: true
         app_id:
-          readOnly: true
           type: string
+          readOnly: true
         title:
           type: string
         data:
@@ -688,6 +696,13 @@ components:
           type: string
         default_data_key_rule:
           type: string
+        date_created:
+          type: string
+          readOnly: true
+        date_updated:
+          type: string
+          readOnly: true
+          nullable: true
     SurveyData:
       type: object
       properties:
@@ -788,10 +803,23 @@ components:
       type: object
       properties:
         id:
-          readOnly: true
           type: string
+          readOnly: true
+        org_id:
+          type: string
+          readOnly: true
+        app_id:
+          type: string
+          readOnly: true
         user_id:
-          readOnly: true
           type: string
+          readOnly: true
         survey:
           $ref: '#/components/schemas/Survey'
+        date_created:
+          type: string
+          readOnly: true
+        date_updated:
+          type: string
+          readOnly: true
+          nullable: true
