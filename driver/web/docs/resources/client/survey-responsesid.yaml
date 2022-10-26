@@ -1,9 +1,9 @@
 get:
   tags:
     - Client
-  summary: Retrieves a survey by id
+  summary: Retrieves a survey response by id
   description: |
-    Retrieves a survey by id
+    Retrieves a survey response by id
   security:
     - bearerAuth: []
   parameters:
@@ -21,7 +21,7 @@ get:
       content:
         application/json:
           schema:
-            $ref: "../../schemas/application/Survey.yaml"
+            $ref: "../../schemas/application/SurveyResponse.yaml"
     400:
       description: Bad request
     401:
@@ -31,9 +31,9 @@ get:
 put:
   tags:
     - Client
-  summary: Updates a survey with the specified id
+  summary: Updates a survey response with the specified id
   description: |
-    Updates a survey with the specified id
+    Updates a survey response with the specified id
   security:
     - bearerAuth: []
   parameters:
@@ -46,7 +46,7 @@ put:
       schema:
         type: string
   requestBody:
-    description: Data body model.Survey
+    description: Data body model.SurveyResponse
     content:
       application/json:
         schema:
@@ -64,9 +64,9 @@ put:
 delete:
   tags:
     - Client
-  summary: Deletes a survey with the specified id
+  summary: Deletes a survey response with the specified id
   description: |
-    Deletes a survey with the specified id
+    Deletes a survey response with the specified id
   security:
     - bearerAuth: []
   parameters:

@@ -569,11 +569,160 @@ func (h ApisHandler) DeleteSurvey(user *model.User, w http.ResponseWriter, r *ht
 
 	err := h.app.Services.DeleteSurvey(user, id)
 	if err != nil {
-
 		log.Printf("Error on apis.DeleteSurvey(%s): %s", id, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+}
+
+// GetSurveyResponse Retrieves a SurveyResponse by id
+// @Description Retrieves a SurveyResponse by id
+// @Tags Client
+// @ID GetSurveyResponse
+// @Accept json
+// @Produce json
+// @Success 200 {object} model.SurveyResponse
+// @Failure 401
+// @Security UserAuth
+// @Router /surveys/response/{id} [get]
+func (h ApisHandler) GetSurveyResponse(user *model.User, w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	resData, err := h.app.Services.GetSurveyResponse(user, id)
+	if err != nil {
+		log.Printf("Error on apis.GetSurveyResponse(%s): %s", id, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if resData == nil {
+		log.Printf("Error on apis.GetSurveyResponse(%s): not found", id)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+
+	data, err := json.Marshal(resData)
+	if err != nil {
+		log.Printf("Error on apis.GetSurveyResponse(%s): %s", id, err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
+}
+
+// CreateSurveyResponse Create a new survey response
+// @Description Create a new survey response
+// @Tags Client
+// @ID CreateSurveyResponse
+// @Param data body model.Survey true "body json"
+// @Accept json
+// @Success 200 {object} model.SurveyResponse
+// @Security UserAuth
+// @Router /surveys/response [post]
+func (h ApisHandler) CreateSurveyResponse(user *model.User, w http.ResponseWriter, r *http.Request) {
+
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("Error on apis.CreateSurveyResponse: %s", err)
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	var item model.Survey
+	err = json.Unmarshal(data, &item)
+	if err != nil {
+		log.Printf("Error on apis.CreateSurveyResponse: %s", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	createdItem, err := h.app.Services.CreateSurveyResponse(user, item)
+	if err != nil {
+		log.Printf("Error on apis.CreateSurveyResponse: %s", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	jsonData, err := json.Marshal(createdItem)
+	if err != nil {
+		log.Printf("Error on apis.CreateSurveyResponse: %s", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
+}
+
+// UpdateSurveyResponse Updates a survey response type with the specified id
+// @Description Updates a survey response type with the specified id
+// @Tags Client
+// @ID UpdateSurveyResponse
+// @Param data body model.Survey true "body json"
+// @Accept json
+// @Produce json
+// @Success 200 {object} model.SurveyResponse
+// @Failure 401
+// @Security UserAuth
+// @Router /surveys/response/{id} [put]
+func (h ApisHandler) UpdateSurveyResponse(user *model.User, w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+
+		log.Printf("Error on apis.UpdateSurveyResponse(%s): %s", id, err)
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	var item model.Survey
+	err = json.Unmarshal(data, &item)
+	if err != nil {
+		log.Printf("Error on apis.UpdateSurveyResponse(%s): %s", id, err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = h.app.Services.UpdateSurveyResponse(user, id, item)
+	if err != nil {
+		log.Printf("Error on apis.DeleteSurveyResponse(%s): %s", id, err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+}
+
+// DeleteSurveyResponse Deletes a survey response with the specified id
+// @Description Deletes a survey response with the specified id
+// @Tags Client
+// @ID DeleteSurveyResponse
+// @Success 200
+// @Security UserAuth
+// @Router /surveys/response/{id} [delete]
+func (h ApisHandler) DeleteSurveyResponse(user *model.User, w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	err := h.app.Services.DeleteSurveyResponse(user, id)
+	if err != nil {
+		log.Printf("Error on apis.DeleteSurveyResponse(%s): %s", id, err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")

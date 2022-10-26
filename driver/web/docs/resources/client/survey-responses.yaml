@@ -1,12 +1,12 @@
 post:
   tags:
     - Client
-  summary: Create a new survey
-  description: Create a new survey
+  summary: Create a new survey response
+  description: Create a new survey response
   security:
     - bearerAuth: []
   requestBody:
-    description: model.Survey
+    description: model.SurveyResponse
     content:
       application/json:
         schema:
@@ -18,7 +18,7 @@ post:
       content:
         application/json:
           schema:
-            $ref: "../../schemas/application/Survey.yaml"
+            $ref: "../../schemas/application/SurveyResponse.yaml"
     400:
       description: Bad request
     401:

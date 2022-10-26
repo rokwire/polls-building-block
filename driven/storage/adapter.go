@@ -457,3 +457,74 @@ func (sa *Adapter) DeleteSurvey(user *model.User, id string) error {
 
 	return nil
 }
+
+// GetSurveyResponse gets a survey response by ID
+func (sa *Adapter) GetSurveyResponse(user *model.User, id string) (*model.SurveyResponse, error) {
+
+	filter := bson.M{"_id": id, "user_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
+	var entry model.SurveyResponse
+	err := sa.db.surveyResponses.FindOne(filter, &entry, nil)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.GetSurveyResponse(%s) - %s", id, err)
+		return nil, fmt.Errorf("error storage.Adapter.GetSurveyResponse(%s) - %s", id, err)
+	}
+
+	return &entry, nil
+}
+
+// CreateSurveyResponse creates a new survey response
+func (sa *Adapter) CreateSurveyResponse(surveyResponse model.SurveyResponse) (*model.SurveyResponse, error) {
+
+	_, err := sa.db.surveyResponses.InsertOne(surveyResponse)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.CreateSurveyResponse(%s) - %s", surveyResponse.ID, err)
+		return nil, fmt.Errorf("error storage.Adapter.CreateSurveyResponse(%s) - %s", surveyResponse.ID, err)
+	}
+
+	return &surveyResponse, nil
+}
+
+// UpdateSurveyResponse updates an existing service response
+func (sa *Adapter) UpdateSurveyResponse(user *model.User, id string, survey model.Survey) error {
+
+	if len(id) > 0 {
+
+		now := time.Now().UTC()
+		filter := bson.M{"_id": id, "user_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
+		update := bson.M{"$set": bson.M{
+			"survey":       survey,
+			"date_updated": now,
+		}}
+
+		res, err := sa.db.surveyResponses.UpdateOne(filter, update, nil)
+		if err != nil {
+			fmt.Printf("error storage.Adapter.UpdateSurveyResponse(%s) - %s", id, err)
+			return fmt.Errorf("error storage.Adapter.UpdateSurveyResponse(%s) - %s", id, err)
+		}
+		if res.ModifiedCount != 1 {
+			fmt.Printf("storage.Adapter.UpdateSurveyResponse(%s) invalid id", id)
+			return fmt.Errorf("storage.Adapter.UpdateSurveyResponse(%s) invalid id", id)
+		}
+
+	}
+
+	return nil
+}
+
+// DeleteSurveyResponse deletes a survey response
+func (sa *Adapter) DeleteSurveyResponse(user *model.User, id string) error {
+
+	filter := bson.M{"_id": id, "user_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
+
+	res, err := sa.db.surveyResponses.DeleteOne(filter, nil)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.DeleteSurveyResponse(%s) - %s", id, err)
+		return fmt.Errorf("error storage.Adapter.DeleteSurveyResponse(): error while delete survey response (%s) - %s", id, err)
+	}
+	if res.DeletedCount != 1 {
+		fmt.Printf("storage.Adapter.DeleteSurveyResponse(%s) invalid id", id)
+		return fmt.Errorf("storage.Adapter.DeleteSurveyResponse(%s) invalid id", id)
+	}
+
+	return nil
+}

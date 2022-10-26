@@ -7,11 +7,11 @@ properties:
     readOnly: true
     type: string
   org_id:
-    readOnly: true
     type: string
+    readOnly: true
   app_id:
-    readOnly: true
     type: string
+    readOnly: true
   title: 
     type: string
   data:
@@ -32,3 +32,10 @@ properties:
     type: string
   default_data_key_rule:
     type: string
+  date_created:
+    type: string
+    readOnly: true
+  date_updated:
+    type: string
+    readOnly: true
+    nullable: true
