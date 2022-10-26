@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.1.0] - 2022-10-26
 ### Added
 - Created CRUD APIs for Surveys [#23](https://github.com/rokwire/polls-building-block/issues/23)
 - Created CRUD APIs for Survey Responses [#24](https://github.com/rokwire/polls-building-block/issues/24)
