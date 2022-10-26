@@ -21,7 +21,7 @@ get:
       content:
         application/json:
           schema:
-            $ref: "../../schemas/application/Survey.yaml"
+            $ref: "../../schemas/surveys/Survey.yaml"
     400:
       description: Bad request
     401:
@@ -50,7 +50,7 @@ put:
     content:
       application/json:
         schema:
-          $ref: "../../schemas/application/Survey.yaml"
+          $ref: "../../schemas/surveys/Survey.yaml"
     required: true
   responses:
     200:

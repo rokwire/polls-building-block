@@ -55,7 +55,7 @@ get:
           schema:
             type: array
             items:
-              $ref: "../../schemas/application/SurveyResponse.yaml"
+              $ref: "../../schemas/surveys/SurveyResponse.yaml"
     400:
       description: Bad request
     401:
@@ -74,7 +74,7 @@ post:
     content:
       application/json:
         schema:
-          $ref: "../../schemas/application/Survey.yaml"
+          $ref: "../../schemas/surveys/Survey.yaml"
     required: true
   responses:
     200:
@@ -82,7 +82,7 @@ post:
       content:
         application/json:
           schema:
-            $ref: "../../schemas/application/SurveyResponse.yaml"
+            $ref: "../../schemas/surveys/SurveyResponse.yaml"
     400:
       description: Bad request
     401:
