@@ -1,3 +1,67 @@
+get:
+  tags:
+    - Client
+  summary: Retrieves survey responses for the current user
+  description: |
+    Retrieves survey responses for the current user
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: survey_id
+      in: query
+      description: The id of the survey to retrieve responses for
+      required: false
+      style: simple
+      explode: false
+      schema:
+        type: string
+    - name: start_date
+      in: query
+      description: The start of the date range to search for
+      required: false
+      style: simple
+      explode: false
+      schema:
+        type: string
+    - name: end_date
+      in: query
+      description: The end of the date range to search for
+      required: false
+      style: simple
+      explode: false
+      schema:
+        type: string
+    - name: limit
+      in: query
+      description: The number of results to be loaded in one page
+      required: false
+      style: simple
+      explode: false
+      schema:
+        type: number
+    - name: offset
+      in: query
+      description: The number of results previously loaded
+      required: false
+      style: simple
+      explode: false
+      schema:
+        type: number
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../../schemas/surveys/SurveyResponse.yaml"
+    400:
+      description: Bad request
+    401:
+      description: Unauthorized
+    500:
+      description: Internal error
 post:
   tags:
     - Client
@@ -10,7 +74,7 @@ post:
     content:
       application/json:
         schema:
-          $ref: "../../schemas/application/Survey.yaml"
+          $ref: "../../schemas/surveys/Survey.yaml"
     required: true
   responses:
     200:
@@ -18,7 +82,7 @@ post:
       content:
         application/json:
           schema:
-            $ref: "../../schemas/application/SurveyResponse.yaml"
+            $ref: "../../schemas/surveys/SurveyResponse.yaml"
     400:
       description: Bad request
     401:

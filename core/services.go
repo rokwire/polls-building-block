@@ -297,6 +297,10 @@ func (app *Application) getSurveyResponse(user *model.User, id string) (*model.S
 	return app.storage.GetSurveyResponse(user, id)
 }
 
+func (app *Application) getSurveyResponses(user *model.User, surveyID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+	return app.storage.GetSurveyResponses(user, surveyID, startDate, endDate, limit, offset)
+}
+
 func (app *Application) createSurveyResponse(user *model.User, survey model.Survey) (*model.SurveyResponse, error) {
 	response := model.SurveyResponse{ID: uuid.NewString(), AppID: user.Claims.AppID, OrgID: user.Claims.OrgID,
 		UserID: user.Claims.Subject, DateCreated: time.Now().UTC(), Survey: survey}

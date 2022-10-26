@@ -66,6 +66,7 @@ type SurveyData struct {
 	DefaultResponseRule *string     `json:"default_response_rule" bson:"default_response_rule"`
 	FollowUpRule        *string     `json:"follow_up_rule" bson:"follow_up_rule"`
 	ScoreRule           *string     `json:"score_rule" bson:"score_rule"`
+	Replace             bool        `json:"replace" bson:"replace"`
 	Response            interface{} `json:"response" bson:"response"`
 
 	Type string `json:"type" bson:"type"`
