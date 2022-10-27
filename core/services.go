@@ -297,8 +297,8 @@ func (app *Application) getSurveyResponse(user *model.User, id string) (*model.S
 	return app.storage.GetSurveyResponse(user, id)
 }
 
-func (app *Application) getSurveyResponses(user *model.User, surveyID string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
-	return app.storage.GetSurveyResponses(user, surveyID, startDate, endDate, limit, offset)
+func (app *Application) getSurveyResponses(user *model.User, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+	return app.storage.GetSurveyResponses(user, surveyIDs, surveyTypes, startDate, endDate, limit, offset)
 }
 
 func (app *Application) createSurveyResponse(user *model.User, survey model.Survey) (*model.SurveyResponse, error) {

@@ -23,6 +23,7 @@ import (
 	"polls/core"
 	"polls/core/model"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gorilla/mux"
@@ -593,7 +594,16 @@ func (h ApisHandler) DeleteSurvey(user *model.User, w http.ResponseWriter, r *ht
 // @Security UserAuth
 // @Router /survey-responses [get]
 func (h ApisHandler) GetSurveyResponses(user *model.User, w http.ResponseWriter, r *http.Request) {
-	surveyID := r.URL.Query().Get("survey_id")
+	surveyIDsRaw := r.URL.Query().Get("survey_ids")
+	var surveyIDs []string
+	if len(surveyIDsRaw) > 0 {
+		surveyIDs = strings.Split(surveyIDsRaw, ",")
+	}
+	surveyTypesRaw := r.URL.Query().Get("survey_types")
+	var surveyTypes []string
+	if len(surveyTypesRaw) > 0 {
+		surveyTypes = strings.Split(surveyTypesRaw, ",")
+	}
 	startDateRaw := r.URL.Query().Get("start_date")
 	var startDate *time.Time
 	if len(startDateRaw) > 0 {
@@ -644,7 +654,7 @@ func (h ApisHandler) GetSurveyResponses(user *model.User, w http.ResponseWriter,
 		offset = intParsed
 	}
 
-	resData, err := h.app.Services.GetSurveyResponses(user, surveyID, startDate, endDate, &limit, &offset)
+	resData, err := h.app.Services.GetSurveyResponses(user, surveyIDs, surveyTypes, startDate, endDate, &limit, &offset)
 	if err != nil {
 		log.Printf("Error on apis.GetSurveyResponses: %s", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
