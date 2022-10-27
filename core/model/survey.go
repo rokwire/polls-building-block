@@ -36,9 +36,10 @@ type Survey struct {
 	OrgID              string                 `json:"org_id" bson:"org_id"`
 	AppID              string                 `json:"app_id" bson:"app_id"`
 	Title              string                 `json:"title" bson:"title"`
+	MoreInfo           *string                `json:"more_info" bson:"more_info"`
 	Data               map[string]SurveyData  `json:"data" bson:"data"`
 	Scored             bool                   `json:"scored" bson:"scored"`
-	ResultRule         string                 `json:"result_rule" bson:"result_rule"`
+	ResultRules        string                 `json:"result_rules" bson:"result_rules"`
 	Type               string                 `json:"type" bson:"type"`
 	SurveyStats        *SurveyStats           `json:"stats" bson:"stats"`
 	Sensitive          bool                   `json:"sensitive" bson:"sensitive"`

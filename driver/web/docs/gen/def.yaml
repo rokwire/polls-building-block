@@ -742,13 +742,15 @@ components:
           readOnly: true
         title:
           type: string
+        more_info:
+          type: string
         data:
           type: object
           additionalProperties:
             $ref: '#/components/schemas/SurveyData'
         scored:
           type: boolean
-        result_rule:
+        result_rules:
           type: string
         type:
           type: string

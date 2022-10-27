@@ -14,13 +14,15 @@ properties:
     readOnly: true
   title: 
     type: string
+  more_info:
+    type: string
   data:
     type: object
     additionalProperties:
       $ref: "./SurveyData.yaml"
   scored:
     type: boolean
-  result_rule:
+  result_rules:
     type: string
   type:
     type: string

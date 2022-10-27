@@ -411,14 +411,18 @@ func (sa *Adapter) UpdateSurvey(user *model.User, survey model.Survey) error {
 		filter := bson.M{"_id": survey.ID, "creator_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
 		update := bson.M{"$set": bson.M{
 			"title":                 survey.Title,
+			"more_info":             survey.MoreInfo,
 			"data":                  survey.Data,
 			"scored":                survey.Scored,
-			"result_rule":           survey.ResultRule,
+			"result_rules":          survey.ResultRules,
 			"type":                  survey.Type,
 			"stats":                 survey.SurveyStats,
 			"sensitive":             survey.Sensitive,
 			"default_data_key":      survey.DefaultDataKey,
 			"default_data_key_rule": survey.DefaultDataKeyRule,
+			"constants":             survey.Constants,
+			"strings":               survey.Strings,
+			"sub_rules":             survey.SubRules,
 			"date_updated":          now,
 		}}
 
