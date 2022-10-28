@@ -54,10 +54,11 @@ type Survey struct {
 
 // SurveyStats are stats of a Survey
 type SurveyStats struct {
-	Total    int                `json:"total" bson:"total"`
-	Complete int                `json:"complete" bson:"complete"`
-	Scored   int                `json:"scored" bson:"scored"`
-	Scores   map[string]float32 `json:"scores" bson:"scores"`
+	Total        int                    `json:"total" bson:"total"`
+	Complete     int                    `json:"complete" bson:"complete"`
+	Scored       int                    `json:"scored" bson:"scored"`
+	Scores       map[string]float32     `json:"scores" bson:"scores"`
+	ResponseData map[string]interface{} `json:"response_data" bson:"response_data"`
 }
 
 // SurveyData is data stored for a Survey
