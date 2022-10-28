@@ -80,7 +80,7 @@ type SurveyData struct {
 	CorrectAnswer  interface{}              `json:"correct_answer,omitempty" bson:"correct_answer,omitempty"`
 	CorrectAnswers []interface{}            `json:"correct_answers,omitempty" bson:"correct_answers,omitempty"`
 	Options        []map[string]interface{} `json:"options,omitempty" bson:"options,omitempty"`
-	Action         *ActionData              `json:"action,omitempty" bson:"action,omitempty"`
+	Actions        []ActionData             `json:"actions,omitempty" bson:"actions,omitempty"`
 	SelfScore      *bool                    `json:"self_score,omitempty" bson:"self_score,omitempty"`
 
 	// True/False
@@ -106,9 +106,6 @@ type SurveyData struct {
 
 	// DataEntry
 	DataFormat map[string]string `json:"data_format,omitempty" bson:"data_format,omitempty"`
-
-	// Response
-	Body *string `json:"body,omitempty" bson:"body,omitempty"`
 }
 
 // ActionData is the wrapped within SurveyData
