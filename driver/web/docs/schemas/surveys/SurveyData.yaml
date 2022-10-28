@@ -33,8 +33,10 @@ properties:
     type: array
     items:
       type: object
-  action:
-    $ref: "./ActionData.yaml"
+  actions:
+    type: array
+    items:
+      $ref: "./ActionData.yaml"
   yes_no:
     type: boolean
     nullable: true
@@ -68,7 +70,4 @@ properties:
     nullable: true
   data_format:
     type: object
-    nullable: true
-  body:
-    type: string
     nullable: true

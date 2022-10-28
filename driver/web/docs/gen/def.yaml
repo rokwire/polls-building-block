@@ -819,8 +819,10 @@ components:
           type: array
           items:
             type: object
-        action:
-          $ref: '#/components/schemas/ActionData'
+        actions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ActionData'
         yes_no:
           type: boolean
           nullable: true
@@ -854,9 +856,6 @@ components:
           nullable: true
         data_format:
           type: object
-          nullable: true
-        body:
-          type: string
           nullable: true
     SurveyStats:
       type: object
