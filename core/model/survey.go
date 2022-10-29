@@ -40,6 +40,7 @@ type Survey struct {
 	Data               map[string]SurveyData  `json:"data" bson:"data"`
 	Scored             bool                   `json:"scored" bson:"scored"`
 	ResultRules        string                 `json:"result_rules" bson:"result_rules"`
+	ResultJSON         string                 `json:"result_json" bson:"result_json"`
 	Type               string                 `json:"type" bson:"type"`
 	SurveyStats        *SurveyStats           `json:"stats" bson:"stats"`
 	Sensitive          bool                   `json:"sensitive" bson:"sensitive"`
