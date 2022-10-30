@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Rokwire Polls Building Block API
   description: Polls Building Block API Documentation
-  version: 1.1.0
+  version: 1.2.0
 servers:
   - url: 'https://api.rokwire.illinois.edu/polls'
     description: Production server
@@ -36,7 +36,13 @@ paths:
   /api/survey-responses:
     $ref: "./resources/client/survey-responses.yaml"     
   /api/survey-responses/{id}:
-    $ref: "./resources/client/survey-responsesid.yaml"             
+    $ref: "./resources/client/survey-responsesid.yaml"     
+
+  #Admin
+  /api/admin/surveys:
+    $ref: "./resources/admin/surveys.yaml"     
+  /api/admin/surveys/{id}:
+    $ref: "./resources/admin/surveysid.yaml"
 
 components:
   securitySchemes:

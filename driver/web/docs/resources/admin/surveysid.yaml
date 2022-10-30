@@ -1,9 +1,10 @@
 get:
   tags:
-    - Client
+    - Admin
   summary: Retrieves a survey by id
   description: |
     Retrieves a survey by id
+     **Auth:** Requires admin token with `get_surveys`, `updated_surveys`, `delete_surveys`, or `all_surveys` permission
   security:
     - bearerAuth: []
   parameters:
@@ -30,10 +31,11 @@ get:
       description: Internal error
 put:
   tags:
-    - Client
+    - Admin
   summary: Updates a survey with the specified id
   description: |
     Updates a survey with the specified id
+     **Auth:** Requires admin token with either `updated_surveys` or `all_surveys` permission
   security:
     - bearerAuth: []
   parameters:
@@ -63,10 +65,11 @@ put:
       description: Internal error
 delete:
   tags:
-    - Client
+    - Admin
   summary: Deletes a survey with the specified id
   description: |
     Deletes a survey with the specified id
+     **Auth:** Requires admin token with either `delete_surveys` or `all_surveys` permission
   security:
     - bearerAuth: []
   parameters:

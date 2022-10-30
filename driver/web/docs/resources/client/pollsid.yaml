@@ -23,7 +23,7 @@ get:
           schema:
             type: array
             items:
-              $ref: "../../schemas/application/Poll.yaml"
+              $ref: "../../schemas/polls/Poll.yaml"
     400:
       description: Bad request
     401:
@@ -52,7 +52,7 @@ put:
      content:
        application/json:
          schema:
-           $ref: "../../schemas/application/Poll.yaml"  
+           $ref: "../../schemas/polls/Poll.yaml"  
      required: true    
    responses:
      200:
@@ -62,7 +62,7 @@ put:
            schema:
              type: array
              items:
-               $ref: "../../schemas/application/Poll.yaml"
+               $ref: "../../schemas/polls/Poll.yaml"
      400:
        description: Bad request
      401:

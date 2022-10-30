@@ -1,8 +1,10 @@
 post:
   tags:
-    - Client
+    - Admin
   summary: Create a new survey
-  description: Create a new survey
+  description: |
+    Create a new survey
+     **Auth:** Requires admin token with `updated_surveys` or `all_surveys` permission
   security:
     - bearerAuth: []
   requestBody:
