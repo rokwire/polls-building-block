@@ -42,6 +42,10 @@ properties:
     type: object
   sub_rules:
     type: object
+  response_keys:
+    type: array
+    items:
+      type: string
   date_created:
     type: string
     readOnly: true

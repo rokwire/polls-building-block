@@ -49,6 +49,7 @@ type Survey struct {
 	Constants          map[string]interface{} `json:"constants" bson:"constants"`
 	Strings            map[string]interface{} `json:"strings" bson:"strings"`
 	SubRules           map[string]interface{} `json:"sub_rules" bson:"sub_rules"`
+	ResponseKeys       []string               `json:"response_keys" bson:"response_keys"`
 	DateCreated        time.Time              `json:"date_created" bson:"date_created"`
 	DateUpdated        *time.Time             `json:"date_updated" bson:"date_updated"`
 }
@@ -85,7 +86,7 @@ type SurveyData struct {
 	SelfScore      *bool                    `json:"self_score,omitempty" bson:"self_score,omitempty"`
 
 	// True/False
-	YesNo *bool `json:"yes_no,omitempty" bson:"yes_no,omitempty"`
+	Style *string `json:"style,omitempty" bson:"style,omitempty"`
 
 	// Multiple Choice
 	AllowMultiple *bool `json:"allow_multiple,omitempty" bson:"allow_multiple,omitempty"`

@@ -11,7 +11,7 @@ properties:
   default_follow_up_key:
     type: string
   default_response_rule:
-    type: string      
+    type: string       
   follow_up_rule:
     type: string
   score_rule:
@@ -37,8 +37,8 @@ properties:
     type: array
     items:
       $ref: "./ActionData.yaml"
-  yes_no:
-    type: boolean
+  style:
+    type: string
     nullable: true
   allow_multiple:
     type: boolean

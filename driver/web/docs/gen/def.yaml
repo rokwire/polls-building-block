@@ -778,6 +778,10 @@ components:
           type: object
         sub_rules:
           type: object
+        response_keys:
+          type: array
+          items:
+            type: string
         date_created:
           type: string
           readOnly: true
@@ -825,8 +829,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ActionData'
-        yes_no:
-          type: boolean
+        style:
+          type: string
           nullable: true
         allow_multiple:
           type: boolean
