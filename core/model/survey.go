@@ -79,11 +79,11 @@ type SurveyData struct {
 	Type string `json:"type" bson:"type"`
 
 	// Shared
-	CorrectAnswer  interface{}              `json:"correct_answer,omitempty" bson:"correct_answer,omitempty"`
-	CorrectAnswers []interface{}            `json:"correct_answers,omitempty" bson:"correct_answers,omitempty"`
-	Options        []map[string]interface{} `json:"options,omitempty" bson:"options,omitempty"`
-	Actions        []ActionData             `json:"actions,omitempty" bson:"actions,omitempty"`
-	SelfScore      *bool                    `json:"self_score,omitempty" bson:"self_score,omitempty"`
+	CorrectAnswer  interface{}   `json:"correct_answer,omitempty" bson:"correct_answer,omitempty"`
+	CorrectAnswers []interface{} `json:"correct_answers,omitempty" bson:"correct_answers,omitempty"`
+	Options        []OptionData  `json:"options,omitempty" bson:"options,omitempty"`
+	Actions        []ActionData  `json:"actions,omitempty" bson:"actions,omitempty"`
+	SelfScore      *bool         `json:"self_score,omitempty" bson:"self_score,omitempty"`
 
 	// True/False
 	Style *string `json:"style,omitempty" bson:"style,omitempty"`
@@ -115,4 +115,12 @@ type ActionData struct {
 	Type  string  `json:"type" bson:"type"`
 	Label *string `json:"label" bson:"label"`
 	Data  string  `json:"data" bson:"data"`
+}
+
+// OptionData is the wrapped within SurveyData
+type OptionData struct {
+	Title    string      `json:"title" bson:"title"`
+	Value    interface{} `json:"value" bson:"value"`
+	Score    *float64    `json:"score" bson:"score"`
+	Selected bool        `json:"selected" bson:"selected"`
 }

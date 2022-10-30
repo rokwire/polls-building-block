@@ -949,7 +949,7 @@ components:
         options:
           type: array
           items:
-            type: object
+            $ref: '#/components/schemas/OptionData'
         actions:
           type: array
           items:
@@ -1011,6 +1011,18 @@ components:
           type: string
         data:
           type: string
+    OptionData:
+      type: object
+      properties:
+        title:
+          type: string
+        value:
+          type: object
+        score:
+          type: number
+          nullable: true
+        selected:
+          type: boolean
     SurveyResponse:
       type: object
       properties:
