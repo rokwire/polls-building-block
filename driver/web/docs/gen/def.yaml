@@ -608,6 +608,131 @@ paths:
           description: Forbidden
         '500':
           description: Internal error
+  /api/admin/surveys:
+    post:
+      tags:
+        - Admin
+      summary: Create a new survey
+      description: |
+        Create a new survey
+         **Auth:** Requires admin token with `updated_surveys` or `all_surveys` permission
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: model.Survey
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Survey'
+        required: true
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Survey'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
+  '/api/admin/surveys/{id}':
+    get:
+      tags:
+        - Admin
+      summary: Retrieves a survey by id
+      description: |
+        Retrieves a survey by id
+         **Auth:** Requires admin token with `get_surveys`, `updated_surveys`, `delete_surveys`, or `all_surveys` permission
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: id
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Survey'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
+    put:
+      tags:
+        - Admin
+      summary: Updates a survey with the specified id
+      description: |
+        Updates a survey with the specified id
+         **Auth:** Requires admin token with either `updated_surveys` or `all_surveys` permission
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: id
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      requestBody:
+        description: Data body model.Survey
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Survey'
+        required: true
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
+    delete:
+      tags:
+        - Admin
+      summary: Deletes a survey with the specified id
+      description: |
+        Deletes a survey with the specified id
+         **Auth:** Requires admin token with either `delete_surveys` or `all_surveys` permission
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: id
+          required: true
+          style: simple
+          explode: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '500':
+          description: Internal error
 components:
   securitySchemes:
     bearerAuth:
@@ -809,7 +934,7 @@ components:
         score_rule:
           type: string
         replace:
-          type: bool
+          type: boolean
         response:
           type: object
         type:

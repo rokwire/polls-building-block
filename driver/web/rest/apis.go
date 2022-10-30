@@ -497,7 +497,7 @@ func (h ApisHandler) CreateSurvey(user *model.User, w http.ResponseWriter, r *ht
 		return
 	}
 
-	createdItem, err := h.app.Services.CreateSurvey(user, item)
+	createdItem, err := h.app.Services.CreateSurvey(user, item, false)
 	if err != nil {
 		log.Printf("Error on apis.CreateSurvey: %s", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -548,7 +548,7 @@ func (h ApisHandler) UpdateSurvey(user *model.User, w http.ResponseWriter, r *ht
 		return
 	}
 
-	err = h.app.Services.UpdateSurvey(user, item, id)
+	err = h.app.Services.UpdateSurvey(user, item, id, false)
 	if err != nil {
 		log.Printf("Error on apis.UpdateSurvey(%s): %s", id, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -571,7 +571,7 @@ func (h ApisHandler) DeleteSurvey(user *model.User, w http.ResponseWriter, r *ht
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	err := h.app.Services.DeleteSurvey(user, id)
+	err := h.app.Services.DeleteSurvey(user, id, false)
 	if err != nil {
 		log.Printf("Error on apis.DeleteSurvey(%s): %s", id, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

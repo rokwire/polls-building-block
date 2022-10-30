@@ -17,7 +17,7 @@ properties:
   score_rule:
     type: string
   replace:
-    type: bool
+    type: boolean
   response:
     type: object
   type:

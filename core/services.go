@@ -275,22 +275,28 @@ func (app *Application) getSurvey(user *model.User, id string) (*model.Survey, e
 	return app.storage.GetSurvey(user, id)
 }
 
-func (app *Application) createSurvey(user *model.User, survey model.Survey) (*model.Survey, error) {
+func (app *Application) createSurvey(user *model.User, survey model.Survey, admin bool) (*model.Survey, error) {
 	survey.ID = uuid.NewString()
 	survey.CreatorID = user.Claims.Subject
 	survey.DateCreated = time.Now().UTC()
 	survey.AppID = user.Claims.AppID
 	survey.OrgID = user.Claims.OrgID
+	if !admin {
+		survey.Type = "user"
+	}
 	return app.storage.CreateSurvey(survey)
 }
 
-func (app *Application) updateSurvey(user *model.User, survey model.Survey, id string) error {
+func (app *Application) updateSurvey(user *model.User, survey model.Survey, id string, admin bool) error {
 	survey.ID = id
-	return app.storage.UpdateSurvey(user, survey)
+	if !admin {
+		survey.Type = "user"
+	}
+	return app.storage.UpdateSurvey(user, survey, admin)
 }
 
-func (app *Application) deleteSurvey(user *model.User, id string) error {
-	return app.storage.DeleteSurvey(user, id)
+func (app *Application) deleteSurvey(user *model.User, id string, admin bool) error {
+	return app.storage.DeleteSurvey(user, id, admin)
 }
 
 func (app *Application) getSurveyResponse(user *model.User, id string) (*model.SurveyResponse, error) {

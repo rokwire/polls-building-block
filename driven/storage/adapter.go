@@ -405,10 +405,13 @@ func (sa *Adapter) CreateSurvey(survey model.Survey) (*model.Survey, error) {
 }
 
 // UpdateSurvey updates a survey
-func (sa *Adapter) UpdateSurvey(user *model.User, survey model.Survey) error {
+func (sa *Adapter) UpdateSurvey(user *model.User, survey model.Survey, admin bool) error {
 	if len(survey.ID) > 0 {
 		now := time.Now().UTC()
-		filter := bson.M{"_id": survey.ID, "creator_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
+		filter := bson.M{"_id": survey.ID, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
+		if !admin {
+			filter["creator_id"] = user.Claims.Subject
+		}
 		update := bson.M{"$set": bson.M{
 			"title":                 survey.Title,
 			"more_info":             survey.MoreInfo,
@@ -441,8 +444,11 @@ func (sa *Adapter) UpdateSurvey(user *model.User, survey model.Survey) error {
 }
 
 // DeleteSurvey deletes a survey
-func (sa *Adapter) DeleteSurvey(user *model.User, id string) error {
-	filter := bson.M{"_id": id, "creator_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
+func (sa *Adapter) DeleteSurvey(user *model.User, id string, admin bool) error {
+	filter := bson.M{"_id": id, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
+	if !admin {
+		filter["creator_id"] = user.Claims.Subject
+	}
 	res, err := sa.db.surveys.DeleteOne(filter, nil)
 	if err != nil {
 		return fmt.Errorf("error storage.Adapter.DeleteSurvey(): error while delete survey (%s) - %s", id, err)
