@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.2.0] - 2022-10-30
 ### Added
 - Get survey responses for a user [#34](https://github.com/rokwire/polls-building-block/issues/34)
+- Post survey alert and CRUD alert contact apis [#32](https://github.com/rokwire/polls-building-block/issues/32)
 
 ## [1.1.0] - 2022-10-26
 ### Added
