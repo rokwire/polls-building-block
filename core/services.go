@@ -320,3 +320,33 @@ func (app *Application) updateSurveyResponse(user *model.User, id string, survey
 func (app *Application) deleteSurveyResponse(user *model.User, id string) error {
 	return app.storage.DeleteSurveyResponse(user, id)
 }
+
+func (app *Application) getAlertContact(user *model.User, id string) (*model.AlertContact, error) {
+	return app.storage.GetAlertContact(user, id)
+}
+
+func (app *Application) createAlertContact(user *model.User, alertContact model.AlertContact) (*model.AlertContact, error) {
+	alertContact.ID = uuid.NewString()
+	return app.storage.CreateAlertContact(alertContact)
+}
+
+func (app *Application) updateAlertContact(user *model.User, id string, alertContact model.AlertContact) error {
+	return app.storage.UpdateAlertContact(user, id, alertContact)
+}
+
+func (app *Application) deleteAlertContact(user *model.User, id string) error {
+	return app.storage.DeleteAlertContact(user, id)
+}
+
+func (app *Application) createSurveyAlert(user *model.User, surveyAlert model.SurveyAlert) error {
+	contacts, err := app.storage.GetAlertContactsByKey(surveyAlert.ContactKey)
+	subject := surveyAlert.Content["subject"].(string)
+	body := surveyAlert.Content["body"].(string)
+	if len(contacts) > 0 && err == nil {
+		for i := 0; i < len(contacts); i++ {
+			app.notifications.SendMail(contacts[i].Identifier, subject, body)
+		}
+	}
+
+	return nil
+}

@@ -50,6 +50,13 @@ type Services interface {
 	CreateSurveyResponse(user *model.User, survey model.Survey) (*model.SurveyResponse, error)
 	UpdateSurveyResponse(user *model.User, id string, survey model.Survey) error
 	DeleteSurveyResponse(user *model.User, id string) error
+
+	//CRUD Survey Alerts
+	GetAlertContact(user *model.User, id string) (*model.AlertContact, error)
+	CreateAlertContact(user *model.User, alertContact model.AlertContact) (*model.AlertContact, error)
+	UpdateAlertContact(user *model.User, id string, alertContact model.AlertContact) error
+	DeleteAlertContact(user *model.User, id string) error
+	CreateSurveyAlert(user *model.User, surveyAlert model.SurveyAlert) error
 }
 
 type servicesImpl struct {
@@ -132,6 +139,26 @@ func (s *servicesImpl) DeleteSurveyResponse(user *model.User, id string) error {
 	return s.app.deleteSurveyResponse(user, id)
 }
 
+func (s *servicesImpl) GetAlertContact(user *model.User, id string) (*model.AlertContact, error) {
+	return s.app.getAlertContact(user, id)
+}
+
+func (s *servicesImpl) CreateAlertContact(user *model.User, alertContact model.AlertContact) (*model.AlertContact, error) {
+	return s.app.createAlertContact(user, alertContact)
+}
+
+func (s *servicesImpl) UpdateAlertContact(user *model.User, id string, alertContact model.AlertContact) error {
+	return s.app.updateAlertContact(user, id, alertContact)
+}
+
+func (s *servicesImpl) DeleteAlertContact(user *model.User, id string) error {
+	return s.app.deleteAlertContact(user, id)
+}
+
+func (s *servicesImpl) CreateSurveyAlert(user *model.User, surveyAlert model.SurveyAlert) error {
+	return s.app.createSurveyAlert(user, surveyAlert)
+}
+
 // Storage is used by core to storage data - DB storage adapter, file storage adapter etc
 type Storage interface {
 	GetPolls(user *model.User, filter model.PollsFilter, filterByToMembers bool, membership *groups.GroupMembership) ([]model.Poll, error)
@@ -155,4 +182,10 @@ type Storage interface {
 	CreateSurveyResponse(surveyResponse model.SurveyResponse) (*model.SurveyResponse, error)
 	UpdateSurveyResponse(user *model.User, id string, surveyResponse model.Survey) error
 	DeleteSurveyResponse(user *model.User, id string) error
+
+	GetAlertContact(user *model.User, id string) (*model.AlertContact, error)
+	CreateAlertContact(alertContact model.AlertContact) (*model.AlertContact, error)
+	UpdateAlertContact(user *model.User, id string, alertContact model.AlertContact) error
+	DeleteAlertContact(user *model.User, id string) error
+	GetAlertContactsByKey(key string) ([]model.AlertContact, error)
 }

@@ -556,3 +556,81 @@ func (sa *Adapter) DeleteSurveyResponse(user *model.User, id string) error {
 	}
 	return nil
 }
+
+// GetAlertContact retrieves a single alert contact
+func (sa *Adapter) GetAlertContact(user *model.User, id string) (*model.AlertContact, error) {
+	filter := bson.M{"_id": id}
+	var entry model.AlertContact
+	err := sa.db.alertContacts.FindOne(filter, &entry, nil)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.GetAlertContact(%s) - %s", id, err)
+		return nil, fmt.Errorf("error storage.Adapter.GetAlertContact(%s) - %s", id, err)
+	}
+
+	return &entry, nil
+}
+
+func (sa *Adapter) GetAlertContactsByKey(key string) ([]model.AlertContact, error) {
+	filter := bson.M{"key": key}
+	var results []model.AlertContact
+	err := sa.db.alertContacts.Find(filter, &results, nil)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.GetAlertContactsByKey - %s", err)
+		return nil, fmt.Errorf("error storage.Adapter.GetAlertContactsByKey - %s", err)
+	}
+
+	return results, nil
+}
+
+// CreateAlertContact creates an alert contact
+func (sa *Adapter) CreateAlertContact(alertContact model.AlertContact) (*model.AlertContact, error) {
+	_, err := sa.db.alertContacts.InsertOne(alertContact)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.CreateAlertContact(%s) - %s", alertContact.ID, err)
+		return nil, fmt.Errorf("error storage.Adapter.CreateAlertContact(%s) - %s", alertContact.ID, err)
+	}
+
+	return &alertContact, nil
+}
+
+// UpdateAlertContact updates an alert contact
+func (sa *Adapter) UpdateAlertContact(user *model.User, id string, alertContact model.AlertContact) error {
+	if len(id) > 0 {
+		now := time.Now().UTC()
+		filter := bson.M{"_id": id}
+		update := bson.M{"$set": bson.M{
+			"key":          alertContact.Key,
+			"type":         alertContact.Type,
+			"identifier":   alertContact.Identifier,
+			"params":       alertContact.Params,
+			"date_updated": now,
+		}}
+
+		res, err := sa.db.alertContacts.UpdateOne(filter, update, nil)
+		if err != nil {
+			fmt.Printf("error storage.Adapter.UpdateAlertContact(%s) - %s", alertContact.ID, err)
+			return fmt.Errorf("error storage.Adapter.UpdateAlertContact(%s) - %s", alertContact.ID, err)
+		}
+		if res.ModifiedCount != 1 {
+			fmt.Printf("storage.Adapter.UpdateAlertContact(%s) invalid id", alertContact.ID)
+			return fmt.Errorf("storage.Adapter.UpdateAlertContact(%s) invalid id", alertContact.ID)
+		}
+	}
+
+	return nil
+}
+
+// DeleteAlertContact deletes an alert contact
+func (sa *Adapter) DeleteAlertContact(user *model.User, id string) error {
+	filter := bson.M{"_id": id}
+	res, err := sa.db.alertContacts.DeleteOne(filter, nil)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.DeleteAlertContact(%s) - %s", id, err)
+		return fmt.Errorf("error storage.Adapter.DeleteAlertContact(): error while delete alert contact (%s) - %s", id, err)
+	}
+	if res.DeletedCount != 1 {
+		fmt.Printf("storage.Adapter.DeleteAlertContact(%s) invalid id", id)
+		return fmt.Errorf("storage.Adapter.DeleteAlertContact(%s) invalid id", id)
+	}
+	return nil
+}

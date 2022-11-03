@@ -184,3 +184,157 @@ func (h AdminApisHandler) DeleteSurvey(user *model.User, w http.ResponseWriter, 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 }
+
+// GetAlertContact Retrieves a alert contact by id
+// @Description Retrieves a alert contact by id
+// @Tags Admin
+// @ID GetAlertContact
+// @Accept json
+// @Produce json
+// @Success 200 {object} model.AlertContact
+// @Failure 401
+// @Security UserAuth
+// @Router /alert-contacts/{id} [get]
+func (h AdminApisHandler) GetAlertContact(user *model.User, w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	resData, err := h.app.Services.GetAlertContact(user, id)
+	if err != nil {
+		log.Printf("Error on apis.GetAlertContact(%s): %s", id, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if resData == nil {
+		log.Printf("Error on apis.GetAlertContact(%s): not found", id)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+
+	data, err := json.Marshal(resData)
+	if err != nil {
+
+		log.Printf("Error on apis.GetAlertContact(%s): %s", id, err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
+}
+
+// CreateAlertContact Create a new alert contact
+// @Description Create a new alert contact
+// @Tags Admin
+// @ID CreateAlertContact
+// @Param data body model.AlertContact true "body json"
+// @Accept json
+// @Success 200 {object} model.AlertContact
+// @Security UserAuth
+// @Router /alert-contacts [post]
+func (h AdminApisHandler) CreateAlertContact(user *model.User, w http.ResponseWriter, r *http.Request) {
+
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("Error on apis.CreateAlertContact: %s", err)
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	var item model.AlertContact
+	err = json.Unmarshal(data, &item)
+	if err != nil {
+		log.Printf("Error on apis.CreateAlertContact: %s", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	createdItem, err := h.app.Services.CreateAlertContact(user, item)
+	if err != nil {
+		log.Printf("Error on apis.CreateAlertContact: %s", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	jsonData, err := json.Marshal(createdItem)
+	if err != nil {
+		log.Printf("Error on apis.CreateAlertContact: %s", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
+}
+
+// UpdateAlertContact Updates an alert contact with the specified id
+// @Description Updates an alert contact with the specified id
+// @Tags Admin
+// @ID UpdateAlertContact
+// @Param data body model.AlertContact true "body json"
+// @Accept json
+// @Produce json
+// @Success 200 {object} model.AlertContact
+// @Failure 401
+// @Security UserAuth
+// @Router /alert-contacts/{id} [put]
+func (h AdminApisHandler) UpdateAlertContact(user *model.User, w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+
+		log.Printf("Error on apis.UpdateAlertContacts(%s): %s", id, err)
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	var item model.AlertContact
+	err = json.Unmarshal(data, &item)
+	if err != nil {
+		log.Printf("Error on apis.UpdateAlertContact(%s): %s", id, err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = h.app.Services.UpdateAlertContact(user, id, item)
+	if err != nil {
+		log.Printf("Error on apis.UpdateAlertContact(%s): %s", id, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+}
+
+// DeleteAlertContact Deletes an alert contact with the specified id
+// @Description Deletes an alert contact with the specified id
+// @Tags Admin
+// @ID DeleteAlertContact
+// @Success 200
+// @Security UserAuth
+// @Router /alert-contact/{id} [delete]
+func (h AdminApisHandler) DeleteAlertContact(user *model.User, w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	err := h.app.Services.DeleteAlertContact(user, id)
+	if err != nil {
+		log.Printf("Error on apis.DeleteAlertContact(%s): %s", id, err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+}
