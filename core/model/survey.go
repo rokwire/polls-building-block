@@ -112,9 +112,10 @@ type SurveyData struct {
 
 // ActionData is the wrapped within SurveyData
 type ActionData struct {
-	Type  string  `json:"type" bson:"type"`
-	Label *string `json:"label" bson:"label"`
-	Data  string  `json:"data" bson:"data"`
+	Type   string                 `json:"type" bson:"type"`
+	Label  *string                `json:"label" bson:"label"`
+	Data   string                 `json:"data" bson:"data"`
+	Params map[string]interface{} `json:"params" bson:"params"`
 }
 
 // OptionData is the wrapped within SurveyData
