@@ -185,6 +185,48 @@ func (h AdminApisHandler) DeleteSurvey(user *model.User, w http.ResponseWriter, 
 	w.WriteHeader(http.StatusOK)
 }
 
+// GetAlertContacts Retrieves all alert contacts
+// @Description Retrieves all alert contacts
+// @Tags Admin
+// @ID GetAlertContacts
+// @Accept json
+// @Produce json
+// @Success 200 {object} model.AlertContact
+// @Failure 401
+// @Security UserAuth
+// @Router /alert-contacts [get]
+func (h AdminApisHandler) GetAlertContacts(user *model.User, w http.ResponseWriter, r *http.Request) {
+
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	resData, err := h.app.Services.GetAlertContacts(user)
+	if err != nil {
+		log.Printf("Error on apis.GetAlertContact(%s): %s", id, err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if resData == nil {
+		log.Printf("Error on apis.GetAlertContact(%s): not found", id)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+
+	data, err := json.Marshal(resData)
+	if err != nil {
+
+		log.Printf("Error on apis.GetAlertContact(%s): %s", id, err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
+}
+
 // GetAlertContact Retrieves a alert contact by id
 // @Description Retrieves a alert contact by id
 // @Tags Admin

@@ -108,6 +108,7 @@ func (we Adapter) Start() {
 	adminRouter.HandleFunc("/surveys", we.adminAuthWrapFunc(we.adminApisHandler.CreateSurvey)).Methods("POST")
 	adminRouter.HandleFunc("/surveys/{id}", we.adminAuthWrapFunc(we.adminApisHandler.UpdateSurvey)).Methods("PUT")
 	adminRouter.HandleFunc("/surveys/{id}", we.adminAuthWrapFunc(we.adminApisHandler.DeleteSurvey)).Methods("DELETE")
+	adminRouter.HandleFunc("/alert-contacts", we.adminAuthWrapFunc(we.adminApisHandler.GetAlertContacts)).Methods("GET")
 	adminRouter.HandleFunc("/alert-contacts/{id}", we.adminAuthWrapFunc(we.adminApisHandler.GetAlertContact)).Methods("GET")
 	adminRouter.HandleFunc("/alert-contacts", we.adminAuthWrapFunc(we.adminApisHandler.CreateAlertContact)).Methods("POST")
 	adminRouter.HandleFunc("/alert-contacts/{id}", we.adminAuthWrapFunc(we.adminApisHandler.UpdateAlertContact)).Methods("PUT")

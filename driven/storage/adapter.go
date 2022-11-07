@@ -557,9 +557,22 @@ func (sa *Adapter) DeleteSurveyResponse(user *model.User, id string) error {
 	return nil
 }
 
+// GetAlertContacts retrieves all alert contacts
+func (sa *Adapter) GetAlertContacts(user *model.User) ([]model.AlertContact, error) {
+	filter := bson.M{"org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
+	var entry []model.AlertContact
+	err := sa.db.alertContacts.Find(filter, &entry, nil)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.GetAlertContacts - %s", err)
+		return nil, fmt.Errorf("error storage.Adapter.GetAlertContacts - %s", err)
+	}
+
+	return entry, nil
+}
+
 // GetAlertContact retrieves a single alert contact
 func (sa *Adapter) GetAlertContact(user *model.User, id string) (*model.AlertContact, error) {
-	filter := bson.M{"_id": id}
+	filter := bson.M{"_id": id, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
 	var entry model.AlertContact
 	err := sa.db.alertContacts.FindOne(filter, &entry, nil)
 	if err != nil {
@@ -570,6 +583,7 @@ func (sa *Adapter) GetAlertContact(user *model.User, id string) (*model.AlertCon
 	return &entry, nil
 }
 
+// GetAlertContactsByKey gets all alert contacts that share the key in the filter
 func (sa *Adapter) GetAlertContactsByKey(key string) ([]model.AlertContact, error) {
 	filter := bson.M{"key": key}
 	var results []model.AlertContact
@@ -597,11 +611,11 @@ func (sa *Adapter) CreateAlertContact(alertContact model.AlertContact) (*model.A
 func (sa *Adapter) UpdateAlertContact(user *model.User, id string, alertContact model.AlertContact) error {
 	if len(id) > 0 {
 		now := time.Now().UTC()
-		filter := bson.M{"_id": id}
+		filter := bson.M{"_id": id, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
 		update := bson.M{"$set": bson.M{
 			"key":          alertContact.Key,
 			"type":         alertContact.Type,
-			"identifier":   alertContact.Identifier,
+			"address":      alertContact.Address,
 			"params":       alertContact.Params,
 			"date_updated": now,
 		}}
@@ -622,7 +636,7 @@ func (sa *Adapter) UpdateAlertContact(user *model.User, id string, alertContact 
 
 // DeleteAlertContact deletes an alert contact
 func (sa *Adapter) DeleteAlertContact(user *model.User, id string) error {
-	filter := bson.M{"_id": id}
+	filter := bson.M{"_id": id, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
 	res, err := sa.db.alertContacts.DeleteOne(filter, nil)
 	if err != nil {
 		fmt.Printf("error storage.Adapter.DeleteAlertContact(%s) - %s", id, err)

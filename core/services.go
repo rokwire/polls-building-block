@@ -321,12 +321,19 @@ func (app *Application) deleteSurveyResponse(user *model.User, id string) error 
 	return app.storage.DeleteSurveyResponse(user, id)
 }
 
+func (app *Application) getAlertContacts(user *model.User) ([]model.AlertContact, error) {
+	return app.storage.GetAlertContacts(user)
+}
+
 func (app *Application) getAlertContact(user *model.User, id string) (*model.AlertContact, error) {
 	return app.storage.GetAlertContact(user, id)
 }
 
 func (app *Application) createAlertContact(user *model.User, alertContact model.AlertContact) (*model.AlertContact, error) {
 	alertContact.ID = uuid.NewString()
+	alertContact.AppID = user.Claims.AppID
+	alertContact.OrgID = user.Claims.OrgID
+	alertContact.DateCreated = time.Now().UTC()
 	return app.storage.CreateAlertContact(alertContact)
 }
 
@@ -340,11 +347,25 @@ func (app *Application) deleteAlertContact(user *model.User, id string) error {
 
 func (app *Application) createSurveyAlert(user *model.User, surveyAlert model.SurveyAlert) error {
 	contacts, err := app.storage.GetAlertContactsByKey(surveyAlert.ContactKey)
-	subject := surveyAlert.Content["subject"].(string)
-	body := surveyAlert.Content["body"].(string)
-	if len(contacts) > 0 && err == nil {
-		for i := 0; i < len(contacts); i++ {
-			app.notifications.SendMail(contacts[i].Identifier, subject, body)
+	if len(contacts) == 0 {
+		return fmt.Errorf("error on Application.createSurveyAlert: No contacts found with ket %s", surveyAlert.ContactKey)
+	}
+
+	if err != nil {
+		return fmt.Errorf("error on Application.createSurveyAlert: %s", err)
+	}
+
+	for i := 0; i < len(contacts); i++ {
+		if contacts[i].Type == "email" {
+			subject, ok := surveyAlert.Content["subject"].(string)
+			if !ok {
+				return fmt.Errorf("error on Application.createSurveyAlert: No subject available")
+			}
+			body, ok := surveyAlert.Content["body"].(string)
+			if !ok {
+				return fmt.Errorf("error on Application.createSurveyAlert: No body available")
+			}
+			app.notifications.SendMail(contacts[i].Address, subject, body)
 		}
 	}
 

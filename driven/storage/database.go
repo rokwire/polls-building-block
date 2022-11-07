@@ -268,6 +268,16 @@ func (m *database) applySurveyResponsesChecks(surveyResponses *collectionWrapper
 func (m *database) applyAlertContactsChecks(alertContacts *collectionWrapper) error {
 	log.Println("apply alert contacts checks.....")
 
+	err := alertContacts.AddIndex(bson.D{primitive.E{Key: "org_id", Value: 1}, primitive.E{Key: "app_id", Value: 1}, primitive.E{Key: "user_id", Value: 1}}, false)
+	if err != nil {
+		return err
+	}
+
+	err = alertContacts.AddIndex(bson.D{primitive.E{Key: "survey._id", Value: 1}}, false)
+	if err != nil {
+		return err
+	}
+
 	log.Println("survey alert contacts passed")
 	return nil
 }

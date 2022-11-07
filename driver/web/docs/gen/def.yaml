@@ -797,6 +797,29 @@ paths:
           description: Unauthorized
         '500':
           description: Internal error
+    get:
+      tags:
+        - Admin
+      summary: Retrieves  all alert contacts
+      description: |
+        Retrieves  all alert contacts
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AlertContact'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
   '/api/admin/alert-contacts/{id}':
     get:
       tags:
@@ -1213,7 +1236,7 @@ components:
           type: string
         type:
           type: string
-        identifier:
+        address:
           type: string
         params:
           type: object

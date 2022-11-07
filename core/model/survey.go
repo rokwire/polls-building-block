@@ -27,9 +27,11 @@ type SurveyAlert struct {
 // AlertContact is what will be used to identify where to send survey alerts
 type AlertContact struct {
 	ID          string                 `json:"id" bson:"_id"`
+	OrgID       string                 `json:"org_id" bson:"org_id"`
+	AppID       string                 `json:"app_id" bson:"app_id"`
 	Key         string                 `json:"key" bson:"key"`
 	Type        string                 `json:"type" bson:"type"`
-	Identifier  string                 `json:"identifier" bson:"identifier"`
+	Address     string                 `json:"address" bson:"address"`
 	Params      map[string]interface{} `json:"params" bson:"params"`
 	DateCreated time.Time              `json:"date_created" bson:"date_created"`
 	DateUpdated *time.Time             `json:"date_updated" bson:"date_updated"`

@@ -52,6 +52,7 @@ type Services interface {
 	DeleteSurveyResponse(user *model.User, id string) error
 
 	//CRUD Survey Alerts
+	GetAlertContacts(user *model.User) ([]model.AlertContact, error)
 	GetAlertContact(user *model.User, id string) (*model.AlertContact, error)
 	CreateAlertContact(user *model.User, alertContact model.AlertContact) (*model.AlertContact, error)
 	UpdateAlertContact(user *model.User, id string, alertContact model.AlertContact) error
@@ -139,6 +140,10 @@ func (s *servicesImpl) DeleteSurveyResponse(user *model.User, id string) error {
 	return s.app.deleteSurveyResponse(user, id)
 }
 
+func (s *servicesImpl) GetAlertContacts(user *model.User) ([]model.AlertContact, error) {
+	return s.app.getAlertContacts(user)
+}
+
 func (s *servicesImpl) GetAlertContact(user *model.User, id string) (*model.AlertContact, error) {
 	return s.app.getAlertContact(user, id)
 }
@@ -183,6 +188,7 @@ type Storage interface {
 	UpdateSurveyResponse(user *model.User, id string, surveyResponse model.Survey) error
 	DeleteSurveyResponse(user *model.User, id string) error
 
+	GetAlertContacts(user *model.User) ([]model.AlertContact, error)
 	GetAlertContact(user *model.User, id string) (*model.AlertContact, error)
 	CreateAlertContact(alertContact model.AlertContact) (*model.AlertContact, error)
 	UpdateAlertContact(user *model.User, id string, alertContact model.AlertContact) error
