@@ -346,13 +346,10 @@ func (app *Application) deleteAlertContact(user *model.User, id string) error {
 }
 
 func (app *Application) createSurveyAlert(user *model.User, surveyAlert model.SurveyAlert) error {
-	contacts, err := app.storage.GetAlertContactsByKey(surveyAlert.ContactKey)
-	if len(contacts) == 0 {
-		return fmt.Errorf("error on Application.createSurveyAlert: No contacts found with ket %s", surveyAlert.ContactKey)
-	}
+	contacts, err := app.storage.GetAlertContactsByKey(surveyAlert.ContactKey, user)
 
 	if err != nil {
-		return fmt.Errorf("error on Application.createSurveyAlert: %s", err)
+		return err
 	}
 
 	for i := 0; i < len(contacts); i++ {

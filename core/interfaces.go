@@ -193,5 +193,5 @@ type Storage interface {
 	CreateAlertContact(alertContact model.AlertContact) (*model.AlertContact, error)
 	UpdateAlertContact(user *model.User, id string, alertContact model.AlertContact) error
 	DeleteAlertContact(user *model.User, id string) error
-	GetAlertContactsByKey(key string) ([]model.AlertContact, error)
+	GetAlertContactsByKey(key string, user *model.User) ([]model.AlertContact, error)
 }

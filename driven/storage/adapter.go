@@ -584,13 +584,17 @@ func (sa *Adapter) GetAlertContact(user *model.User, id string) (*model.AlertCon
 }
 
 // GetAlertContactsByKey gets all alert contacts that share the key in the filter
-func (sa *Adapter) GetAlertContactsByKey(key string) ([]model.AlertContact, error) {
-	filter := bson.M{"key": key}
+func (sa *Adapter) GetAlertContactsByKey(key string, user *model.User) ([]model.AlertContact, error) {
+	filter := bson.M{"key": key, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
 	var results []model.AlertContact
 	err := sa.db.alertContacts.Find(filter, &results, nil)
 	if err != nil {
 		fmt.Printf("error storage.Adapter.GetAlertContactsByKey - %s", err)
 		return nil, fmt.Errorf("error storage.Adapter.GetAlertContactsByKey - %s", err)
+	}
+
+	if len(results) == 0 {
+		return nil, fmt.Errorf("error on Application.createSurveyAlert: No contacts found with key %s", key)
 	}
 
 	return results, nil
