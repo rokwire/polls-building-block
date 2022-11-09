@@ -99,6 +99,7 @@ func (we Adapter) Start() {
 	apiRouter.HandleFunc("/survey-responses", we.userAuthWrapFunc(we.apisHandler.CreateSurveyResponse)).Methods("POST")
 	apiRouter.HandleFunc("/survey-responses/{id}", we.userAuthWrapFunc(we.apisHandler.UpdateSurveyResponse)).Methods("PUT")
 	apiRouter.HandleFunc("/survey-responses/{id}", we.userAuthWrapFunc(we.apisHandler.DeleteSurveyResponse)).Methods("DELETE")
+	apiRouter.HandleFunc("/survey-alerts", we.userAuthWrapFunc(we.apisHandler.CreateSurveyAlert)).Methods("POST")
 
 	// handle admin apis
 	adminRouter := apiRouter.PathPrefix("/admin").Subrouter()
@@ -107,7 +108,11 @@ func (we Adapter) Start() {
 	adminRouter.HandleFunc("/surveys", we.adminAuthWrapFunc(we.adminApisHandler.CreateSurvey)).Methods("POST")
 	adminRouter.HandleFunc("/surveys/{id}", we.adminAuthWrapFunc(we.adminApisHandler.UpdateSurvey)).Methods("PUT")
 	adminRouter.HandleFunc("/surveys/{id}", we.adminAuthWrapFunc(we.adminApisHandler.DeleteSurvey)).Methods("DELETE")
-
+	adminRouter.HandleFunc("/alert-contacts", we.adminAuthWrapFunc(we.adminApisHandler.GetAlertContacts)).Methods("GET")
+	adminRouter.HandleFunc("/alert-contacts/{id}", we.adminAuthWrapFunc(we.adminApisHandler.GetAlertContact)).Methods("GET")
+	adminRouter.HandleFunc("/alert-contacts", we.adminAuthWrapFunc(we.adminApisHandler.CreateAlertContact)).Methods("POST")
+	adminRouter.HandleFunc("/alert-contacts/{id}", we.adminAuthWrapFunc(we.adminApisHandler.UpdateAlertContact)).Methods("PUT")
+	adminRouter.HandleFunc("/alert-contacts/{id}", we.adminAuthWrapFunc(we.adminApisHandler.DeleteAlertContact)).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(":"+we.port, router))
 }
 

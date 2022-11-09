@@ -18,6 +18,25 @@ import (
 	"time"
 )
 
+// SurveyAlert is a survey alert to be sent to notifications BB
+type SurveyAlert struct {
+	ContactKey string                 `json:"contact_key" bson:"contact_key"`
+	Content    map[string]interface{} `json:"content" bson:"content"`
+}
+
+// AlertContact is what will be used to identify where to send survey alerts
+type AlertContact struct {
+	ID          string                 `json:"id" bson:"_id"`
+	OrgID       string                 `json:"org_id" bson:"org_id"`
+	AppID       string                 `json:"app_id" bson:"app_id"`
+	Key         string                 `json:"key" bson:"key"`
+	Type        string                 `json:"type" bson:"type"`
+	Address     string                 `json:"address" bson:"address"`
+	Params      map[string]interface{} `json:"params" bson:"params"`
+	DateCreated time.Time              `json:"date_created" bson:"date_created"`
+	DateUpdated *time.Time             `json:"date_updated" bson:"date_updated"`
+}
+
 // SurveyResponse wraps the entire survey response
 type SurveyResponse struct {
 	ID          string     `json:"id" bson:"_id"`
