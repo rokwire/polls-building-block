@@ -822,3 +822,39 @@ func (h ApisHandler) DeleteSurveyResponse(user *model.User, w http.ResponseWrite
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 }
+
+// CreateSurveyAlert Creates a survey alert
+// @Description Create a new survey alert to be sent to notifications BB
+// @Tags Client
+// @ID CreateSurveyAlert
+// @Param data body model.SurveyAlert true "body json"
+// @Accept json
+// @Success 200 {object} model.SurveyAlert
+// @Security UserAuth
+// @Router /survey-alert [post]
+func (h ApisHandler) CreateSurveyAlert(user *model.User, w http.ResponseWriter, r *http.Request) {
+	data, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("Error on apis.CreateAlert: %s", err)
+		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
+		return
+	}
+
+	var item model.SurveyAlert
+	err = json.Unmarshal(data, &item)
+	if err != nil {
+		log.Printf("Error on apis.CreateSurveyAlert: %s", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	err = h.app.Services.CreateSurveyAlert(user, item)
+	if err != nil {
+		log.Printf("Error on apis.CreateSurveyAlert: %s", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+}

@@ -45,6 +45,7 @@ type database struct {
 	settings        *collectionWrapper
 	surveys         *collectionWrapper
 	surveyResponses *collectionWrapper
+	alertContacts   *collectionWrapper
 }
 
 func (m *database) start() error {
@@ -100,10 +101,17 @@ func (m *database) start() error {
 		return err
 	}
 
+	alertContacts := &collectionWrapper{database: m, coll: db.Collection("alert_contacts")}
+	err = m.applyAlertContactsChecks(surveyResponses)
+	if err != nil {
+		return err
+	}
+
 	m.polls = polls
 	m.settings = settings
 	m.surveys = surveys
 	m.surveyResponses = surveyResponses
+	m.alertContacts = alertContacts
 
 	return nil
 }
@@ -254,5 +262,17 @@ func (m *database) applySurveyResponsesChecks(surveyResponses *collectionWrapper
 	}
 
 	log.Println("survey responses passed")
+	return nil
+}
+
+func (m *database) applyAlertContactsChecks(alertContacts *collectionWrapper) error {
+	log.Println("apply alert contacts checks.....")
+
+	err := alertContacts.AddIndex(bson.D{primitive.E{Key: "org_id", Value: 1}, primitive.E{Key: "app_id", Value: 1}, primitive.E{Key: "key", Value: 1}}, false)
+	if err != nil {
+		return err
+	}
+
+	log.Println("survey alert contacts passed")
 	return nil
 }

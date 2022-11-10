@@ -320,3 +320,51 @@ func (app *Application) updateSurveyResponse(user *model.User, id string, survey
 func (app *Application) deleteSurveyResponse(user *model.User, id string) error {
 	return app.storage.DeleteSurveyResponse(user, id)
 }
+
+func (app *Application) getAlertContacts(user *model.User) ([]model.AlertContact, error) {
+	return app.storage.GetAlertContacts(user)
+}
+
+func (app *Application) getAlertContact(user *model.User, id string) (*model.AlertContact, error) {
+	return app.storage.GetAlertContact(user, id)
+}
+
+func (app *Application) createAlertContact(user *model.User, alertContact model.AlertContact) (*model.AlertContact, error) {
+	alertContact.ID = uuid.NewString()
+	alertContact.AppID = user.Claims.AppID
+	alertContact.OrgID = user.Claims.OrgID
+	alertContact.DateCreated = time.Now().UTC()
+	return app.storage.CreateAlertContact(alertContact)
+}
+
+func (app *Application) updateAlertContact(user *model.User, id string, alertContact model.AlertContact) error {
+	return app.storage.UpdateAlertContact(user, id, alertContact)
+}
+
+func (app *Application) deleteAlertContact(user *model.User, id string) error {
+	return app.storage.DeleteAlertContact(user, id)
+}
+
+func (app *Application) createSurveyAlert(user *model.User, surveyAlert model.SurveyAlert) error {
+	contacts, err := app.storage.GetAlertContactsByKey(surveyAlert.ContactKey, user)
+
+	if err != nil {
+		return err
+	}
+
+	for i := 0; i < len(contacts); i++ {
+		if contacts[i].Type == "email" {
+			subject, ok := surveyAlert.Content["subject"].(string)
+			if !ok {
+				return fmt.Errorf("error on Application.createSurveyAlert: No subject available")
+			}
+			body, ok := surveyAlert.Content["body"].(string)
+			if !ok {
+				return fmt.Errorf("error on Application.createSurveyAlert: No body available")
+			}
+			app.notifications.SendMail(contacts[i].Address, subject, body)
+		}
+	}
+
+	return nil
+}
