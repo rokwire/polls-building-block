@@ -201,6 +201,27 @@ func (app *Application) notifyNotificationsBBForPoll(user *model.User, poll *mod
 				"entity_name": poll.Question,
 			},
 		})
+	} else {
+		app.notifications.SendNotification(model.NotificationMessage{
+			Recipients: poll.ToMembersList.ToNotificationRecipients(),
+			Sender: &model.Sender{
+				Type: "user",
+				User: &model.UserRef{
+					UserID: user.Claims.Subject,
+					Name:   user.Claims.Name,
+				},
+			},
+			Topic:   &topic,
+			Subject: "Illinois",
+			Body:    message,
+			Data: map[string]string{
+				"type":        "poll",
+				"operation":   operation,
+				"entity_type": "poll",
+				"entity_id":   poll.ID.Hex(),
+				"entity_name": poll.Question,
+			},
+		})
 	}
 
 	return nil
