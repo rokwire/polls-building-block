@@ -21,6 +21,9 @@ import (
 	"polls/core/model"
 	"polls/driven/groups"
 	"polls/driven/storage"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 func (app *Application) getVersion() string {
@@ -253,4 +256,102 @@ func (app *Application) OnCollectionUpdated(collection string, record map[string
 			app.sseServer.NotifyPollUpdate(poll.ID.Hex(), poll)
 		}
 	}
+}
+
+func (app *Application) getSurvey(user *model.User, id string) (*model.Survey, error) {
+	return app.storage.GetSurvey(user, id)
+}
+
+func (app *Application) createSurvey(user *model.User, survey model.Survey, admin bool) (*model.Survey, error) {
+	survey.ID = uuid.NewString()
+	survey.CreatorID = user.Claims.Subject
+	survey.DateCreated = time.Now().UTC()
+	survey.AppID = user.Claims.AppID
+	survey.OrgID = user.Claims.OrgID
+	if !admin {
+		survey.Type = "user"
+	}
+	return app.storage.CreateSurvey(survey)
+}
+
+func (app *Application) updateSurvey(user *model.User, survey model.Survey, id string, admin bool) error {
+	survey.ID = id
+	if !admin {
+		survey.Type = "user"
+	}
+	return app.storage.UpdateSurvey(user, survey, admin)
+}
+
+func (app *Application) deleteSurvey(user *model.User, id string, admin bool) error {
+	return app.storage.DeleteSurvey(user, id, admin)
+}
+
+func (app *Application) getSurveyResponse(user *model.User, id string) (*model.SurveyResponse, error) {
+	return app.storage.GetSurveyResponse(user, id)
+}
+
+func (app *Application) getSurveyResponses(user *model.User, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+	return app.storage.GetSurveyResponses(user, surveyIDs, surveyTypes, startDate, endDate, limit, offset)
+}
+
+func (app *Application) createSurveyResponse(user *model.User, survey model.Survey) (*model.SurveyResponse, error) {
+	response := model.SurveyResponse{ID: uuid.NewString(), AppID: user.Claims.AppID, OrgID: user.Claims.OrgID,
+		UserID: user.Claims.Subject, DateCreated: time.Now().UTC(), Survey: survey}
+	return app.storage.CreateSurveyResponse(response)
+}
+
+func (app *Application) updateSurveyResponse(user *model.User, id string, survey model.Survey) error {
+	return app.storage.UpdateSurveyResponse(user, id, survey)
+}
+
+func (app *Application) deleteSurveyResponse(user *model.User, id string) error {
+	return app.storage.DeleteSurveyResponse(user, id)
+}
+
+func (app *Application) getAlertContacts(user *model.User) ([]model.AlertContact, error) {
+	return app.storage.GetAlertContacts(user)
+}
+
+func (app *Application) getAlertContact(user *model.User, id string) (*model.AlertContact, error) {
+	return app.storage.GetAlertContact(user, id)
+}
+
+func (app *Application) createAlertContact(user *model.User, alertContact model.AlertContact) (*model.AlertContact, error) {
+	alertContact.ID = uuid.NewString()
+	alertContact.AppID = user.Claims.AppID
+	alertContact.OrgID = user.Claims.OrgID
+	alertContact.DateCreated = time.Now().UTC()
+	return app.storage.CreateAlertContact(alertContact)
+}
+
+func (app *Application) updateAlertContact(user *model.User, id string, alertContact model.AlertContact) error {
+	return app.storage.UpdateAlertContact(user, id, alertContact)
+}
+
+func (app *Application) deleteAlertContact(user *model.User, id string) error {
+	return app.storage.DeleteAlertContact(user, id)
+}
+
+func (app *Application) createSurveyAlert(user *model.User, surveyAlert model.SurveyAlert) error {
+	contacts, err := app.storage.GetAlertContactsByKey(surveyAlert.ContactKey, user)
+
+	if err != nil {
+		return err
+	}
+
+	for i := 0; i < len(contacts); i++ {
+		if contacts[i].Type == "email" {
+			subject, ok := surveyAlert.Content["subject"].(string)
+			if !ok {
+				return fmt.Errorf("error on Application.createSurveyAlert: No subject available")
+			}
+			body, ok := surveyAlert.Content["body"].(string)
+			if !ok {
+				return fmt.Errorf("error on Application.createSurveyAlert: No body available")
+			}
+			app.notifications.SendMail(contacts[i].Address, subject, body)
+		}
+	}
+
+	return nil
 }

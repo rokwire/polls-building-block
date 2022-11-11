@@ -75,7 +75,7 @@ lint:  $(BASE) $(GOLINT) ; $(info $(M) running golint…) @ ## Run golint
 	$Q cd $(BASE) && $(GOLINT) -set_exit_status $(PKGS)
 
 .PHONY: checkfmt
-checkfmt: ; $(info $(M) Checking formatting…) @ ## Run gofmt to cehck formatting on all source files
+checkfmt: ; $(info $(M) Checking formatting…) @ ## Run gofmt to cehck formatting on all source files 
 	@ret=0 && for d in $$($(GO) list -f '{{.Dir}}' ./...); do \
 	    if [ $$($(GOFMT) -l $$d/*.go | wc -l | sed 's| ||g') -ne "0" ] ; then \
 	    $(GOFMT) -l $$d/*.go ; \
@@ -114,9 +114,13 @@ version:
 vendor:
 	$(GO) mod vendor
 
-.PHONY: swagger
-swagger: ;
-	swag init -g driver/web/adapter.go
+.PHONY: oapi-gen-types
+oapi-gen-types: ;
+	oapi-codegen --config oapi-codegen-config.yaml driver/web/docs/gen/def.yaml
+
+.PHONY: oapi-gen-docs
+oapi-gen-docs: ;
+	swagger-cli bundle driver/web/docs/index.yaml --outfile driver/web/docs/gen/def.yaml --type yaml	
 
 .PHONY: log-variables
 log-variables: ; $(info $(M) Log info…) @ ## Log the variables values

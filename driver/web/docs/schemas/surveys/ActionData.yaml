@@ -1,0 +1,11 @@
+type: object
+properties:
+  type:
+    type: string
+  label:
+    type: string
+  data:
+    type: string
+  params:
+    nullable: true
+    type: object

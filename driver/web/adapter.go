@@ -90,7 +90,29 @@ func (we Adapter) Start() {
 	apiRouter.HandleFunc("/polls/{id}/vote", we.userAuthWrapFunc(we.apisHandler.VotePoll)).Methods("PUT")
 	apiRouter.HandleFunc("/polls/{id}/start", we.userAuthWrapFunc(we.apisHandler.StartPoll)).Methods("PUT")
 	apiRouter.HandleFunc("/polls/{id}/end", we.userAuthWrapFunc(we.apisHandler.EndPoll)).Methods("PUT")
+	apiRouter.HandleFunc("/surveys/{id}", we.userAuthWrapFunc(we.apisHandler.GetSurvey)).Methods("GET")
+	apiRouter.HandleFunc("/surveys", we.userAuthWrapFunc(we.apisHandler.CreateSurvey)).Methods("POST")
+	apiRouter.HandleFunc("/surveys/{id}", we.userAuthWrapFunc(we.apisHandler.UpdateSurvey)).Methods("PUT")
+	apiRouter.HandleFunc("/surveys/{id}", we.userAuthWrapFunc(we.apisHandler.DeleteSurvey)).Methods("DELETE")
+	apiRouter.HandleFunc("/survey-responses/{id}", we.userAuthWrapFunc(we.apisHandler.GetSurveyResponse)).Methods("GET")
+	apiRouter.HandleFunc("/survey-responses", we.userAuthWrapFunc(we.apisHandler.GetSurveyResponses)).Methods("GET")
+	apiRouter.HandleFunc("/survey-responses", we.userAuthWrapFunc(we.apisHandler.CreateSurveyResponse)).Methods("POST")
+	apiRouter.HandleFunc("/survey-responses/{id}", we.userAuthWrapFunc(we.apisHandler.UpdateSurveyResponse)).Methods("PUT")
+	apiRouter.HandleFunc("/survey-responses/{id}", we.userAuthWrapFunc(we.apisHandler.DeleteSurveyResponse)).Methods("DELETE")
+	apiRouter.HandleFunc("/survey-alerts", we.userAuthWrapFunc(we.apisHandler.CreateSurveyAlert)).Methods("POST")
 
+	// handle admin apis
+	adminRouter := apiRouter.PathPrefix("/admin").Subrouter()
+
+	adminRouter.HandleFunc("/surveys/{id}", we.adminAuthWrapFunc(we.adminApisHandler.GetSurvey)).Methods("GET")
+	adminRouter.HandleFunc("/surveys", we.adminAuthWrapFunc(we.adminApisHandler.CreateSurvey)).Methods("POST")
+	adminRouter.HandleFunc("/surveys/{id}", we.adminAuthWrapFunc(we.adminApisHandler.UpdateSurvey)).Methods("PUT")
+	adminRouter.HandleFunc("/surveys/{id}", we.adminAuthWrapFunc(we.adminApisHandler.DeleteSurvey)).Methods("DELETE")
+	adminRouter.HandleFunc("/alert-contacts", we.adminAuthWrapFunc(we.adminApisHandler.GetAlertContacts)).Methods("GET")
+	adminRouter.HandleFunc("/alert-contacts/{id}", we.adminAuthWrapFunc(we.adminApisHandler.GetAlertContact)).Methods("GET")
+	adminRouter.HandleFunc("/alert-contacts", we.adminAuthWrapFunc(we.adminApisHandler.CreateAlertContact)).Methods("POST")
+	adminRouter.HandleFunc("/alert-contacts/{id}", we.adminAuthWrapFunc(we.adminApisHandler.UpdateAlertContact)).Methods("PUT")
+	adminRouter.HandleFunc("/alert-contacts/{id}", we.adminAuthWrapFunc(we.adminApisHandler.DeleteAlertContact)).Methods("DELETE")
 	log.Fatal(http.ListenAndServe(":"+we.port, router))
 }
 
@@ -129,9 +151,9 @@ func (we Adapter) apiKeyOrTokenWrapFunc(handler apiKeysAuthFunc) http.HandlerFun
 	}
 }
 
-type userAuthFunc = func(*model.User, http.ResponseWriter, *http.Request)
+type authFunc = func(*model.User, http.ResponseWriter, *http.Request)
 
-func (we Adapter) userAuthWrapFunc(handler userAuthFunc) http.HandlerFunc {
+func (we Adapter) userAuthWrapFunc(handler authFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		utils.LogRequest(req)
 
@@ -144,9 +166,8 @@ func (we Adapter) userAuthWrapFunc(handler userAuthFunc) http.HandlerFunc {
 	}
 }
 
-type adminAuthFunc = func(http.ResponseWriter, *http.Request)
-
-func (we Adapter) adminAuthWrapFunc(handler adminAuthFunc) http.HandlerFunc {
+// TODO: Switch to Core BB model for auth
+func (we Adapter) adminAuthWrapFunc(handler authFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		utils.LogRequest(req)
 
@@ -165,7 +186,7 @@ func (we Adapter) adminAuthWrapFunc(handler adminAuthFunc) http.HandlerFunc {
 				}
 			}
 			if HasAccess {
-				handler(w, req)
+				handler(user, w, req)
 				return
 			}
 			log.Printf("Access control error - Core Subject: %s is trying to apply %s operation for %s\n", user.Claims.Subject, act, obj)

@@ -1,13 +1,30 @@
 # application
 Poll:
-  $ref: "./application/Poll.yaml"
+  $ref: "./polls/Poll.yaml"
 PollData:
-  $ref: "./application/PollData.yaml"
+  $ref: "./polls/PollData.yaml"
 PollVote:
-  $ref: "./application/PollVote.yaml"
+  $ref: "./polls/PollVote.yaml"
 PollFilter:
-  $ref: "./application/PollFilter.yaml" 
+  $ref: "./polls/PollFilter.yaml" 
 PollResult:
-  $ref: "./application/PollResult.yaml"       
+  $ref: "./polls/PollResult.yaml"       
 ToMember:
-  $ref: "./application/ToMember.yaml"
+  $ref: "./polls/ToMember.yaml"
+Survey:
+  $ref: "./surveys/Survey.yaml"
+SurveyData:
+  $ref: "./surveys/SurveyData.yaml"
+SurveyStats:
+  $ref: "./surveys/SurveyStats.yaml"
+ActionData:
+  $ref: "./surveys/ActionData.yaml"
+OptionData:
+  $ref: "./surveys/OptionData.yaml"
+SurveyResponse:
+  $ref: "./surveys/SurveyResponse.yaml"
+AlertContact:
+  $ref: "./surveys/AlertContact.yaml"
+
+
+
