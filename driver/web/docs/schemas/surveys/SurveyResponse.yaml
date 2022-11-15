@@ -1,0 +1,23 @@
+type: object
+properties:
+  id:
+    type: string
+    readOnly: true
+  org_id:
+    type: string
+    readOnly: true
+  app_id:
+    type: string
+    readOnly: true
+  user_id:
+    type: string
+    readOnly: true
+  survey:
+    $ref: "./Survey.yaml"
+  date_created:
+    type: string
+    readOnly: true
+  date_updated:
+    type: string
+    readOnly: true
+    nullable: true

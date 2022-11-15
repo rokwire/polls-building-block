@@ -1,0 +1,29 @@
+post:
+  tags:
+    - Admin
+  summary: Create a new survey
+  description: |
+    Create a new survey
+     **Auth:** Requires admin token with `updated_surveys` or `all_surveys` permission
+  security:
+    - bearerAuth: []
+  requestBody:
+    description: model.Survey
+    content:
+      application/json:
+        schema:
+          $ref: "../../schemas/surveys/Survey.yaml"
+    required: true
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: "../../schemas/surveys/Survey.yaml"
+    400:
+      description: Bad request
+    401:
+      description: Unauthorized
+    500:
+      description: Internal error

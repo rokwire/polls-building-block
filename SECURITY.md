@@ -6,8 +6,8 @@ Patches for **Polls Building Block** in this repository will only be applied to 
 
 | Version | Supported          |
 |---------| ------------------ |
-| 1.0.21   | :white_check_mark: |
-| <1.0.21  | :x: |
+| 1.3.0   | :white_check_mark: |
+| <1.3.0  | :x:                |
 
 ## Reporting a Bug or Vulnerability
 

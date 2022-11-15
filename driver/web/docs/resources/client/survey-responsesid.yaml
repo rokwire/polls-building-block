@@ -1,0 +1,91 @@
+get:
+  tags:
+    - Client
+  summary: Retrieves a survey response by id
+  description: |
+    Retrieves a survey response by id
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: id
+      in: path
+      description: id
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: "../../schemas/surveys/SurveyResponse.yaml"
+    400:
+      description: Bad request
+    401:
+      description: Unauthorized
+    500:
+      description: Internal error
+put:
+  tags:
+    - Client
+  summary: Updates a survey response with the specified id
+  description: |
+    Updates a survey response with the specified id
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: id
+      in: path
+      description: id
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+  requestBody:
+    description: Data body model.SurveyResponse
+    content:
+      application/json:
+        schema:
+          $ref: "../../schemas/surveys/Survey.yaml"
+    required: true
+  responses:
+    200:
+      description: Success
+    400:
+      description: Bad request
+    401:
+      description: Unauthorized
+    500:
+      description: Internal error
+delete:
+  tags:
+    - Client
+  summary: Deletes a survey response with the specified id
+  description: |
+    Deletes a survey response with the specified id
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: id
+      in: path
+      description: id
+      required: true
+      style: simple
+      explode: false
+      schema:
+        type: string
+  responses:
+    200:
+      description: Success
+    400:
+      description: Bad request
+    401:
+      description: Unauthorized
+    403:
+      description: Forbidden
+    500:
+      description: Internal error
