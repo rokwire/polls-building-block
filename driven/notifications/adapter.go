@@ -18,7 +18,6 @@ type Adapter struct {
 }
 
 // NewNotificationsAdapter creates a new Notifications BB adapter instance
-// NewNotificationsAdapter creates a new notifications BB adapter
 func NewNotificationsAdapter(notificationHost string, internalAPIKey string, appID string, orgID string) *Adapter {
 	return &Adapter{baseURL: notificationHost, internalAPIKey: internalAPIKey, appID: appID, orgID: orgID}
 }
