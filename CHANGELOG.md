@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improve survey models for BESSI [#40](https://github.com/rokwire/polls-building-block/issues/40)
 - Send notifications for group polls directly through Groups BB [#30](https://github.com/rokwire/polls-building-block/issues/30)
 - Set appID and orgID for notifications [#26](https://github.com/rokwire/polls-building-block/issues/26)
+- Set logger [#11](https://github.com/rokwire/polls-building-block/issues/11)
 
 ## [1.3.0] - 2022-11-10
 ### Added
@@ -57,7 +58,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.15] - 2022-05-26
 ### Added
 - Prepare the project to become open source [#8](https://github.com/rokwire/polls-building-block/issues/8)
-- Set logger [#11](https://github.com/rokwire/polls-building-block/issues/11)
 - Add more logic for supporting group polls and cover more edge cases [#9](https://github.com/rokwire/polls-building-block/issues/9)
 
 ## [1.0.14] - 2022-05-20

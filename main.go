@@ -43,8 +43,10 @@ func main() {
 		Version = "dev"
 	}
 
+	serviceID := "polls-v2"
+
 	loggerOpts := logs.LoggerOpts{SuppressRequests: []logs.HttpRequestProperties{logs.NewAwsHealthCheckHttpRequestProperties("/polls/version")}}
-	logger := logs.NewLogger("core", &loggerOpts)
+	logger := logs.NewLogger(serviceID, &loggerOpts)
 
 	port := getEnvKey("PORT", true)
 
@@ -65,12 +67,12 @@ func main() {
 		AuthServicesHost: coreBBHost,
 	}
 
-	serviceLoader, err := authservice.NewRemoteAuthDataLoader(remoteConfig, []string{"core", "notifications", "groups"}, logs.NewLogger("polls-v2", &logs.LoggerOpts{}))
+	serviceLoader, err := authservice.NewRemoteAuthDataLoader(remoteConfig, []string{"core", "notifications", "groups"}, logger)
 	if err != nil {
 		log.Fatalf("Error initializing auth service: %v", err)
 	}
 
-	authService, err := authservice.NewAuthService("polls-v2", serviceURL, serviceLoader)
+	authService, err := authservice.NewAuthService(serviceID, serviceURL, serviceLoader)
 	if err != nil {
 		log.Fatalf("Error initializing auth service: %v", err)
 	}
