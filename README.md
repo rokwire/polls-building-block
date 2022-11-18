@@ -26,9 +26,12 @@ MONGO_AUTH | <mongodb://USER:PASSWORD@HOST:PORT/DATABASE NAME> | yes | MongoDB a
 MONGO_DATABASE | < string > | yes | MongoDB database name
 MONGO_TIMEOUT | < int > | no | MongoDB timeout in milliseconds. Defaults to 500.
 HOST | < url > | yes | URL where this application is being hosted
-CORE_BB_HOST | < url > | yes | Core BB host URL
+CORE_BB_HOST | < url > | yes | Core BB base URL
 POLL_SERVICE_URL | < url > | yes | Polls base URL
 UIUC_ORG_ID | < string > | yes | Org ID for UIUC to use when migrating old data
+POLLS_APP_ID | < string > | yes | App ID to use for requests to multi-tenant BBs
+POLLS_ORG_ID | < string > | yes | Org ID to use for requests to multi-tenant BBs
+POLLS_NOTIFICATIONS_BB_HOST | < url > | yes | Notifications BB base URL
 DEFAULT_CACHE_EXPIRATION_SECONDS | < int > | no | Default cache expiration time in seconds. Defaults to 120
 
 ### Run Application
