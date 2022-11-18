@@ -1136,6 +1136,13 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ActionData'
+        self_score:
+          type: boolean
+          nullable: true
+        maximum_score:
+          type: number
+          format: double
+          nullable: true
         style:
           type: string
           nullable: true
@@ -1145,20 +1152,14 @@ components:
         ask_time:
           type: boolean
         minimum:
-          type: integer
-          format: float
+          type: number
+          format: double
           nullable: true
         maximum:
-          type: integer
-          format: float
+          type: number
+          format: double
           nullable: true
         whole_num:
-          type: boolean
-          nullable: true
-        slider:
-          type: boolean
-          nullable: true
-        self_score:
           type: boolean
           nullable: true
         min_length:
@@ -1170,6 +1171,10 @@ components:
         data_format:
           type: object
           nullable: true
+        data_keys:
+          type: array
+          items:
+            type: string
     SurveyStats:
       type: object
       properties:
@@ -1182,8 +1187,13 @@ components:
         scores:
           type: object
           additionalProperties:
-            type: integer
-            format: float
+            type: number
+            format: double
+        maximum_scores:
+          type: object
+          additionalProperties:
+            type: number
+            format: double
     ActionData:
       type: object
       properties:
