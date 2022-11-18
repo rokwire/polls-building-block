@@ -22,6 +22,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/rokwire/logging-library-go/logs"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -59,7 +61,7 @@ func (sa *Adapter) Start() error {
 }
 
 // NewStorageAdapter creates a new storage adapter instance
-func NewStorageAdapter(config *model.Config) *Adapter {
+func NewStorageAdapter(config *model.Config, logger *logs.Logger) *Adapter {
 	timeout, err := strconv.Atoi(config.MongoTimeout)
 	if err != nil {
 		log.Println("Set default timeout - 500")
@@ -67,7 +69,7 @@ func NewStorageAdapter(config *model.Config) *Adapter {
 	}
 	timeoutMS := time.Millisecond * time.Duration(timeout)
 
-	db := &database{mongoDBAuth: config.MongoDBAuth, mongoDBName: config.MongoDBName, mongoTimeout: timeoutMS}
+	db := &database{mongoDBAuth: config.MongoDBAuth, mongoDBName: config.MongoDBName, mongoTimeout: timeoutMS, logger: logger}
 	return &Adapter{db: db, config: config}
 }
 

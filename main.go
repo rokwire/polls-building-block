@@ -43,6 +43,11 @@ func main() {
 		Version = "dev"
 	}
 
+	serviceID := "polls-v2"
+
+	loggerOpts := logs.LoggerOpts{SuppressRequests: []logs.HttpRequestProperties{logs.NewAwsHealthCheckHttpRequestProperties("/polls/version")}}
+	logger := logs.NewLogger(serviceID, &loggerOpts)
+
 	port := getEnvKey("PORT", true)
 
 	internalAPIKey := getEnvKey("INTERNAL_API_KEY", true)
@@ -62,12 +67,12 @@ func main() {
 		AuthServicesHost: coreBBHost,
 	}
 
-	serviceLoader, err := authservice.NewRemoteAuthDataLoader(remoteConfig, []string{"core", "notifications", "groups"}, logs.NewLogger("polls-v2", &logs.LoggerOpts{}))
+	serviceLoader, err := authservice.NewRemoteAuthDataLoader(remoteConfig, []string{"core", "notifications", "groups"}, logger)
 	if err != nil {
 		log.Fatalf("Error initializing auth service: %v", err)
 	}
 
-	authService, err := authservice.NewAuthService("polls-v2", serviceURL, serviceLoader)
+	authService, err := authservice.NewAuthService(serviceID, serviceURL, serviceLoader)
 	if err != nil {
 		log.Fatalf("Error initializing auth service: %v", err)
 	}
@@ -101,7 +106,7 @@ func main() {
 		NotificationsHost: notificationsServiceReg.Host,
 	}
 
-	storageAdapter := storage.NewStorageAdapter(config)
+	storageAdapter := storage.NewStorageAdapter(config, logger)
 	err = storageAdapter.Start()
 	if err != nil {
 		log.Fatal("Cannot start the mongoDB adapter - " + err.Error())
@@ -121,10 +126,10 @@ func main() {
 	cacheAdapter := cacheadapter.NewCacheAdapter(defaultCacheExpirationSeconds)
 
 	// application
-	application := core.NewApplication(Version, Build, storageAdapter, cacheAdapter, notificationsBBAdapter, groupsAdapter)
+	application := core.NewApplication(Version, Build, storageAdapter, cacheAdapter, notificationsBBAdapter, groupsAdapter, logger)
 	application.Start()
 
-	webAdapter := driver.NewWebAdapter(host, port, application, tokenAuth, config)
+	webAdapter := driver.NewWebAdapter(host, port, application, tokenAuth, config, logger)
 
 	webAdapter.Start()
 }

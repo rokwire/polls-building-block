@@ -15,8 +15,12 @@
 package core
 
 import (
-	"github.com/rokwire/core-auth-library-go/tokenauth"
 	cacheadapter "polls/driven/cache"
+
+	"github.com/rokwire/core-auth-library-go/tokenauth"
+
+	"github.com/rokwire/logging-library-go/logs"
+
 	"polls/driven/groups"
 	"polls/driven/notifications"
 )
@@ -27,6 +31,7 @@ type Application struct {
 	build   string
 
 	Services Services //expose to the drivers adapters
+	logger   *logs.Logger
 
 	storage       Storage
 	cache         *cacheadapter.CacheAdapter
@@ -43,7 +48,7 @@ func (app *Application) Start() {
 
 // NewApplication creates new Application
 func NewApplication(version string, build string, storage Storage, cacheAdapter *cacheadapter.CacheAdapter,
-	notificationsAdapter *notifications.Adapter, groupsAdapter *groups.Adapter) *Application {
+	notificationsAdapter *notifications.Adapter, groupsAdapter *groups.Adapter, logger *logs.Logger) *Application {
 	application := Application{
 		version:       version,
 		build:         build,

@@ -24,6 +24,8 @@ import (
 	"polls/utils"
 	"strings"
 
+	"github.com/rokwire/logging-library-go/logs"
+
 	"github.com/rokwire/core-auth-library-go/tokenauth"
 
 	"github.com/casbin/casbin"
@@ -42,7 +44,8 @@ type Adapter struct {
 	adminApisHandler    rest.AdminApisHandler
 	internalApisHandler rest.InternalApisHandler
 
-	app *core.Application
+	app    *core.Application
+	logger *logs.Logger
 }
 
 // @title Polls Building Block v2 API
@@ -215,8 +218,8 @@ func (we Adapter) internalAPIKeyAuthWrapFunc(handler internalAPIKeyAuthFunc) htt
 }
 
 // NewWebAdapter creates new WebAdapter instance
-func NewWebAdapter(host string, port string, app *core.Application, tokenAuth *tokenauth.TokenAuth, config *model.Config) Adapter {
-	auth := NewAuth(app, config, tokenAuth)
+func NewWebAdapter(host string, port string, app *core.Application, tokenAuth *tokenauth.TokenAuth, config *model.Config, logger *logs.Logger) Adapter {
+	auth := NewAuth(app, config, tokenAuth, logger)
 	authorization := casbin.NewEnforcer("driver/web/authorization_model.conf", "driver/web/authorization_policy.csv")
 
 	apisHandler := rest.NewApisHandler(app, config)
@@ -231,6 +234,7 @@ func NewWebAdapter(host string, port string, app *core.Application, tokenAuth *t
 		adminApisHandler:    adminApisHandler,
 		internalApisHandler: internalApisHandler,
 		app:                 app,
+		logger:              logger,
 	}
 }
 
