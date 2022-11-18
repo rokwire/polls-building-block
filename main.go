@@ -112,7 +112,11 @@ func main() {
 		log.Printf("Storage started")
 	}
 
-	notificationsAdapter := notifications.NewNotificationsAdapter(config)
+	//notifications BB adapter
+	appID := getEnvKey("POLLS_APP_ID", true)
+	orgID := getEnvKey("POLLS_ORG_ID", true)
+	notificationHost := getEnvKey("POLLS_NOTIFICATIONS_BB_HOST", true)
+	notificationsBBAdapter := notifications.NewNotificationsAdapter(notificationHost, internalAPIKey, appID, orgID)
 
 	groupsAdapter := groups.NewGroupsAdapter(config)
 
@@ -120,7 +124,7 @@ func main() {
 	cacheAdapter := cacheadapter.NewCacheAdapter(defaultCacheExpirationSeconds)
 
 	// application
-	application := core.NewApplication(Version, Build, storageAdapter, cacheAdapter, notificationsAdapter, groupsAdapter, logger)
+	application := core.NewApplication(Version, Build, storageAdapter, cacheAdapter, notificationsBBAdapter, groupsAdapter, logger)
 	application.Start()
 
 	webAdapter := driver.NewWebAdapter(host, port, application, tokenAuth, config, logger)
