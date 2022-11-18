@@ -45,11 +45,11 @@ $(BIN):
 	
 $(BIN)/%: | $(BIN) $(BASE) ; $(info $(M) building $(REPOSITORY)…)
 	$Q tmp=$$(mktemp -d); \
-		(cd $(tmp) && GOPATH=$$tmp $(GO) get $(REPOSITORY) && cp $$tmp/bin/* $(BIN)/.) || ret=$$?; \
+		(cd $(tmp) && GOPATH=$$tmp $(GO) install $(REPOSITORY) && cp $$tmp/bin/* $(BIN)/.) || ret=$$?; \
 		rm -rf $$tmp ; exit $$ret
 
 GOLINT = $(BIN)/golint
-$(GOLINT): REPOSITORY=golang.org/x/lint/golint
+$(GOLINT): REPOSITORY=golang.org/x/lint/golint@latest
 
 # Tests
 
@@ -114,9 +114,13 @@ version:
 vendor:
 	$(GO) mod vendor
 
-.PHONY: swagger
-swagger: ;
-	swag init -g driver/web/adapter.go
+.PHONY: oapi-gen-types
+oapi-gen-types: ;
+	oapi-codegen --config oapi-codegen-config.yaml driver/web/docs/gen/def.yaml
+
+.PHONY: oapi-gen-docs
+oapi-gen-docs: ;
+	swagger-cli bundle driver/web/docs/index.yaml --outfile driver/web/docs/gen/def.yaml --type yaml	
 
 .PHONY: log-variables
 log-variables: ; $(info $(M) Log info…) @ ## Log the variables values

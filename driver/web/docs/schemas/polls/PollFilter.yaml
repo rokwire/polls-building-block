@@ -1,0 +1,26 @@
+type: object
+properties:
+  pin:
+    type: integer
+  poll_ids:
+    type: array
+    items:
+      type: string
+  my_polls:
+    type: boolean
+  group_ids:
+    type: array
+    items:
+      type: string
+  responded_polls:
+    type: boolean
+  statuses:
+    type: array
+    items:
+      type: string 
+  offset:
+    type: integer
+    format: int64 
+  limit:
+    type: integer
+    format: int64                  

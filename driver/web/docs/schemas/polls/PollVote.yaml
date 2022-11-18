@@ -1,0 +1,11 @@
+type: object
+properties:
+  userid:
+    type: string
+  answer:
+    type: array
+    items:
+      type: integer
+  created:
+    type: string  
+  

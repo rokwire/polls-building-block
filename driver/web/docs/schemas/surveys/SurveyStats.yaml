@@ -1,0 +1,18 @@
+type: object
+properties:
+  total:
+    type: integer
+  complete:
+    type: integer
+  scored:
+    type: integer
+  scores:
+    type: object
+    additionalProperties:
+      type: number
+      format: double
+  maximum_scores:
+    type: object
+    additionalProperties:
+      type: number
+      format: double

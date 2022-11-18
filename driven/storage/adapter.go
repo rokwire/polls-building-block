@@ -381,3 +381,276 @@ func (m *database) onDataChanged(changeDoc map[string]interface{}) {
 		m.listener.OnCollectionUpdated(coll.(string), recordMap)
 	}
 }
+
+// GetSurvey retrieves a single survey
+func (sa *Adapter) GetSurvey(user *model.User, id string) (*model.Survey, error) {
+	filter := bson.M{"_id": id, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
+	var entry model.Survey
+	err := sa.db.surveys.FindOne(filter, &entry, nil)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.GetSurvey(%s) - %s", id, err)
+		return nil, fmt.Errorf("error storage.Adapter.GetSurvey(%s) - %s", id, err)
+	}
+
+	return &entry, nil
+}
+
+// CreateSurvey creates a poll
+func (sa *Adapter) CreateSurvey(survey model.Survey) (*model.Survey, error) {
+	_, err := sa.db.surveys.InsertOne(survey)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.CreateSurvey(%s) - %s", survey.ID, err)
+		return nil, fmt.Errorf("error storage.Adapter.CreateSurvey(%s) - %s", survey.ID, err)
+	}
+
+	return &survey, nil
+}
+
+// UpdateSurvey updates a survey
+func (sa *Adapter) UpdateSurvey(user *model.User, survey model.Survey, admin bool) error {
+	if len(survey.ID) > 0 {
+		now := time.Now().UTC()
+		filter := bson.M{"_id": survey.ID, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
+		if !admin {
+			filter["creator_id"] = user.Claims.Subject
+		}
+		update := bson.M{"$set": bson.M{
+			"title":                 survey.Title,
+			"more_info":             survey.MoreInfo,
+			"data":                  survey.Data,
+			"scored":                survey.Scored,
+			"result_rules":          survey.ResultRules,
+			"type":                  survey.Type,
+			"stats":                 survey.SurveyStats,
+			"sensitive":             survey.Sensitive,
+			"default_data_key":      survey.DefaultDataKey,
+			"default_data_key_rule": survey.DefaultDataKeyRule,
+			"constants":             survey.Constants,
+			"strings":               survey.Strings,
+			"sub_rules":             survey.SubRules,
+			"date_updated":          now,
+		}}
+
+		res, err := sa.db.surveys.UpdateOne(filter, update, nil)
+		if err != nil {
+			fmt.Printf("error storage.Adapter.UpdateSurvey(%s) - %s", survey.ID, err)
+			return fmt.Errorf("error storage.Adapter.UpdateSurvey(%s) - %s", survey.ID, err)
+		}
+		if res.ModifiedCount != 1 {
+			fmt.Printf("storage.Adapter.UpdateSurvey(%s) invalid id", survey.ID)
+			return fmt.Errorf("storage.Adapter.UpdateSurvey(%s) invalid id", survey.ID)
+		}
+	}
+
+	return nil
+}
+
+// DeleteSurvey deletes a survey
+func (sa *Adapter) DeleteSurvey(user *model.User, id string, admin bool) error {
+	filter := bson.M{"_id": id, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
+	if !admin {
+		filter["creator_id"] = user.Claims.Subject
+	}
+	res, err := sa.db.surveys.DeleteOne(filter, nil)
+	if err != nil {
+		return fmt.Errorf("error storage.Adapter.DeleteSurvey(): error while delete survey (%s) - %s", id, err)
+	}
+	if res.DeletedCount != 1 {
+		fmt.Printf("storage.Adapter.DeleteSurvey(%s) invalid id", id)
+		return fmt.Errorf("storage.Adapter.DeleteSurvey(%s) invalid id", id)
+	}
+
+	return nil
+}
+
+// GetSurveyResponse gets a survey response by ID
+func (sa *Adapter) GetSurveyResponse(user *model.User, id string) (*model.SurveyResponse, error) {
+	filter := bson.M{"_id": id, "user_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
+	var entry model.SurveyResponse
+	err := sa.db.surveyResponses.FindOne(filter, &entry, nil)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.GetSurveyResponse(%s) - %s", id, err)
+		return nil, fmt.Errorf("error storage.Adapter.GetSurveyResponse(%s) - %s", id, err)
+	}
+	return &entry, nil
+}
+
+// GetSurveyResponses gets matching surveys for a user
+func (sa *Adapter) GetSurveyResponses(user *model.User, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
+	filter := bson.M{"user_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
+	if len(surveyIDs) > 0 {
+		filter["survey._id"] = bson.M{"$in": surveyIDs}
+	}
+	if len(surveyTypes) > 0 {
+		filter["survey.type"] = bson.M{"$in": surveyTypes}
+	}
+	if startDate != nil || endDate != nil {
+		dateFilter := bson.M{}
+		if startDate != nil {
+			dateFilter["$gte"] = startDate
+		}
+		if endDate != nil {
+			dateFilter["$lt"] = endDate
+		}
+		filter["date_created"] = dateFilter
+	}
+
+	opts := options.Find().SetSort(bson.M{"date_created": -1})
+	if limit != nil {
+		opts.SetLimit(int64(*limit))
+	}
+	if offset != nil {
+		opts.SetSkip(int64(*offset))
+	}
+	var results []model.SurveyResponse
+	err := sa.db.surveyResponses.Find(filter, &results, opts)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.GetSurveyResponses - %s", err)
+		return nil, fmt.Errorf("error storage.Adapter.GetSurveyResponses - %s", err)
+	}
+	return results, nil
+}
+
+// CreateSurveyResponse creates a new survey response
+func (sa *Adapter) CreateSurveyResponse(surveyResponse model.SurveyResponse) (*model.SurveyResponse, error) {
+	_, err := sa.db.surveyResponses.InsertOne(surveyResponse)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.CreateSurveyResponse(%s) - %s", surveyResponse.ID, err)
+		return nil, fmt.Errorf("error storage.Adapter.CreateSurveyResponse(%s) - %s", surveyResponse.ID, err)
+	}
+	return &surveyResponse, nil
+}
+
+// UpdateSurveyResponse updates an existing service response
+func (sa *Adapter) UpdateSurveyResponse(user *model.User, id string, survey model.Survey) error {
+	if len(id) > 0 {
+		now := time.Now().UTC()
+		filter := bson.M{"_id": id, "user_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
+		update := bson.M{"$set": bson.M{
+			"survey":       survey,
+			"date_updated": now,
+		}}
+
+		res, err := sa.db.surveyResponses.UpdateOne(filter, update, nil)
+		if err != nil {
+			fmt.Printf("error storage.Adapter.UpdateSurveyResponse(%s) - %s", id, err)
+			return fmt.Errorf("error storage.Adapter.UpdateSurveyResponse(%s) - %s", id, err)
+		}
+		if res.ModifiedCount != 1 {
+			fmt.Printf("storage.Adapter.UpdateSurveyResponse(%s) invalid id", id)
+			return fmt.Errorf("storage.Adapter.UpdateSurveyResponse(%s) invalid id", id)
+		}
+	}
+	return nil
+}
+
+// DeleteSurveyResponse deletes a survey response
+func (sa *Adapter) DeleteSurveyResponse(user *model.User, id string) error {
+	filter := bson.M{"_id": id, "user_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
+	res, err := sa.db.surveyResponses.DeleteOne(filter, nil)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.DeleteSurveyResponse(%s) - %s", id, err)
+		return fmt.Errorf("error storage.Adapter.DeleteSurveyResponse(): error while delete survey response (%s) - %s", id, err)
+	}
+	if res.DeletedCount != 1 {
+		fmt.Printf("storage.Adapter.DeleteSurveyResponse(%s) invalid id", id)
+		return fmt.Errorf("storage.Adapter.DeleteSurveyResponse(%s) invalid id", id)
+	}
+	return nil
+}
+
+// GetAlertContacts retrieves all alert contacts
+func (sa *Adapter) GetAlertContacts(user *model.User) ([]model.AlertContact, error) {
+	filter := bson.M{"org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
+	var entry []model.AlertContact
+	err := sa.db.alertContacts.Find(filter, &entry, nil)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.GetAlertContacts - %s", err)
+		return nil, fmt.Errorf("error storage.Adapter.GetAlertContacts - %s", err)
+	}
+
+	return entry, nil
+}
+
+// GetAlertContact retrieves a single alert contact
+func (sa *Adapter) GetAlertContact(user *model.User, id string) (*model.AlertContact, error) {
+	filter := bson.M{"_id": id, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
+	var entry model.AlertContact
+	err := sa.db.alertContacts.FindOne(filter, &entry, nil)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.GetAlertContact(%s) - %s", id, err)
+		return nil, fmt.Errorf("error storage.Adapter.GetAlertContact(%s) - %s", id, err)
+	}
+
+	return &entry, nil
+}
+
+// GetAlertContactsByKey gets all alert contacts that share the key in the filter
+func (sa *Adapter) GetAlertContactsByKey(key string, user *model.User) ([]model.AlertContact, error) {
+	filter := bson.M{"key": key, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
+	var results []model.AlertContact
+	err := sa.db.alertContacts.Find(filter, &results, nil)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.GetAlertContactsByKey - %s", err)
+		return nil, fmt.Errorf("error storage.Adapter.GetAlertContactsByKey - %s", err)
+	}
+
+	if len(results) == 0 {
+		return nil, fmt.Errorf("error on Application.createSurveyAlert: No contacts found with key %s", key)
+	}
+
+	return results, nil
+}
+
+// CreateAlertContact creates an alert contact
+func (sa *Adapter) CreateAlertContact(alertContact model.AlertContact) (*model.AlertContact, error) {
+	_, err := sa.db.alertContacts.InsertOne(alertContact)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.CreateAlertContact(%s) - %s", alertContact.ID, err)
+		return nil, fmt.Errorf("error storage.Adapter.CreateAlertContact(%s) - %s", alertContact.ID, err)
+	}
+
+	return &alertContact, nil
+}
+
+// UpdateAlertContact updates an alert contact
+func (sa *Adapter) UpdateAlertContact(user *model.User, id string, alertContact model.AlertContact) error {
+	if len(id) > 0 {
+		now := time.Now().UTC()
+		filter := bson.M{"_id": id, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
+		update := bson.M{"$set": bson.M{
+			"key":          alertContact.Key,
+			"type":         alertContact.Type,
+			"address":      alertContact.Address,
+			"params":       alertContact.Params,
+			"date_updated": now,
+		}}
+
+		res, err := sa.db.alertContacts.UpdateOne(filter, update, nil)
+		if err != nil {
+			fmt.Printf("error storage.Adapter.UpdateAlertContact(%s) - %s", alertContact.ID, err)
+			return fmt.Errorf("error storage.Adapter.UpdateAlertContact(%s) - %s", alertContact.ID, err)
+		}
+		if res.ModifiedCount != 1 {
+			fmt.Printf("storage.Adapter.UpdateAlertContact(%s) invalid id", alertContact.ID)
+			return fmt.Errorf("storage.Adapter.UpdateAlertContact(%s) invalid id", alertContact.ID)
+		}
+	}
+
+	return nil
+}
+
+// DeleteAlertContact deletes an alert contact
+func (sa *Adapter) DeleteAlertContact(user *model.User, id string) error {
+	filter := bson.M{"_id": id, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
+	res, err := sa.db.alertContacts.DeleteOne(filter, nil)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.DeleteAlertContact(%s) - %s", id, err)
+		return fmt.Errorf("error storage.Adapter.DeleteAlertContact(): error while delete alert contact (%s) - %s", id, err)
+	}
+	if res.DeletedCount != 1 {
+		fmt.Printf("storage.Adapter.DeleteAlertContact(%s) invalid id", id)
+		return fmt.Errorf("storage.Adapter.DeleteAlertContact(%s) invalid id", id)
+	}
+	return nil
+}

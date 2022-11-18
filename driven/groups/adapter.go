@@ -1,6 +1,7 @@
 package groups
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -138,4 +139,40 @@ func (a *Adapter) GetGroupDetails(groupID string) (*model.Group, error) {
 		return &group, nil
 	}
 	return nil, nil
+}
+
+// SendGroupNotification Sends a notification to members of a group
+func (a *Adapter) SendGroupNotification(groupID string, notification model.GroupNotification) {
+	go a.sendGroupNotification(groupID, notification)
+}
+
+// SendGroupNotification Sends a group notification
+func (a *Adapter) sendGroupNotification(groupID string, notification model.GroupNotification) {
+	if groupID != "" && notification.Subject != "" && notification.Body != "" {
+
+		bodyBytes, err := json.Marshal(notification)
+		if err != nil {
+			log.Printf("error creating group notification request body - %s", err)
+			return
+		}
+
+		url := fmt.Sprintf("%s/api/int/group/%s/notification", a.baseURL, groupID)
+		client := &http.Client{}
+		req, err := http.NewRequest("POST", url, bytes.NewReader(bodyBytes))
+		req.Header.Set("INTERNAL-API-KEY", a.internalAPIKey)
+		if err != nil {
+			log.Printf("error SendGroupNotification: request - %s", err)
+			return
+		}
+
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Printf("error SendGroupNotification: request - %s", err)
+			return
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != 200 {
+			log.Printf("error SendGroupNotification: request - %d. Error: %s", resp.StatusCode, err)
+		}
+	}
 }

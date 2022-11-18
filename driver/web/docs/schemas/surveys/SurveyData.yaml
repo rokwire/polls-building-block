@@ -1,0 +1,78 @@
+type: object
+properties:
+  section:
+    type: string
+  allow_skip:
+    type: boolean
+  text:
+    type: string
+  more_info:
+    type: string  
+  default_follow_up_key:
+    type: string
+  default_response_rule:
+    type: string       
+  follow_up_rule:
+    type: string
+  score_rule:
+    type: string
+  replace:
+    type: boolean
+  response:
+    type: object
+  type:
+    type: string
+  correct_answer:
+    type: object
+    nullable: true
+  correct_answers:
+    type: array
+    items: {}
+    nullable: true
+  options:
+    type: array
+    items:
+      $ref: "./OptionData.yaml"
+  actions:
+    type: array
+    items:
+      $ref: "./ActionData.yaml"
+  self_score:
+    type: boolean
+    nullable: true
+  maximum_score:
+    type: number
+    format: double
+    nullable: true
+  style:
+    type: string
+    nullable: true
+  allow_multiple:
+    type: boolean
+    nullable: true
+  ask_time:
+    type: boolean
+  minimum:
+    type: number
+    format: double
+    nullable: true
+  maximum:
+    type: number
+    format: double
+    nullable: true
+  whole_num:
+    type: boolean
+    nullable: true
+  min_length:
+    type: integer
+    nullable: true
+  max_length:
+    type: integer
+    nullable: true
+  data_format:
+    type: object
+    nullable: true
+  data_keys:
+    type: array
+    items:
+      type: string

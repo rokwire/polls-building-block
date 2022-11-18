@@ -1,0 +1,28 @@
+post:
+  tags:
+    - Client
+  summary: Create a new survey alert
+  description: |
+    Create a new survey alert that will send email to notifications BB
+  security:
+    - bearerAuth: []
+  requestBody:
+    description: model.SurveyAlert
+    content:
+      application/json:
+        schema:
+          $ref: "../../schemas/surveys/SurveyAlert.yaml"
+    required: true
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: "../../schemas/surveys/SurveyAlert.yaml"
+    400:
+      description: Bad request
+    401:
+      description: Unauthorized
+    500:
+      description: Internal error

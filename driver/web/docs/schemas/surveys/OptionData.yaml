@@ -1,0 +1,11 @@
+type: object
+properties:
+  title:
+    type: string
+  value:
+    type: object
+  score:
+    type: number
+    nullable: true
+  selected:
+    type: boolean

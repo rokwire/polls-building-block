@@ -57,8 +57,8 @@ func (g *Group) IsCurrentUserAdmin(currentUserID string) bool {
 }
 
 // GetMembersAsNotificationRecipients Gets members as notification recipients
-func (g *Group) GetMembersAsNotificationRecipients(currentUserID string, subMembers []ToMember) []NotificationRecipient {
-	var recipients []NotificationRecipient
+func (g *Group) GetMembersAsNotificationRecipients(currentUserID string, subMembers []ToMember) []UserRef {
+	var recipients []UserRef
 	if len(g.Members) > 0 {
 		if len(subMembers) > 0 {
 
@@ -68,7 +68,7 @@ func (g *Group) GetMembersAsNotificationRecipients(currentUserID string, subMemb
 			userIDmapping := map[string]bool{}
 			for _, member := range g.Members {
 				if member.UserID != "" && member.UserID != currentUserID && (member.Status == "admin") {
-					recipients = append(recipients, NotificationRecipient{
+					recipients = append(recipients, UserRef{
 						UserID: member.UserID,
 						Name:   member.Name,
 					})
@@ -78,7 +78,7 @@ func (g *Group) GetMembersAsNotificationRecipients(currentUserID string, subMemb
 
 			for _, toMember := range subMembers {
 				if toMember.UserID != "" && toMember.UserID != currentUserID && !userIDmapping[toMember.UserID] {
-					recipients = append(recipients, NotificationRecipient{
+					recipients = append(recipients, UserRef{
 						UserID: toMember.UserID,
 						Name:   toMember.Name,
 					})
@@ -91,7 +91,7 @@ func (g *Group) GetMembersAsNotificationRecipients(currentUserID string, subMemb
 			//
 			for _, member := range g.Members {
 				if member.UserID != "" && member.UserID != currentUserID && (member.Status == "member" || member.Status == "admin") {
-					recipients = append(recipients, NotificationRecipient{
+					recipients = append(recipients, UserRef{
 						UserID: member.UserID,
 						Name:   member.Name,
 					})
