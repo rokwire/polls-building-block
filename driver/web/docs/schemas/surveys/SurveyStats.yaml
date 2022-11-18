@@ -9,5 +9,10 @@ properties:
   scores:
     type: object
     additionalProperties:
-      type: integer
-      format: float
+      type: number
+      format: double
+  maximum_scores:
+    type: object
+    additionalProperties:
+      type: number
+      format: double
