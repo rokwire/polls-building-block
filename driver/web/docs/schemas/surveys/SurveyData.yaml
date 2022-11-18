@@ -41,8 +41,8 @@ properties:
     type: boolean
     nullable: true
   maximum_score:
-    type: integer
-    format: float
+    type: number
+    format: double
     nullable: true
   style:
     type: string
@@ -53,12 +53,12 @@ properties:
   ask_time:
     type: boolean
   minimum:
-    type: integer
-    format: float
+    type: number
+    format: double
     nullable: true
   maximum:
-    type: integer
-    format: float
+    type: number
+    format: double
     nullable: true
   whole_num:
     type: boolean

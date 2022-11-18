@@ -1140,8 +1140,8 @@ components:
           type: boolean
           nullable: true
         maximum_score:
-          type: integer
-          format: float
+          type: number
+          format: double
           nullable: true
         style:
           type: string
@@ -1152,12 +1152,12 @@ components:
         ask_time:
           type: boolean
         minimum:
-          type: integer
-          format: float
+          type: number
+          format: double
           nullable: true
         maximum:
-          type: integer
-          format: float
+          type: number
+          format: double
           nullable: true
         whole_num:
           type: boolean
@@ -1187,13 +1187,13 @@ components:
         scores:
           type: object
           additionalProperties:
-            type: integer
-            format: float
+            type: number
+            format: double
         maximum_scores:
           type: object
           additionalProperties:
-            type: integer
-            format: float
+            type: number
+            format: double
     ActionData:
       type: object
       properties:
