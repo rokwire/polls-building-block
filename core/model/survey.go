@@ -75,11 +75,12 @@ type Survey struct {
 
 // SurveyStats are stats of a Survey
 type SurveyStats struct {
-	Total        int                    `json:"total" bson:"total"`
-	Complete     int                    `json:"complete" bson:"complete"`
-	Scored       int                    `json:"scored" bson:"scored"`
-	Scores       map[string]float32     `json:"scores" bson:"scores"`
-	ResponseData map[string]interface{} `json:"response_data" bson:"response_data"`
+	Total         int                    `json:"total" bson:"total"`
+	Complete      int                    `json:"complete" bson:"complete"`
+	Scored        int                    `json:"scored" bson:"scored"`
+	Scores        map[string]float64     `json:"scores" bson:"scores"`
+	MaximumScores map[string]float64     `json:"maximum_scores" bson:"maximum_scores"`
+	ResponseData  map[string]interface{} `json:"response_data" bson:"response_data"`
 }
 
 // SurveyData is data stored for a Survey
@@ -103,9 +104,8 @@ type SurveyData struct {
 	Options        []OptionData  `json:"options,omitempty" bson:"options,omitempty"`
 	Actions        []ActionData  `json:"actions,omitempty" bson:"actions,omitempty"`
 	SelfScore      *bool         `json:"self_score,omitempty" bson:"self_score,omitempty"`
-
-	// True/False
-	Style *string `json:"style,omitempty" bson:"style,omitempty"`
+	MaximumScore   *float64      `json:"maximum_score,omitempty" bson:"maximum_score,omitempty"`
+	Style          *string       `json:"style,omitempty" bson:"style,omitempty"`
 
 	// Multiple Choice
 	AllowMultiple *bool `json:"allow_multiple,omitempty" bson:"allow_multiple,omitempty"`
@@ -119,7 +119,6 @@ type SurveyData struct {
 	Minimum  *float64 `json:"minimum,omitempty" bson:"minimum,omitempty"`
 	Maximum  *float64 `json:"maximum,omitempty" bson:"maximum,omitempty"`
 	WholeNum *bool    `json:"whole_num,omitempty" bson:"whole_num,omitempty"`
-	Slider   *bool    `json:"slider,omitempty" bson:"slider,omitempty"`
 
 	// Text
 	MinLength *int `json:"min_length,omitempty" bson:"min_length,omitempty"`
@@ -127,6 +126,9 @@ type SurveyData struct {
 
 	// DataEntry
 	DataFormat map[string]string `json:"data_format,omitempty" bson:"data_format,omitempty"`
+
+	// Page
+	DataKeys []string `json:"data_keys,omitempty" bson:"data_keys,omitempty"`
 }
 
 // ActionData is the wrapped within SurveyData

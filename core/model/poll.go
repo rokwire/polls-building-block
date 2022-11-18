@@ -35,21 +35,21 @@ type PollsFilter struct {
 
 // PollData data stored for a poll
 type PollData struct {
-	UserID        string     `json:"userid" bson:"userid" validate:"required"`
-	UserName      string     `json:"username" bson:"username" validate:"required"`
-	ToMembersList []ToMember `json:"to_members" bson:"to_members"` // nil or empty means everyone; non-empty means visible to those user ids
-	Question      string     `json:"question" bson:"question" validate:"required"`
-	Options       []string   `json:"options" bson:"options" validate:"required,min=2,dive,required"`
-	GroupID       *string    `json:"group_id,omitempty" bson:"group_id"`
-	Pin           int        `json:"pin,omitempty" bson:"pin" validate:"min=0,max=9999"`
-	MultiChoice   bool       `json:"multi_choice" bson:"multi_choice"`
-	Repeat        bool       `json:"repeat" bson:"repeat"`
-	ShowResults   bool       `json:"show_results" bson:"show_results"`
-	Stadium       string     `json:"stadium" bson:"stadium"`
-	Geo           bool       `json:"geo_fence" bson:"geo_fence"`
-	Status        string     `json:"status" bson:"status" validate:"required,oneof=created started"`
-	DateCreated   time.Time  `json:"date_created" bson:"date_created"`
-	DateUpdated   time.Time  `json:"date_updated" bson:"date_updated"`
+	UserID        string    `json:"userid" bson:"userid" validate:"required"`
+	UserName      string    `json:"username" bson:"username" validate:"required"`
+	ToMembersList ToMembers `json:"to_members" bson:"to_members"` // nil or empty means everyone; non-empty means visible to those user ids
+	Question      string    `json:"question" bson:"question" validate:"required"`
+	Options       []string  `json:"options" bson:"options" validate:"required,min=2,dive,required"`
+	GroupID       *string   `json:"group_id,omitempty" bson:"group_id"`
+	Pin           int       `json:"pin,omitempty" bson:"pin" validate:"min=0,max=9999"`
+	MultiChoice   bool      `json:"multi_choice" bson:"multi_choice"`
+	Repeat        bool      `json:"repeat" bson:"repeat"`
+	ShowResults   bool      `json:"show_results" bson:"show_results"`
+	Stadium       string    `json:"stadium" bson:"stadium"`
+	Geo           bool      `json:"geo_fence" bson:"geo_fence"`
+	Status        string    `json:"status" bson:"status" validate:"required,oneof=created started"`
+	DateCreated   time.Time `json:"date_created" bson:"date_created"`
+	DateUpdated   time.Time `json:"date_updated" bson:"date_updated"`
 } // @name PollData
 
 // UserHasAccess Checks if the user has read and write access to the poll object
@@ -69,6 +69,21 @@ func (pd *PollData) UserHasAccess(userID string) bool {
 	}
 
 	return true
+}
+
+// ToMembers wrapper for list of to members
+type ToMembers []ToMember // @name ToMembers
+
+// ToNotificationRecipients converts to notification recipients
+func (t ToMembers) ToNotificationRecipients() []UserRef {
+	var recipients []UserRef
+	for _, toMember := range t {
+		recipients = append(recipients, UserRef{
+			UserID: toMember.UserID,
+			Name:   toMember.Name,
+		})
+	}
+	return recipients
 }
 
 // ToMember represents to(destination) member entity
@@ -204,12 +219,12 @@ func (poll *Poll) ToPollResult(currentUserID string) PollResult {
 }
 
 // GetPollNotificationRecipients gets poll to members as notification recipients
-func (poll *Poll) GetPollNotificationRecipients(currentUserID string) []NotificationRecipient {
-	var recipients []NotificationRecipient
+func (poll *Poll) GetPollNotificationRecipients(currentUserID string) []UserRef {
+	var recipients []UserRef
 	if len(poll.ToMembersList) > 0 {
 		for _, toMember := range poll.ToMembersList {
 			if currentUserID != toMember.UserID {
-				recipients = append(recipients, NotificationRecipient{
+				recipients = append(recipients, UserRef{
 					UserID: toMember.UserID,
 					Name:   toMember.Name,
 				})

@@ -16,18 +16,22 @@ package web
 
 import (
 	"fmt"
-	"github.com/rokwire/core-auth-library-go/tokenauth"
 	"log"
 	"net/http"
 	"polls/core"
 	"polls/core/model"
 	web "polls/driver/web/auth"
+
+	"github.com/rokwire/core-auth-library-go/tokenauth"
+
+	"github.com/rokwire/logging-library-go/logs"
 )
 
 // Auth handler
 type Auth struct {
 	internalAuth *InternalAuth
 	coreAuth     *web.CoreAuth
+	logger       *logs.Logger
 }
 
 func (auth *Auth) clientIDCheck(w http.ResponseWriter, r *http.Request) bool {
@@ -43,10 +47,10 @@ func (auth *Auth) clientIDCheck(w http.ResponseWriter, r *http.Request) bool {
 }
 
 // NewAuth creates new auth handler
-func NewAuth(app *core.Application, config *model.Config, tokenAuth *tokenauth.TokenAuth) *Auth {
+func NewAuth(app *core.Application, config *model.Config, tokenAuth *tokenauth.TokenAuth, logger *logs.Logger) *Auth {
 	coreAuth := web.NewCoreAuth(app, tokenAuth)
 	internalAuth := newInternalAuth(config)
-	auth := Auth{coreAuth: coreAuth, internalAuth: internalAuth}
+	auth := Auth{coreAuth: coreAuth, internalAuth: internalAuth, logger: logger}
 	return &auth
 }
 

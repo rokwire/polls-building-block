@@ -37,6 +37,13 @@ properties:
     type: array
     items:
       $ref: "./ActionData.yaml"
+  self_score:
+    type: boolean
+    nullable: true
+  maximum_score:
+    type: number
+    format: double
+    nullable: true
   style:
     type: string
     nullable: true
@@ -46,20 +53,14 @@ properties:
   ask_time:
     type: boolean
   minimum:
-    type: integer
-    format: float
+    type: number
+    format: double
     nullable: true
   maximum:
-    type: integer
-    format: float
+    type: number
+    format: double
     nullable: true
   whole_num:
-    type: boolean
-    nullable: true
-  slider:
-    type: boolean
-    nullable: true
-  self_score:
     type: boolean
     nullable: true
   min_length:
@@ -71,3 +72,7 @@ properties:
   data_format:
     type: object
     nullable: true
+  data_keys:
+    type: array
+    items:
+      type: string
