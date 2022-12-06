@@ -823,6 +823,63 @@ func (h ApisHandler) DeleteSurveyResponse(user *model.User, w http.ResponseWrite
 	w.WriteHeader(http.StatusOK)
 }
 
+// DeleteSurveyResponses delete SurveyResponses for the current user
+// @Description Deletes SurveyResponses for the current user
+// @Tags Client
+// @ID DeleteSurveyResponses
+// @Accept json
+// @Success 200
+// @Failure 401
+// @Security UserAuth
+// @Router /survey-responses [delete]
+func (h ApisHandler) DeleteSurveyResponses(user *model.User, w http.ResponseWriter, r *http.Request) {
+
+	surveyIDsRaw := r.URL.Query().Get("survey_ids")
+	var surveyIDs []string
+	if len(surveyIDsRaw) > 0 {
+		surveyIDs = strings.Split(surveyIDsRaw, ",")
+	}
+	surveyTypesRaw := r.URL.Query().Get("survey_types")
+	var surveyTypes []string
+	if len(surveyTypesRaw) > 0 {
+		surveyTypes = strings.Split(surveyTypesRaw, ",")
+	}
+	startDateRaw := r.URL.Query().Get("start_date")
+	var startDate *time.Time
+	if len(startDateRaw) > 0 {
+		dateParsed, err := time.Parse(time.RFC3339, startDateRaw)
+		if err != nil {
+			err = fmt.Errorf("error on apis.DeleteSurveyResponses: invalid start date - %v", err)
+			log.Println(err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		startDate = &dateParsed
+	}
+	endDateRaw := r.URL.Query().Get("end_date")
+	var endDate *time.Time
+	if len(endDateRaw) > 0 {
+		dateParsed, err := time.Parse(time.RFC3339, endDateRaw)
+		if err != nil {
+			err = fmt.Errorf("error on apis.DeleteSurveyResponses: invalid end date - %v", err)
+			log.Println(err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		endDate = &dateParsed
+	}
+
+	err := h.app.Services.DeleteSurveyResponses(user, surveyIDs, surveyTypes, startDate, endDate)
+	if err != nil {
+		log.Printf("Error on apis.DeleteSurveyResponses: %s", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+}
+
 // CreateSurveyAlert Creates a survey alert
 // @Description Create a new survey alert to be sent to notifications BB
 // @Tags Client
