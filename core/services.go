@@ -307,6 +307,10 @@ func (app *Application) deleteSurvey(user *model.User, id string, admin bool) er
 	return app.storage.DeleteSurvey(user, id, admin)
 }
 
+func (app *Application) deleteSurveyResponses(user *model.User, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time) error {
+	return app.storage.DeleteSurveyResponses(user, surveyIDs, surveyTypes, startDate, endDate)
+}
+
 func (app *Application) getSurveyResponse(user *model.User, id string) (*model.SurveyResponse, error) {
 	return app.storage.GetSurveyResponse(user, id)
 }

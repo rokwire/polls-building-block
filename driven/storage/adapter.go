@@ -559,6 +559,37 @@ func (sa *Adapter) DeleteSurveyResponse(user *model.User, id string) error {
 	return nil
 }
 
+// DeleteSurveyResponses deletes matching surveys
+func (sa *Adapter) DeleteSurveyResponses(user *model.User, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time) error {
+	filter := bson.M{"user_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
+	if len(surveyIDs) > 0 {
+		filter["survey._id"] = bson.M{"$in": surveyIDs}
+	}
+	if len(surveyTypes) > 0 {
+		filter["survey.type"] = bson.M{"$in": surveyTypes}
+	}
+	if startDate != nil || endDate != nil {
+		dateFilter := bson.M{}
+		if startDate != nil {
+			dateFilter["$gte"] = startDate
+		}
+		if endDate != nil {
+			dateFilter["$lt"] = endDate
+		}
+		filter["date_created"] = dateFilter
+	}
+
+	result, err := sa.db.surveyResponses.DeleteMany(filter, nil)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.DeleteSurveyResponses - %s", err)
+		return fmt.Errorf("error storage.Adapter.DeleteSurveyResponses - %s", err)
+	}
+	if result.DeletedCount == 0 {
+		fmt.Printf("storage.Adapter.DeleteSurveyResponses: No deleted survey responses")
+	}
+	return nil
+}
+
 // GetAlertContacts retrieves all alert contacts
 func (sa *Adapter) GetAlertContacts(user *model.User) ([]model.AlertContact, error) {
 	filter := bson.M{"org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
