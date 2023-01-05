@@ -127,7 +127,7 @@ func (h ApisHandler) GetPoll(user *model.User, w http.ResponseWriter, r *http.Re
 	resData, err := h.app.Services.GetPoll(user, id)
 	if err != nil {
 		log.Printf("Error on apis.GetPoll(%s): %s", id, err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
 
@@ -167,7 +167,7 @@ func (h ApisHandler) UpdatePoll(user *model.User, w http.ResponseWriter, r *http
 	resData, err := h.app.Services.GetPoll(user, id)
 	if err != nil {
 		log.Printf("Error on apis.UpdatePoll(%s): %s", id, err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
 
@@ -267,7 +267,19 @@ func (h ApisHandler) DeletePoll(user *model.User, w http.ResponseWriter, r *http
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	err := h.app.Services.DeletePoll(user, id)
+	resData, err := h.app.Services.GetPoll(user, id)
+	if err != nil {
+		log.Printf("Error on apis.DeletePoll(%s): %s", id, err)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+	if resData == nil {
+		log.Printf("Error on apis.DeletePoll(%s): not found", id)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+
+	err = h.app.Services.DeletePoll(user, id)
 	if err != nil {
 		log.Printf("Error on apis.DeletePoll(%s): %s", id, err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
@@ -289,6 +301,18 @@ func (h ApisHandler) DeletePoll(user *model.User, w http.ResponseWriter, r *http
 func (h ApisHandler) GetPollEvents(user *model.User, w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
+
+	resData, err := h.app.Services.GetPoll(user, id)
+	if err != nil {
+		log.Printf("Error on apis.GetPollEvents(%s): %s", id, err)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+	if resData == nil {
+		log.Printf("Error on apis.GetPollEvents(%s): not found", id)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
 
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
@@ -340,10 +364,9 @@ func (h ApisHandler) VotePoll(user *model.User, w http.ResponseWriter, r *http.R
 	resData, err := h.app.Services.GetPoll(user, id)
 	if err != nil {
 		log.Printf("Error on apis.VotePoll(%s): %s", id, err)
-		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 		return
 	}
-
 	if resData == nil {
 		log.Printf("Error on apis.VotePoll(%s): not found", id)
 		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
@@ -364,7 +387,6 @@ func (h ApisHandler) VotePoll(user *model.User, w http.ResponseWriter, r *http.R
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
 	if user.Claims.Subject != item.UserID {
 		log.Printf("Error on apis.VotePoll(%s): inconsistent user id", id)
 		http.Error(w, "inconsistent user id", http.StatusBadRequest)
@@ -394,7 +416,19 @@ func (h ApisHandler) StartPoll(user *model.User, w http.ResponseWriter, r *http.
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	err := h.app.Services.StartPoll(user, id)
+	resData, err := h.app.Services.GetPoll(user, id)
+	if err != nil {
+		log.Printf("Error on apis.StartPoll(%s): %s", id, err)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+	if resData == nil {
+		log.Printf("Error on apis.StartPoll(%s): not found", id)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+
+	err = h.app.Services.StartPoll(user, id)
 	if err != nil {
 		log.Printf("Error on apis.StartPoll(%s): %s", id, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -418,7 +452,19 @@ func (h ApisHandler) EndPoll(user *model.User, w http.ResponseWriter, r *http.Re
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	err := h.app.Services.EndPoll(user, id)
+	resData, err := h.app.Services.GetPoll(user, id)
+	if err != nil {
+		log.Printf("Error on apis.EndPoll(%s): %s", id, err)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+	if resData == nil {
+		log.Printf("Error on apis.EndPoll(%s): not found", id)
+		http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
+		return
+	}
+
+	err = h.app.Services.EndPoll(user, id)
 	if err != nil {
 		log.Printf("Error on apis.EndPoll(%s): %s", id, err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)

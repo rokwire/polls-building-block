@@ -183,22 +183,18 @@ func (sa *Adapter) GetPoll(user *model.User, id string, filterByToMembers bool, 
 			}})
 		}
 
-		var list []model.Poll
-		err := sa.db.polls.Find(filter, &list, &options.FindOptions{})
+		var poll model.Poll
+		err := sa.db.polls.FindOne(filter, &poll, &options.FindOneOptions{})
 		if err != nil {
 			fmt.Printf("error storage.Adapter.GetPoll(%s) - %s", id, err)
 			return nil, fmt.Errorf("error storage.Adapter.GetPoll(%s) - %s", id, err)
 		}
 
-		if len(list) > 0 {
-			entry := list[0]
-			return &entry, nil
-		}
-	} else {
-		fmt.Printf("error storage.Adapter.GetPoll(%s) - unable to construct obj id", id)
-		return nil, fmt.Errorf("error storage.Adapter.GetPoll(%s) - unable to construct obj id", id)
+		return &poll, nil
 	}
-	return nil, nil
+
+	fmt.Printf("error storage.Adapter.GetPoll(%s) - unable to construct obj id", id)
+	return nil, fmt.Errorf("error storage.Adapter.GetPoll(%s) - unable to construct obj id", id)
 }
 
 // CreatePoll creates a poll

@@ -237,22 +237,26 @@ func (app *Application) subscribeToPoll(user *model.User, pollID string, resultC
 }
 
 func (app *Application) checkPollPermission(user *model.User, poll *model.Poll, operation string) error {
-	if poll == nil || user.Claims.Subject != poll.UserID {
-		if poll.GroupID != nil && len(*poll.GroupID) > 0 {
-			group, err := app.groups.GetGroupDetails(*poll.GroupID)
-			if err != nil {
-				return err
-			}
-			if group != nil {
-				if !group.IsCurrentUserAdmin(user.Claims.Subject) {
+	if poll != nil {
+		if user.Claims.Subject != poll.UserID {
+			if poll.GroupID != nil && len(*poll.GroupID) > 0 {
+				group, err := app.groups.GetGroupDetails(user.Token, *poll.GroupID)
+				if err != nil {
+					return err
+				}
+				if group != nil {
+					if !group.IsCurrentUserAdmin(user.Claims.Subject) {
+						return fmt.Errorf("only the creator of a poll or a group admin can %s it", operation)
+					}
+				} else {
 					return fmt.Errorf("only the creator of a poll or a group admin can %s it", operation)
 				}
 			} else {
-				return fmt.Errorf("only the creator of a poll or a group admin can %s it", operation)
+				return fmt.Errorf("only the creator of a poll can %s it", operation)
 			}
-		} else {
-			return fmt.Errorf("only the creator of a poll can %s it", operation)
 		}
+	} else {
+		return fmt.Errorf("poll is nil")
 	}
 	return nil
 }
