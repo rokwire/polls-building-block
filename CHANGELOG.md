@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.5.1] - 2023-01-05
+### Fixed 
+- Confusing Error message on deleting a poll [#47](https://github.com/rokwire/polls-building-block/issues/47)
+
 ## [1.5.0] - 2022-12-06
 ### Added
 - Delete survey responses api [#44](https://github.com/rokwire/polls-building-block/issues/43)

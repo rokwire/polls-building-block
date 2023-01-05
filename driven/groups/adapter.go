@@ -94,17 +94,18 @@ func (a *Adapter) GetGroupsMembership(userToken string) (*GroupMembership, error
 }
 
 // GetGroupDetails retrieves group details
-func (a *Adapter) GetGroupDetails(groupID string) (*model.Group, error) {
+func (a *Adapter) GetGroupDetails(userToken string, groupID string) (*model.Group, error) {
 	if groupID != "" {
 
-		url := fmt.Sprintf("%s/api/int/group/%s", a.baseURL, groupID)
+		url := fmt.Sprintf("%s/api/v2/groups/%s", a.baseURL, groupID)
 		client := &http.Client{}
 		req, err := http.NewRequest("GET", url, nil)
-		req.Header.Set("INTERNAL-API-KEY", a.internalAPIKey)
 		if err != nil {
 			log.Printf("error GetGroupDetails: request - %s", err)
 			return nil, fmt.Errorf("error GetGroupDetails: request - %s", err)
 		}
+
+		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", userToken))
 
 		resp, err := client.Do(req)
 		if err != nil {
