@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0] - 2023-01-13
+### Changed
+- Update group's date update when a linked poll is created or ended [#49](https://github.com/rokwire/polls-building-block/issues/49)
+
 ## [1.5.1] - 2023-01-05
 ### Fixed 
 - Confusing Error message on deleting a poll [#47](https://github.com/rokwire/polls-building-block/issues/47)

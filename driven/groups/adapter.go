@@ -177,3 +177,39 @@ func (a *Adapter) sendGroupNotification(groupID string, notification model.Group
 		}
 	}
 }
+
+// UpdateGroupDateUpdated Updates group date updated
+func (a *Adapter) UpdateGroupDateUpdated(groupID string) error {
+	if groupID != "" {
+
+		url := fmt.Sprintf("%s/api/int/group/%s/date_updated", a.baseURL, groupID)
+		client := &http.Client{}
+		req, err := http.NewRequest("POST", url, nil)
+		if err != nil {
+			log.Printf("error UpdateGroupDateUpdated: request - %s", err)
+			return fmt.Errorf("error UpdateGroupDateUpdated: request - %s", err)
+		}
+
+		req.Header.Add("INTERNAL-API-KEY", a.internalAPIKey)
+
+		resp, err := client.Do(req)
+		if err != nil {
+			log.Printf("error UpdateGroupDateUpdated: request - %s", err)
+			return fmt.Errorf("error UpdateGroupDateUpdated: request - %s", err)
+		}
+		defer resp.Body.Close()
+		if resp.StatusCode != 200 {
+			errorBody, err := ioutil.ReadAll(resp.Body)
+			if err != nil {
+				log.Printf("error UpdateGroupDateUpdated: request - %s", err)
+				return fmt.Errorf("error UpdateGroupDateUpdated: request - %s", err)
+			}
+
+			log.Printf("error UpdateGroupDateUpdated: request - %d. Error: %s, Body: %s", resp.StatusCode, err, string(errorBody))
+			return fmt.Errorf("error UpdateGroupDateUpdated: request - %d. Error: %s, Body: %s", resp.StatusCode, err, string(errorBody))
+		}
+
+		return nil
+	}
+	return nil
+}

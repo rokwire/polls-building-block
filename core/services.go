@@ -62,9 +62,10 @@ func (app *Application) createPoll(user *model.User, poll model.Poll) (*model.Po
 		return nil, err
 	}
 
-	err = app.notifyNotificationsBBForPoll(user, createdPoll, "polls", "poll_created", fmt.Sprintf("Poll '%s' has been created", createdPoll.Question))
-	if err != nil {
-		log.Printf("error while sending notification for created poll: %s", err) // dont fail
+	app.notifyNotificationsBBForPoll(user, createdPoll, "polls", "poll_created", fmt.Sprintf("Poll '%s' has been created", createdPoll.Question))
+
+	if poll.GroupID != nil {
+		go app.groups.UpdateGroupDateUpdated(*poll.GroupID)
 	}
 
 	return createdPoll, nil
@@ -134,12 +135,13 @@ func (app *Application) startPoll(user *model.User, pollID string) error {
 		return fmt.Errorf("error app.startPoll() - poll not found: %s", pollID)
 	}
 
-	err = app.notifyNotificationsBBForPoll(user, poll, "polls", "poll_created", fmt.Sprintf("Poll '%s' has been started", poll.Question))
-	if err != nil {
-		log.Printf("error while sending notification for started poll: %s", err) // dont fail
-	}
+	app.notifyNotificationsBBForPoll(user, poll, "polls", "poll_started", fmt.Sprintf("Poll '%s' has been started", poll.Question))
 
 	app.sseServer.NotifyPollForEvent(pollID, "poll_started")
+
+	if poll.GroupID != nil {
+		go app.groups.UpdateGroupDateUpdated(*poll.GroupID)
+	}
 
 	return nil
 }
@@ -167,18 +169,19 @@ func (app *Application) endPoll(user *model.User, pollID string) error {
 		return fmt.Errorf("error app.startPoll() - poll not found: %s", pollID)
 	}
 
-	err = app.notifyNotificationsBBForPoll(user, poll, "polls", "poll_ended", fmt.Sprintf("Poll '%s' has ended.", poll.Question))
-	if err != nil {
-		log.Printf("error while sending notification for ended poll: %s", err) // dont fail
-	}
+	app.notifyNotificationsBBForPoll(user, poll, "polls", "poll_ended", fmt.Sprintf("Poll '%s' has ended.", poll.Question))
 
 	app.sseServer.NotifyPollForEvent(pollID, "poll_end")
 	app.sseServer.ClosePoll(pollID)
 
+	if poll.GroupID != nil {
+		go app.groups.UpdateGroupDateUpdated(*poll.GroupID)
+	}
+
 	return nil
 }
 
-func (app *Application) notifyNotificationsBBForPoll(user *model.User, poll *model.Poll, topic string, operation string, message string) error {
+func (app *Application) notifyNotificationsBBForPoll(user *model.User, poll *model.Poll, topic string, operation string, message string) {
 	if poll.GroupID != nil {
 		app.groups.SendGroupNotification(*poll.GroupID, model.GroupNotification{
 			Members: poll.ToMembersList.ToNotificationRecipients(),
@@ -223,8 +226,6 @@ func (app *Application) notifyNotificationsBBForPoll(user *model.User, poll *mod
 			},
 		})
 	}
-
-	return nil
 }
 
 func (app *Application) votePoll(user *model.User, pollID string, vote model.PollVote) error {
