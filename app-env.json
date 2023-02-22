@@ -1,0 +1,19 @@
+{
+    "app_secret": {
+        "INTERNAL_API_KEY": "<internal api key>",
+        "MONGO_AUTH": "<mongo_url>"
+    },
+    "app_config":{
+        "PORT": "5000",
+        "MONGO_DATABASE": "<db-name>",
+        "MONGO_TIMEOUT": "",
+        "HOST": "<host>",
+        "CORE_BB_HOST": "<core-bb-base-url>",
+        "POLL_SERVICE_URL": "<base-url>",
+        "UIUC_ORG_ID": "<uiuc org id>",
+        "POLLS_APP_ID": "<app id>",
+        "POLLS_ORG_ID": "<org id>",
+        "POLLS_NOTIFICATIONS_BB_HOST": "<notifications-bb-base-url>",
+        "DEFAULT_CACHE_EXPIRATION_SECONDS": ""
+    }
+}
