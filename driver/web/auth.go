@@ -22,9 +22,9 @@ import (
 	"polls/core/model"
 	web "polls/driver/web/auth"
 
-	"github.com/rokwire/core-auth-library-go/tokenauth"
+	"github.com/rokwire/core-auth-library-go/v2/tokenauth"
 
-	"github.com/rokwire/logging-library-go/logs"
+	"github.com/rokwire/logging-library-go/v2/logs"
 )
 
 // Auth handler
