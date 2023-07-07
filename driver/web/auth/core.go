@@ -20,7 +20,7 @@ import (
 	"polls/core"
 	"polls/core/model"
 
-	"github.com/rokwire/core-auth-library-go/tokenauth"
+	"github.com/rokwire/core-auth-library-go/v2/tokenauth"
 )
 
 // CoreAuth implementation

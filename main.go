@@ -26,9 +26,9 @@ import (
 	driver "polls/driver/web"
 	"strings"
 
-	"github.com/rokwire/core-auth-library-go/authservice"
-	"github.com/rokwire/core-auth-library-go/tokenauth"
-	"github.com/rokwire/logging-library-go/logs"
+	"github.com/rokwire/core-auth-library-go/v2/authservice"
+	"github.com/rokwire/core-auth-library-go/v2/tokenauth"
+	"github.com/rokwire/logging-library-go/v2/logs"
 )
 
 var (
@@ -45,7 +45,10 @@ func main() {
 
 	serviceID := "polls-v2"
 
-	loggerOpts := logs.LoggerOpts{SuppressRequests: []logs.HttpRequestProperties{logs.NewAwsHealthCheckHttpRequestProperties("/polls/version")}}
+	loggerOpts := logs.LoggerOpts{
+		SuppressRequests: logs.NewStandardHealthCheckHTTPRequestProperties(serviceID + "/version"),
+		SensitiveHeaders: []string{"Internal-Api-Key"},
+	}
 	logger := logs.NewLogger(serviceID, &loggerOpts)
 
 	port := getEnvKey("PORT", true)
@@ -63,33 +66,36 @@ func main() {
 	serviceURL := getEnvKey("POLL_SERVICE_URL", true)
 	uiucOrgID := getEnvKey("UIUC_ORG_ID", true)
 
-	remoteConfig := authservice.RemoteAuthDataLoaderConfig{
-		AuthServicesHost: coreBBHost,
+	authService := authservice.AuthService{
+		ServiceID:   serviceID,
+		ServiceHost: serviceURL,
+		FirstParty:  true,
+		AuthBaseURL: coreBBHost,
 	}
 
-	serviceLoader, err := authservice.NewRemoteAuthDataLoader(remoteConfig, []string{"core", "notifications", "groups"}, logger)
+	serviceLoader, err := authservice.NewRemoteServiceRegLoader(&authService, []string{"core", "notifications", "groups"})
 	if err != nil {
-		log.Fatalf("Error initializing auth service: %v", err)
+		log.Fatalf("Error initializing remote service registration loader: %v", err)
 	}
 
-	authService, err := authservice.NewAuthService(serviceID, serviceURL, serviceLoader)
+	serviceRegManager, err := authservice.NewServiceRegManager(&authService, serviceLoader)
 	if err != nil {
-		log.Fatalf("Error initializing auth service: %v", err)
+		log.Fatalf("Error initializing service registration manager: %v", err)
 	}
 
-	tokenAuth, err := tokenauth.NewTokenAuth(true, authService, nil, nil)
+	tokenAuth, err := tokenauth.NewTokenAuth(true, serviceRegManager, nil, nil)
 	if err != nil {
 		log.Fatalf("Error intitializing token auth: %v", err)
 	}
 
 	// Notifications service reg
-	notificationsServiceReg, err := authService.GetServiceReg("notifications")
+	notificationsServiceReg, err := serviceRegManager.GetServiceReg("notifications")
 	if err != nil {
 		log.Fatalf("error finding notifications service reg: %s", err)
 	}
 
 	// Groups service reg
-	groupsServiceReg, err := authService.GetServiceReg("groups")
+	groupsServiceReg, err := serviceRegManager.GetServiceReg("groups")
 	if err != nil {
 		log.Fatalf("error finding notifications service reg: %s", err)
 	}
