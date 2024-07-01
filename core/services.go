@@ -182,7 +182,14 @@ func (app *Application) endPoll(user *model.User, pollID string) error {
 }
 
 func (app *Application) notifyNotificationsBBForPoll(user *model.User, poll *model.Poll, topic string, operation string, message string) {
+	subject := "Poll"
 	if poll.GroupID != nil {
+
+		group, _ := app.groups.GetGroupDetails(user.Token, *poll.GroupID)
+		if group != nil {
+			subject = fmt.Sprintf("Group - %s", group.Title)
+		}
+
 		app.groups.SendGroupNotification(*poll.GroupID, model.GroupNotification{
 			Members: poll.ToMembersList.ToNotificationRecipients(),
 			Sender: &model.Sender{
@@ -193,7 +200,7 @@ func (app *Application) notifyNotificationsBBForPoll(user *model.User, poll *mod
 				},
 			},
 			Topic:   &topic,
-			Subject: "Illinois",
+			Subject: subject,
 			Body:    message,
 			Data: map[string]string{
 				"group_id":    *poll.GroupID,
@@ -215,7 +222,7 @@ func (app *Application) notifyNotificationsBBForPoll(user *model.User, poll *mod
 				},
 			},
 			Topic:   &topic,
-			Subject: "Illinois",
+			Subject: subject,
 			Body:    message,
 			Data: map[string]string{
 				"type":        "poll",

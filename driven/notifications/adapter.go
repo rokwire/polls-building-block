@@ -29,7 +29,7 @@ func (a *Adapter) SendNotification(notification model.NotificationMessage) {
 
 // SendNotification sends notification to a user
 func (a *Adapter) sendNotification(notification model.NotificationMessage) {
-	if len(notification.Recipients) > 0 && notification.Subject != "" && notification.Body != "" {
+	if notification.Subject != "" && notification.Body != "" {
 		url := fmt.Sprintf("%s/api/int/message", a.baseURL)
 
 		bodyBytes, err := json.Marshal(notification)

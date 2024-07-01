@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Update poll notifications [#55](https://github.com/rokwire/polls-building-block/issues/55)
+
 ## [1.6.0] - 2023-01-13
 ### Changed
 - Update group's date update when a linked poll is created or ended [#49](https://github.com/rokwire/polls-building-block/issues/49)
