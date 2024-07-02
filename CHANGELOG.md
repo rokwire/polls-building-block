@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed 
+- Broken normal poll notifications [#57](https://github.com/rokwire/polls-building-block/issues/57)
+
 ## [1.7.0] - 2024-07-01
 ### Changed
 - Updated container images

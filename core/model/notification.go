@@ -1,7 +1,13 @@
 package model
 
-// NotificationMessage wrapper for internal message
+// NotificationMessage wrapper for notification message
 type NotificationMessage struct {
+	Async   *bool        `json:"async"`
+	Message InnerMessage `json:"message"`
+}
+
+// InnerMessage wrapper for internal message
+type InnerMessage struct {
 	Recipients []UserRef         `json:"recipients" bson:"recipients"`
 	Topic      *string           `json:"topic" bson:"topic"`
 	Subject    string            `json:"subject" bson:"subject"`
