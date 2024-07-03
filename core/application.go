@@ -16,10 +16,11 @@ package core
 
 import (
 	cacheadapter "polls/driven/cache"
+	corebb "polls/driven/core"
 
 	"github.com/rokwire/core-auth-library-go/tokenauth"
 
-	"github.com/rokwire/logging-library-go/logs"
+	"github.com/rokwire/logging-library-go/v2/logs"
 
 	"polls/driven/groups"
 	"polls/driven/notifications"
@@ -39,6 +40,9 @@ type Application struct {
 	groups        *groups.Adapter
 	sseServer     *SSEServer
 	tokenAuth     *tokenauth.TokenAuth
+
+	serviceID string
+	corebb    *corebb.Adapter
 }
 
 // Start starts the core part of the application
@@ -48,7 +52,7 @@ func (app *Application) Start() {
 
 // NewApplication creates new Application
 func NewApplication(version string, build string, storage Storage, cacheAdapter *cacheadapter.CacheAdapter,
-	notificationsAdapter *notifications.Adapter, groupsAdapter *groups.Adapter, logger *logs.Logger) *Application {
+	notificationsAdapter *notifications.Adapter, groupsAdapter *groups.Adapter, serviceID string, coreBB *corebb.Adapter, logger *logs.Logger) *Application {
 	application := Application{
 		version:       version,
 		build:         build,
@@ -57,6 +61,8 @@ func NewApplication(version string, build string, storage Storage, cacheAdapter 
 		notifications: notificationsAdapter,
 		groups:        groupsAdapter,
 		sseServer:     NewSSEServer(),
+		serviceID:     serviceID,
+		corebb:        coreBB,
 	}
 
 	// add the drivers ports/interfaces

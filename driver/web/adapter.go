@@ -24,9 +24,7 @@ import (
 	"polls/utils"
 	"strings"
 
-	"github.com/rokwire/logging-library-go/logs"
-
-	"github.com/rokwire/core-auth-library-go/tokenauth"
+	"github.com/rokwire/logging-library-go/v2/logs"
 
 	"github.com/casbin/casbin"
 	"github.com/gorilla/mux"
@@ -219,8 +217,8 @@ func (we Adapter) internalAPIKeyAuthWrapFunc(handler internalAPIKeyAuthFunc) htt
 }
 
 // NewWebAdapter creates new WebAdapter instance
-func NewWebAdapter(host string, port string, app *core.Application, tokenAuth *tokenauth.TokenAuth, config *model.Config, logger *logs.Logger) Adapter {
-	auth := NewAuth(app, config, tokenAuth, logger)
+func NewWebAdapter(host string, port string, app *core.Application, config *model.Config, logger *logs.Logger) Adapter {
+	auth := NewAuth(app, config, logger)
 	authorization := casbin.NewEnforcer("driver/web/authorization_model.conf", "driver/web/authorization_policy.csv")
 
 	apisHandler := rest.NewApisHandler(app, config)

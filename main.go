@@ -17,18 +17,21 @@ package main
 import (
 	"log"
 	"os"
+
 	"polls/core"
 	"polls/core/model"
 	cacheadapter "polls/driven/cache"
+	corebb "polls/driven/core"
 	"polls/driven/groups"
 	"polls/driven/notifications"
 	storage "polls/driven/storage"
 	driver "polls/driver/web"
 	"strings"
 
-	"github.com/rokwire/core-auth-library-go/authservice"
-	"github.com/rokwire/core-auth-library-go/tokenauth"
-	"github.com/rokwire/logging-library-go/logs"
+	"github.com/golang-jwt/jwt"
+	"github.com/rokwire/core-auth-library-go/v2/authservice"
+	"github.com/rokwire/core-auth-library-go/v2/sigauth"
+	"github.com/rokwire/logging-library-go/v2/logs"
 )
 
 var (
@@ -45,7 +48,7 @@ func main() {
 
 	serviceID := "polls-v2"
 
-	loggerOpts := logs.LoggerOpts{SuppressRequests: []logs.HttpRequestProperties{logs.NewAwsHealthCheckHttpRequestProperties("/polls/version")}}
+	loggerOpts := logs.LoggerOpts{SuppressRequests: logs.NewStandardHealthCheckHTTPRequestProperties(serviceID + "/version")}
 	logger := logs.NewLogger(serviceID, &loggerOpts)
 
 	port := getEnvKey("PORT", true)
@@ -63,7 +66,7 @@ func main() {
 	serviceURL := getEnvKey("POLL_SERVICE_URL", true)
 	uiucOrgID := getEnvKey("UIUC_ORG_ID", true)
 
-	remoteConfig := authservice.RemoteAuthDataLoaderConfig{
+	/*remoteConfig := authservice.RemoteAuthDataLoaderConfig{
 		AuthServicesHost: coreBBHost,
 	}
 
@@ -92,18 +95,54 @@ func main() {
 	groupsServiceReg, err := authService.GetServiceReg("groups")
 	if err != nil {
 		log.Fatalf("error finding notifications service reg: %s", err)
+	}*/
+	authService := authservice.AuthService{
+		ServiceID:   serviceID,
+		ServiceHost: serviceURL,
+		FirstParty:  true,
+		AuthBaseURL: coreBBHost,
 	}
 
+	serviceRegLoader, err := authservice.NewRemoteServiceRegLoader(&authService, []string{"auth"})
+	if err != nil {
+		log.Fatalf("Error initializing remote service registration loader: %v", err)
+	}
+
+	serviceRegManager, err := authservice.NewServiceRegManager(&authService, serviceRegLoader)
+	if err != nil {
+		log.Fatalf("Error initializing service registration manager: %v", err)
+	}
+
+	//core adapter
+	serviceAccountID := getEnvKey("POLLS_SERVICE_ACCOUNT_ID", false)
+	privKeyRaw := getEnvKey("POLLS_PRIV_KEY", true)
+	privKeyRaw = strings.ReplaceAll(privKeyRaw, "\\n", "\n")
+	privKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(privKeyRaw))
+	if err != nil {
+		log.Fatalf("Error parsing priv key: %v", err)
+	}
+	signatureAuth, err := sigauth.NewSignatureAuth(privKey, serviceRegManager, false)
+	if err != nil {
+		log.Fatalf("Error initializing signature auth: %v", err)
+	}
+
+	serviceAccountLoader, err := authservice.NewRemoteServiceAccountLoader(&authService, serviceAccountID, signatureAuth)
+	if err != nil {
+		log.Fatalf("Error initializing remote service account loader: %v", err)
+	}
+
+	serviceAccountManager, err := authservice.NewServiceAccountManager(&authService, serviceAccountLoader)
+	if err != nil {
+		log.Fatalf("Error initializing service account manager: %v", err)
+	}
 	config := &model.Config{
-		MongoDBAuth:       mongoDBAuth,
-		MongoDBName:       mongoDBName,
-		MongoTimeout:      mongoTimeout,
-		InternalAPIKey:    internalAPIKey,
-		CoreBBHost:        coreBBHost,
-		PollServiceURL:    serviceURL,
-		UiucOrgID:         uiucOrgID,
-		GroupsHost:        groupsServiceReg.Host,
-		NotificationsHost: notificationsServiceReg.Host,
+		MongoDBAuth:    mongoDBAuth,
+		MongoDBName:    mongoDBName,
+		MongoTimeout:   mongoTimeout,
+		InternalAPIKey: internalAPIKey,
+		CoreBBHost:     coreBBHost,
+		PollServiceURL: serviceURL,
+		UiucOrgID:      uiucOrgID,
 	}
 
 	storageAdapter := storage.NewStorageAdapter(config, logger)
@@ -125,11 +164,15 @@ func main() {
 	defaultCacheExpirationSeconds := getEnvKey("DEFAULT_CACHE_EXPIRATION_SECONDS", false)
 	cacheAdapter := cacheadapter.NewCacheAdapter(defaultCacheExpirationSeconds)
 
+	//core adapter
+	coreAdapter := corebb.NewCoreAdapter(coreBBHost, orgID, appID, serviceAccountManager)
+
 	// application
-	application := core.NewApplication(Version, Build, storageAdapter, cacheAdapter, notificationsBBAdapter, groupsAdapter, logger)
+	application := core.NewApplication(Version, Build, storageAdapter, cacheAdapter, notificationsBBAdapter,
+		groupsAdapter, serviceID, coreAdapter, logger)
 	application.Start()
 
-	webAdapter := driver.NewWebAdapter(host, port, application, tokenAuth, config, logger)
+	webAdapter := driver.NewWebAdapter(host, port, application, config, logger)
 
 	webAdapter.Start()
 }
