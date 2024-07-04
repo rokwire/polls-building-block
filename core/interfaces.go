@@ -187,6 +187,7 @@ type Storage interface {
 	CreateSurvey(survey model.Survey) (*model.Survey, error)
 	UpdateSurvey(user *model.User, survey model.Survey, admin bool) error
 	DeleteSurvey(user *model.User, id string, admin bool) error
+	DeleteSurveysWithIDs(appID string, orgID string, accountsIDs []string) error
 
 	GetSurveyResponse(user *model.User, id string) (*model.SurveyResponse, error)
 	GetSurveyResponses(user *model.User, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error)
@@ -194,6 +195,7 @@ type Storage interface {
 	UpdateSurveyResponse(user *model.User, id string, surveyResponse model.Survey) error
 	DeleteSurveyResponse(user *model.User, id string) error
 	DeleteSurveyResponses(user *model.User, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time) error
+	DeleteSurveyResponsesWithIDs(appID string, orgID string, accountsIDs []string) error
 
 	GetAlertContacts(user *model.User) ([]model.AlertContact, error)
 	GetAlertContact(user *model.User, id string) (*model.AlertContact, error)

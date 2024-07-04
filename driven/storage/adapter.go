@@ -15,7 +15,6 @@
 package storage
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"polls/core/model"
@@ -159,7 +158,7 @@ func (sa *Adapter) GetPolls(user *model.User, filter model.PollsFilter, filterBy
 }
 
 // DeletePollsWithIDs Deletes polls
-func (sa Adapter) DeletePollsWithIDs(ctx context.Context, orgID string, accountsIDs []string) error {
+func (sa Adapter) DeletePollsWithIDs(orgID string, accountsIDs []string) error {
 	filter := bson.D{
 		primitive.E{Key: "org_id", Value: orgID},
 		primitive.E{Key: "poll.userid", Value: bson.M{"$in": accountsIDs}},
@@ -599,6 +598,36 @@ func (sa *Adapter) DeleteSurveyResponses(user *model.User, surveyIDs []string, s
 	}
 	if result.DeletedCount == 0 {
 		fmt.Printf("storage.Adapter.DeleteSurveyResponses: No deleted survey responses")
+	}
+	return nil
+}
+
+// DeleteSurveyResponsesWithIDs Deletes survey responses
+func (sa Adapter) DeleteSurveyResponsesWithIDs(appID string, orgID string, accountsIDs []string) error {
+	filter := bson.D{
+		primitive.E{Key: "app_id", Value: appID},
+		primitive.E{Key: "org_id", Value: orgID},
+		primitive.E{Key: "user_id", Value: bson.M{"$in": accountsIDs}},
+	}
+
+	_, err := sa.db.surveyResponses.DeleteMany(filter, nil)
+	if err != nil {
+		return errors.WrapErrorAction(logutils.ActionDelete, "user", nil, err)
+	}
+	return nil
+}
+
+// DeleteSurveysWithIDs Deletes surveys
+func (sa Adapter) DeleteSurveysWithIDs(appID string, orgID string, accountsIDs []string) error {
+	filter := bson.D{
+		primitive.E{Key: "app_id", Value: appID},
+		primitive.E{Key: "org_id", Value: orgID},
+		primitive.E{Key: "creator_id", Value: bson.M{"$in": accountsIDs}},
+	}
+
+	_, err := sa.db.surveys.DeleteMany(filter, nil)
+	if err != nil {
+		return errors.WrapErrorAction(logutils.ActionDelete, "user", nil, err)
 	}
 	return nil
 }
