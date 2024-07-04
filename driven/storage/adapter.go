@@ -15,6 +15,7 @@
 package storage
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"polls/core/model"
@@ -22,6 +23,8 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/rokwire/logging-library-go/errors"
+	"github.com/rokwire/logging-library-go/logutils"
 	"github.com/rokwire/logging-library-go/v2/logs"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -153,6 +156,20 @@ func (sa *Adapter) GetPolls(user *model.User, filter model.PollsFilter, filterBy
 	}
 
 	return list, nil
+}
+
+// DeletePollsWithIDs Deletes polls
+func (sa Adapter) DeletePollsWithIDs(ctx context.Context, orgID string, accountsIDs []string) error {
+	filter := bson.D{
+		primitive.E{Key: "org_id", Value: orgID},
+		primitive.E{Key: "poll.userid", Value: bson.M{"$in": accountsIDs}},
+	}
+
+	_, err := sa.db.polls.DeleteMany(filter, nil)
+	if err != nil {
+		return errors.WrapErrorAction(logutils.ActionDelete, "user", nil, err)
+	}
+	return nil
 }
 
 // GetPoll retrieves a single poll

@@ -148,7 +148,12 @@ func (d deleteDataLogic) processDelete() {
 }
 
 func (d deleteDataLogic) deleteAppOrgUsersData(appID string, orgID string, accountsIDs []string) {
-
+	// delete polls
+	err := d.storage.DeletePollsWithIDs(orgID, accountsIDs)
+	if err != nil {
+		d.logger.Errorf("error deleting the users - %s", err)
+		return
+	}
 }
 
 func (d deleteDataLogic) getAccountsIDs(memberships []model.DeletedMembership) []string {

@@ -179,6 +179,7 @@ type Storage interface {
 	DeletePoll(user *model.User, id string) error
 
 	VotePoll(user *model.User, pollID string, vote model.PollVote) error
+	DeletePollsWithIDs(orgID string, accountsIDs []string) error
 
 	SetListener(listener storage.CollectionListener)
 
