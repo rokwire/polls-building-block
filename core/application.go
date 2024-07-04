@@ -41,28 +41,33 @@ type Application struct {
 	sseServer     *SSEServer
 	tokenAuth     *tokenauth.TokenAuth
 
-	serviceID string
-	corebb    *corebb.Adapter
+	serviceID       string
+	corebb          *corebb.Adapter
+	deleteDataLogic deleteDataLogic
 }
 
 // Start starts the core part of the application
 func (app *Application) Start() {
 	app.storage.SetListener(app)
+	app.deleteDataLogic.start()
 }
 
 // NewApplication creates new Application
 func NewApplication(version string, build string, storage Storage, cacheAdapter *cacheadapter.CacheAdapter,
 	notificationsAdapter *notifications.Adapter, groupsAdapter *groups.Adapter, serviceID string, coreBB *corebb.Adapter, logger *logs.Logger) *Application {
+	deleteDataLogic := deleteDataLogic{logger: *logger, core: coreBB, serviceID: serviceID, storage: storage}
+
 	application := Application{
-		version:       version,
-		build:         build,
-		storage:       storage,
-		cache:         cacheAdapter,
-		notifications: notificationsAdapter,
-		groups:        groupsAdapter,
-		sseServer:     NewSSEServer(),
-		serviceID:     serviceID,
-		corebb:        coreBB,
+		version:         version,
+		build:           build,
+		storage:         storage,
+		cache:           cacheAdapter,
+		notifications:   notificationsAdapter,
+		groups:          groupsAdapter,
+		sseServer:       NewSSEServer(),
+		serviceID:       serviceID,
+		corebb:          coreBB,
+		deleteDataLogic: deleteDataLogic,
 	}
 
 	// add the drivers ports/interfaces

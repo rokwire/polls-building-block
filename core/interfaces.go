@@ -201,3 +201,9 @@ type Storage interface {
 	DeleteAlertContact(user *model.User, id string) error
 	GetAlertContactsByKey(key string, user *model.User) ([]model.AlertContact, error)
 }
+
+// Core exposes Core APIs for the driver adapters
+type Core interface {
+	RetrieveCoreUserAccountByCriteria(accountCriteria map[string]interface{}, appID *string, orgID *string) ([]model.CoreAccount, error)
+	LoadDeletedMemberships() ([]model.DeletedUserData, error)
+}
