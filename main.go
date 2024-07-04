@@ -66,36 +66,6 @@ func main() {
 	serviceURL := getEnvKey("POLL_SERVICE_URL", true)
 	uiucOrgID := getEnvKey("UIUC_ORG_ID", true)
 
-	/*remoteConfig := authservice.RemoteAuthDataLoaderConfig{
-		AuthServicesHost: coreBBHost,
-	}
-
-	serviceLoader, err := authservice.NewRemoteAuthDataLoader(remoteConfig, []string{"core", "notifications", "groups"}, logger)
-	if err != nil {
-		log.Fatalf("Error initializing auth service: %v", err)
-	}
-
-	authService, err := authservice.NewAuthService(serviceID, serviceURL, serviceLoader)
-	if err != nil {
-		log.Fatalf("Error initializing auth service: %v", err)
-	}
-
-	tokenAuth, err := tokenauth.NewTokenAuth(true, authService, nil, nil)
-	if err != nil {
-		log.Fatalf("Error intitializing token auth: %v", err)
-	}
-
-	// Notifications service reg
-	notificationsServiceReg, err := authService.GetServiceReg("notifications")
-	if err != nil {
-		log.Fatalf("error finding notifications service reg: %s", err)
-	}
-
-	// Groups service reg
-	groupsServiceReg, err := authService.GetServiceReg("groups")
-	if err != nil {
-		log.Fatalf("error finding notifications service reg: %s", err)
-	}*/
 	authService := authservice.AuthService{
 		ServiceID:   serviceID,
 		ServiceHost: serviceURL,
