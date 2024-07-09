@@ -62,9 +62,10 @@ func (app *Application) createPoll(user *model.User, poll model.Poll) (*model.Po
 		return nil, err
 	}
 
-	err = app.notifyNotificationsBBForPoll(user, createdPoll, "polls", "poll_created", fmt.Sprintf("Poll '%s' has been created", createdPoll.Question))
-	if err != nil {
-		log.Printf("error while sending notification for created poll: %s", err) // dont fail
+	app.notifyNotificationsBBForPoll(user, createdPoll, "polls", "poll_created", fmt.Sprintf("Poll '%s' has been created", createdPoll.Question))
+
+	if poll.GroupID != nil {
+		go app.groups.UpdateGroupDateUpdated(*poll.GroupID)
 	}
 
 	return createdPoll, nil
@@ -134,12 +135,13 @@ func (app *Application) startPoll(user *model.User, pollID string) error {
 		return fmt.Errorf("error app.startPoll() - poll not found: %s", pollID)
 	}
 
-	err = app.notifyNotificationsBBForPoll(user, poll, "polls", "poll_created", fmt.Sprintf("Poll '%s' has been started", poll.Question))
-	if err != nil {
-		log.Printf("error while sending notification for started poll: %s", err) // dont fail
-	}
+	app.notifyNotificationsBBForPoll(user, poll, "polls", "poll_started", fmt.Sprintf("Poll '%s' has been started", poll.Question))
 
 	app.sseServer.NotifyPollForEvent(pollID, "poll_started")
+
+	if poll.GroupID != nil {
+		go app.groups.UpdateGroupDateUpdated(*poll.GroupID)
+	}
 
 	return nil
 }
@@ -167,19 +169,27 @@ func (app *Application) endPoll(user *model.User, pollID string) error {
 		return fmt.Errorf("error app.startPoll() - poll not found: %s", pollID)
 	}
 
-	err = app.notifyNotificationsBBForPoll(user, poll, "polls", "poll_ended", fmt.Sprintf("Poll '%s' has ended.", poll.Question))
-	if err != nil {
-		log.Printf("error while sending notification for ended poll: %s", err) // dont fail
-	}
+	app.notifyNotificationsBBForPoll(user, poll, "polls", "poll_ended", fmt.Sprintf("Poll '%s' has ended.", poll.Question))
 
 	app.sseServer.NotifyPollForEvent(pollID, "poll_end")
 	app.sseServer.ClosePoll(pollID)
 
+	if poll.GroupID != nil {
+		go app.groups.UpdateGroupDateUpdated(*poll.GroupID)
+	}
+
 	return nil
 }
 
-func (app *Application) notifyNotificationsBBForPoll(user *model.User, poll *model.Poll, topic string, operation string, message string) error {
+func (app *Application) notifyNotificationsBBForPoll(user *model.User, poll *model.Poll, topic string, operation string, message string) {
+	subject := "Illinois"
 	if poll.GroupID != nil {
+
+		group, _ := app.groups.GetGroupDetails(user.Token, *poll.GroupID)
+		if group != nil {
+			subject = fmt.Sprintf("Group - %s", group.Title)
+		}
+
 		app.groups.SendGroupNotification(*poll.GroupID, model.GroupNotification{
 			Members: poll.ToMembersList.ToNotificationRecipients(),
 			Sender: &model.Sender{
@@ -190,7 +200,7 @@ func (app *Application) notifyNotificationsBBForPoll(user *model.User, poll *mod
 				},
 			},
 			Topic:   &topic,
-			Subject: "Illinois",
+			Subject: subject,
 			Body:    message,
 			Data: map[string]string{
 				"group_id":    *poll.GroupID,
@@ -203,28 +213,30 @@ func (app *Application) notifyNotificationsBBForPoll(user *model.User, poll *mod
 		})
 	} else {
 		app.notifications.SendNotification(model.NotificationMessage{
-			Recipients: poll.ToMembersList.ToNotificationRecipients(),
-			Sender: &model.Sender{
-				Type: "user",
-				User: &model.UserRef{
-					UserID: user.Claims.Subject,
-					Name:   user.Claims.Name,
+			Message: model.InnerMessage{
+				AppID:      user.Claims.AppID,
+				OrgID:      user.Claims.OrgID,
+				Recipients: poll.ToMembersList.ToNotificationRecipients(),
+				Sender: &model.Sender{
+					Type: "user",
+					User: &model.UserRef{
+						UserID: user.Claims.Subject,
+						Name:   user.Claims.Name,
+					},
 				},
-			},
-			Topic:   &topic,
-			Subject: "Illinois",
-			Body:    message,
-			Data: map[string]string{
-				"type":        "poll",
-				"operation":   operation,
-				"entity_type": "poll",
-				"entity_id":   poll.ID.Hex(),
-				"entity_name": poll.Question,
+				Topic:   &topic,
+				Subject: subject,
+				Body:    message,
+				Data: map[string]string{
+					"type":        "poll",
+					"operation":   operation,
+					"entity_type": "poll",
+					"entity_id":   poll.ID.Hex(),
+					"entity_name": poll.Question,
+				},
 			},
 		})
 	}
-
-	return nil
 }
 
 func (app *Application) votePoll(user *model.User, pollID string, vote model.PollVote) error {
@@ -237,22 +249,26 @@ func (app *Application) subscribeToPoll(user *model.User, pollID string, resultC
 }
 
 func (app *Application) checkPollPermission(user *model.User, poll *model.Poll, operation string) error {
-	if poll == nil || user.Claims.Subject != poll.UserID {
-		if poll.GroupID != nil && len(*poll.GroupID) > 0 {
-			group, err := app.groups.GetGroupDetails(*poll.GroupID)
-			if err != nil {
-				return err
-			}
-			if group != nil {
-				if !group.IsCurrentUserAdmin(user.Claims.Subject) {
+	if poll != nil {
+		if user.Claims.Subject != poll.UserID {
+			if poll.GroupID != nil && len(*poll.GroupID) > 0 {
+				group, err := app.groups.GetGroupDetails(user.Token, *poll.GroupID)
+				if err != nil {
+					return err
+				}
+				if group != nil {
+					if !group.IsCurrentUserAdmin(user.Claims.Subject) {
+						return fmt.Errorf("only the creator of a poll or a group admin can %s it", operation)
+					}
+				} else {
 					return fmt.Errorf("only the creator of a poll or a group admin can %s it", operation)
 				}
 			} else {
-				return fmt.Errorf("only the creator of a poll or a group admin can %s it", operation)
+				return fmt.Errorf("only the creator of a poll can %s it", operation)
 			}
-		} else {
-			return fmt.Errorf("only the creator of a poll can %s it", operation)
 		}
+	} else {
+		return fmt.Errorf("poll is nil")
 	}
 	return nil
 }
@@ -374,7 +390,7 @@ func (app *Application) createSurveyAlert(user *model.User, surveyAlert model.Su
 			if !ok {
 				return fmt.Errorf("error on Application.createSurveyAlert: No body available")
 			}
-			app.notifications.SendMail(contacts[i].Address, subject, body)
+			app.notifications.SendMail(user, contacts[i].Address, subject, body)
 		}
 	}
 

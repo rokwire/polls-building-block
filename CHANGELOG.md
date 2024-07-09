@@ -5,6 +5,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.7.1] - 2024-07-02
+### Fixed 
+- Broken normal poll notifications [#57](https://github.com/rokwire/polls-building-block/issues/57)
+
+## [1.7.0] - 2024-07-01
+### Changed
+- Updated container images
+- Update poll notifications [#55](https://github.com/rokwire/polls-building-block/issues/55)
+
+## [1.6.0] - 2023-01-13
+### Changed
+- Update group's date update when a linked poll is created or ended [#49](https://github.com/rokwire/polls-building-block/issues/49)
+
+## [1.5.1] - 2023-01-05
+### Fixed 
+- Confusing Error message on deleting a poll [#47](https://github.com/rokwire/polls-building-block/issues/47)
+
 ## [1.5.0] - 2022-12-06
 ### Added
 - Delete survey responses api [#44](https://github.com/rokwire/polls-building-block/issues/43)

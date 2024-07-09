@@ -12,92 +12,59 @@ type Group struct {
 	Title           string `json:"title"`
 	Privacy         string `json:"privacy"`
 	HiddenForSearch bool   `json:"hidden_for_search"`
-	Members         []struct {
-		ID           string      `json:"id"`
-		UserID       string      `json:"user_id"`
-		ExternalID   string      `json:"external_id"`
-		Name         string      `json:"name"`
-		Email        string      `json:"email"`
-		Status       string      `json:"status"`
-		RejectReason string      `json:"reject_reason"`
-		DateCreated  time.Time   `json:"date_created"`
-		DateUpdated  time.Time   `json:"date_updated"`
-		DateAttended interface{} `json:"date_attended"`
-	} `json:"members"`
-	DateCreated                time.Time `json:"date_created"`
-	DateUpdated                time.Time `json:"date_updated"`
-	OnlyAdminsCanCreatePolls   bool      `json:"only_admins_can_create_polls"`
-	BlockNewMembershipRequests bool      `json:"block_new_membership_requests"`
-	AttendanceGroup            bool      `json:"attendance_group"`
-}
-
-// IsGroupAdmin Checks if the userID is an admin of the group
-func (g *Group) IsGroupAdmin(userID string) bool {
-	if len(g.Members) > 0 {
-		for _, member := range g.Members {
-			if member.UserID == userID && member.Status == "admin" {
-				return true
-			}
-		}
-	}
-	return false
+	Description     string `json:"description"`
+	ImageURL        string `json:"image_url"`
+	WebURL          string `json:"web_url"`
+	Tags            string `json:"tags"`
+	CurrentMember   *struct {
+		ID                       string `json:"id"`
+		ClientID                 string `json:"client_id"`
+		GroupID                  string `json:"group_id"`
+		UserID                   string `json:"user_id"`
+		ExternalID               string `json:"external_id"`
+		Name                     string `json:"name"`
+		NetID                    string `json:"net_id"`
+		Email                    string `json:"email"`
+		PhotoURL                 string `json:"photo_url"`
+		Status                   string `json:"status"`
+		Admin                    bool   `json:"admin"`
+		RejectReason             string `json:"reject_reason"`
+		NotificationsPreferences struct {
+			OverridePreferences bool `json:"override_preferences"`
+			AllMute             bool `json:"all_mute"`
+			InvitationsMute     bool `json:"invitations_mute"`
+			PostsMute           bool `json:"posts_mute"`
+			EventsMute          bool `json:"events_mute"`
+			PollsMute           bool `json:"polls_mute"`
+		} `json:"notifications_preferences"`
+		DateCreated  time.Time  `json:"date_created"`
+		DateUpdated  *time.Time `json:"date_updated"`
+		DateAttended *time.Time `json:"date_attended"`
+	} `json:"current_member"`
+	Stats struct {
+		TotalCount      int `json:"total_count"`
+		AdminsCount     int `json:"admins_count"`
+		MemberCount     int `json:"member_count"`
+		PendingCount    int `json:"pending_count"`
+		RejectedCount   int `json:"rejected_count"`
+		AttendanceCount int `json:"attendance_count"`
+	} `json:"stats"`
+	DateCreated                time.Time  `json:"date_created"`
+	DateUpdated                *time.Time `json:"date_updated"`
+	AuthmanEnabled             bool       `json:"authman_enabled"`
+	AuthmanGroup               string     `json:"authman_group"`
+	OnlyAdminsCanCreatePolls   bool       `json:"only_admins_can_create_polls"`
+	CanJoinAutomatically       bool       `json:"can_join_automatically"`
+	BlockNewMembershipRequests bool       `json:"block_new_membership_requests"`
+	AttendanceGroup            bool       `json:"attendance_group"`
 }
 
 // IsCurrentUserAdmin checks if the user is a group admin
 func (g *Group) IsCurrentUserAdmin(currentUserID string) bool {
-	for _, member := range g.Members {
-		if member.UserID == currentUserID {
-			if member.Status == "admin" {
-				return true
-			}
-			return false
+	if g.CurrentMember != nil {
+		if g.CurrentMember.UserID == currentUserID && g.CurrentMember.Status == "admin" {
+			return true
 		}
 	}
 	return false
-}
-
-// GetMembersAsNotificationRecipients Gets members as notification recipients
-func (g *Group) GetMembersAsNotificationRecipients(currentUserID string, subMembers []ToMember) []UserRef {
-	var recipients []UserRef
-	if len(g.Members) > 0 {
-		if len(subMembers) > 0 {
-
-			//
-			// Send notification to the group admins & the sub member list
-			//
-			userIDmapping := map[string]bool{}
-			for _, member := range g.Members {
-				if member.UserID != "" && member.UserID != currentUserID && (member.Status == "admin") {
-					recipients = append(recipients, UserRef{
-						UserID: member.UserID,
-						Name:   member.Name,
-					})
-					userIDmapping[member.UserID] = true
-				}
-			}
-
-			for _, toMember := range subMembers {
-				if toMember.UserID != "" && toMember.UserID != currentUserID && !userIDmapping[toMember.UserID] {
-					recipients = append(recipients, UserRef{
-						UserID: toMember.UserID,
-						Name:   toMember.Name,
-					})
-				}
-			}
-		} else {
-
-			//
-			// Send notification to the group members & group admins
-			//
-			for _, member := range g.Members {
-				if member.UserID != "" && member.UserID != currentUserID && (member.Status == "member" || member.Status == "admin") {
-					recipients = append(recipients, UserRef{
-						UserID: member.UserID,
-						Name:   member.Name,
-					})
-				}
-			}
-		}
-	}
-	return recipients
 }

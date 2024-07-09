@@ -29,8 +29,8 @@ func (a *Adapter) SendNotification(notification model.NotificationMessage) {
 
 // SendNotification sends notification to a user
 func (a *Adapter) sendNotification(notification model.NotificationMessage) {
-	if len(notification.Recipients) > 0 && notification.Subject != "" && notification.Body != "" {
-		url := fmt.Sprintf("%s/api/int/message", a.baseURL)
+	if notification.Message.Subject != "" && notification.Message.Body != "" {
+		url := fmt.Sprintf("%s/api/int/v2/message", a.baseURL)
 
 		bodyBytes, err := json.Marshal(notification)
 		if err != nil {
@@ -61,11 +61,11 @@ func (a *Adapter) sendNotification(notification model.NotificationMessage) {
 }
 
 // SendMail sends email to a user
-func (a *Adapter) SendMail(toEmail string, subject string, body string) {
-	go a.sendMail(toEmail, subject, body)
+func (a *Adapter) SendMail(user *model.User, toEmail string, subject string, body string) {
+	go a.sendMail(user, toEmail, subject, body)
 }
 
-func (a *Adapter) sendMail(toEmail string, subject string, body string) error {
+func (a *Adapter) sendMail(user *model.User, toEmail string, subject string, body string) error {
 	if len(toEmail) > 0 && len(subject) > 0 && len(body) > 0 {
 		url := fmt.Sprintf("%s/api/int/mail", a.baseURL)
 
