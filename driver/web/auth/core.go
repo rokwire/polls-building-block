@@ -30,8 +30,8 @@ type CoreAuth struct {
 }
 
 // NewCoreAuth creates new CoreAuth
-func NewCoreAuth(app *core.Application, tokenAuth *tokenauth.TokenAuth) *CoreAuth {
-	auth := CoreAuth{app: app, tokenAuth: tokenAuth}
+func NewCoreAuth(app *core.Application) *CoreAuth {
+	auth := CoreAuth{app: app}
 	return &auth
 }
 
