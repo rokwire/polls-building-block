@@ -48,7 +48,7 @@ func main() {
 
 	serviceID := "polls-v2"
 
-	loggerOpts := logs.LoggerOpts{SuppressRequests: logs.NewStandardHealthCheckHTTPRequestProperties(serviceID + "/version")}
+	loggerOpts := logs.LoggerOpts{SuppressRequests: logs.NewStandardHealthCheckHTTPRequestProperties("/polls/version")}
 	logger := logs.NewLogger(serviceID, &loggerOpts)
 
 	port := getEnvKey("PORT", true)
