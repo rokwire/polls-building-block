@@ -29,12 +29,6 @@ type CoreAuth struct {
 	tokenAuth *tokenauth.TokenAuth
 }
 
-// NewCoreAuth creates new CoreAuth
-func NewCoreAuth(app *core.Application) *CoreAuth {
-	auth := CoreAuth{app: app}
-	return &auth
-}
-
 // Check checks the request contains a valid Core access token
 func (ca CoreAuth) Check(r *http.Request) (bool, *model.User) {
 
@@ -58,4 +52,10 @@ func (ca CoreAuth) Check(r *http.Request) (bool, *model.User) {
 	}
 
 	return false, nil
+}
+
+// NewCoreAuth creates new CoreAuth
+func NewCoreAuth(app *core.Application) *CoreAuth {
+	auth := CoreAuth{app: app}
+	return &auth
 }
