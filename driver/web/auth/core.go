@@ -34,26 +34,18 @@ type CoreAuth struct {
 // Check checks the request contains a valid Core access token
 func (ca CoreAuth) Check(r *http.Request) (bool, *model.User) {
 
-	/*	claims, err := ca.tokenAuth.CheckRequestTokens(r)
-		if err != nil {
-			log.Printf("error validate token: %s", err)
-			return false, nil
-		}
+	claims, err := ca.tokenAuth.CheckRequestTokens(r)
+	if err != nil {
+		log.Printf("%s", err)
+		return false, nil
+	}
 
-		if claims != nil {
-			if claims.Valid() == nil {
-				token, _, _ := tokenauth.GetRequestTokens(r)
-				if len(token) > 0 {
-					return true, &model.User{
-						Token:  token,
-						Claims: *claims,
-					}
-				}
+	token, _, _ := tokenauth.GetRequestTokens(r)
 
-			}
-		} */
-
-	return false, nil
+	return true, &model.User{
+		Token:  token,
+		Claims: *claims,
+	}
 }
 
 // NewCoreAuth creates new CoreAuth
