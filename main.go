@@ -142,7 +142,7 @@ func main() {
 		groupsAdapter, serviceID, coreAdapter, logger)
 	application.Start()
 
-	webAdapter := driver.NewWebAdapter(host, port, application, config, &authService, logger)
+	webAdapter := driver.NewWebAdapter(host, port, application, config, serviceRegManager, logger)
 
 	webAdapter.Start()
 }

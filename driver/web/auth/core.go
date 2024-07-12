@@ -15,10 +15,12 @@
 package web
 
 import (
+	"log"
 	"net/http"
 	"polls/core"
 	"polls/core/model"
 
+	"github.com/rokwire/core-auth-library-go/v2/authorization"
 	"github.com/rokwire/core-auth-library-go/v2/authservice"
 	"github.com/rokwire/core-auth-library-go/v2/tokenauth"
 )
@@ -55,11 +57,16 @@ func (ca CoreAuth) Check(r *http.Request) (bool, *model.User) {
 }
 
 // NewCoreAuth creates new CoreAuth
-func NewCoreAuth(app *core.Application, authService *authservice.AuthService) *CoreAuth {
+func NewCoreAuth(app *core.Application, serviceRegManager *authservice.ServiceRegManager) *CoreAuth {
+	permissionAuth := authorization.NewCasbinStringAuthorization("driver/web/authorization_policy.csv")
+	tokenAuth, err := tokenauth.NewTokenAuth(true, serviceRegManager, permissionAuth, nil)
+	if err != nil {
+		log.Fatalf("error on new core auth")
+		return nil
+	}
 
-	//TODO
-	//tokenAuth, err := tokenauth.NewTokenAuth(true, authService, nil, nil)
+	//standartHandler := tokenauth.NewStandardHandler(*tokenAuth, nil)
 
-	auth := CoreAuth{app: app}
+	auth := CoreAuth{app: app, tokenAuth: tokenAuth}
 	return &auth
 }

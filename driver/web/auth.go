@@ -46,8 +46,8 @@ func (auth *Auth) clientIDCheck(w http.ResponseWriter, r *http.Request) bool {
 }
 
 // NewAuth creates new auth handler
-func NewAuth(app *core.Application, config *model.Config, authService *authservice.AuthService, logger *logs.Logger) *Auth {
-	coreAuth := web.NewCoreAuth(app, authService)
+func NewAuth(app *core.Application, config *model.Config, serviceRegManager *authservice.ServiceRegManager, logger *logs.Logger) *Auth {
+	coreAuth := web.NewCoreAuth(app, serviceRegManager)
 	internalAuth := newInternalAuth(config)
 	auth := Auth{coreAuth: coreAuth, internalAuth: internalAuth, logger: logger}
 	return &auth
