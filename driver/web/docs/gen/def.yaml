@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Rokwire Polls Building Block API
   description: Polls Building Block API Documentation
-  version: 1.8.0
+  version: 1.8.1
 servers:
   - url: 'https://api.rokwire.illinois.edu/polls'
     description: Production server
