@@ -22,7 +22,6 @@ import (
 	"polls/core/model"
 	"polls/driver/web/rest"
 	"polls/utils"
-	"strings"
 
 	"github.com/rokwire/core-auth-library-go/v2/authservice"
 	"github.com/rokwire/logging-library-go/v2/logs"
@@ -174,30 +173,21 @@ func (we Adapter) adminAuthWrapFunc(handler authFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		utils.LogRequest(req)
 
-		obj := req.URL.Path // the resource that is going to be accessed.
-		act := req.Method   // the operation that the user performs on the resource.
-
-		coreAuth, user := we.auth.coreAuth.Check(req)
-		if coreAuth {
-			permissions := strings.Split(user.Claims.Permissions, ",")
-
-			HasAccess := false
-			for _, s := range permissions {
-				HasAccess = we.authorization.Enforce(s, obj, act)
-				if HasAccess {
-					break
-				}
-			}
-			if HasAccess {
-				handler(user, w, req)
-				return
-			}
-			log.Printf("Access control error - Core Subject: %s is trying to apply %s operation for %s\n", user.Claims.Subject, act, obj)
-			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+		valid, hasAccess, user := we.auth.coreAuth.CheckWithAuthorization(req)
+		if valid && hasAccess {
+			handler(user, w, req)
 			return
 		}
 
-		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+		if !valid {
+			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+			return
+		}
+
+		if !hasAccess {
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			return
+		}
 	}
 }
 

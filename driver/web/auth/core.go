@@ -48,6 +48,29 @@ func (ca CoreAuth) Check(r *http.Request) (bool, *model.User) {
 	}
 }
 
+// CheckWithAuthorization checks the request contains a valid Core access token + authorization
+func (ca CoreAuth) CheckWithAuthorization(r *http.Request) (bool, bool, *model.User) {
+
+	claims, err := ca.tokenAuth.CheckRequestTokens(r)
+	if err != nil {
+		log.Printf("%s", err)
+		return false, false, nil
+	}
+
+	err = ca.tokenAuth.AuthorizeRequestPermissions(claims, r)
+	if err != nil {
+		log.Printf("%s", err)
+		return true, false, nil
+	}
+
+	token, _, _ := tokenauth.GetRequestTokens(r)
+
+	return true, true, &model.User{
+		Token:  token,
+		Claims: *claims,
+	}
+}
+
 // NewCoreAuth creates new CoreAuth
 func NewCoreAuth(app *core.Application, serviceRegManager *authservice.ServiceRegManager) *CoreAuth {
 	permissionAuth := authorization.NewCasbinStringAuthorization("driver/web/authorization_policy.csv")
