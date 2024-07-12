@@ -15,12 +15,12 @@
 package web
 
 import (
-	"log"
 	"net/http"
 	"polls/core"
 	"polls/core/model"
 
-	"github.com/rokwire/core-auth-library-go/tokenauth"
+	"github.com/rokwire/core-auth-library-go/v2/authservice"
+	"github.com/rokwire/core-auth-library-go/v2/tokenauth"
 )
 
 // CoreAuth implementation
@@ -32,30 +32,34 @@ type CoreAuth struct {
 // Check checks the request contains a valid Core access token
 func (ca CoreAuth) Check(r *http.Request) (bool, *model.User) {
 
-	claims, err := ca.tokenAuth.CheckRequestTokens(r)
-	if err != nil {
-		log.Printf("error validate token: %s", err)
-		return false, nil
-	}
-
-	if claims != nil {
-		if claims.Valid() == nil {
-			token, _, _ := tokenauth.GetRequestTokens(r)
-			if len(token) > 0 {
-				return true, &model.User{
-					Token:  token,
-					Claims: *claims,
-				}
-			}
-
+	/*	claims, err := ca.tokenAuth.CheckRequestTokens(r)
+		if err != nil {
+			log.Printf("error validate token: %s", err)
+			return false, nil
 		}
-	}
+
+		if claims != nil {
+			if claims.Valid() == nil {
+				token, _, _ := tokenauth.GetRequestTokens(r)
+				if len(token) > 0 {
+					return true, &model.User{
+						Token:  token,
+						Claims: *claims,
+					}
+				}
+
+			}
+		} */
 
 	return false, nil
 }
 
 // NewCoreAuth creates new CoreAuth
-func NewCoreAuth(app *core.Application) *CoreAuth {
+func NewCoreAuth(app *core.Application, authService *authservice.AuthService) *CoreAuth {
+
+	//TODO
+	//tokenAuth, err := tokenauth.NewTokenAuth(true, authService, nil, nil)
+
 	auth := CoreAuth{app: app}
 	return &auth
 }

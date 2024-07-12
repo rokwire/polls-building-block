@@ -22,6 +22,7 @@ import (
 	"polls/core/model"
 	web "polls/driver/web/auth"
 
+	"github.com/rokwire/core-auth-library-go/v2/authservice"
 	"github.com/rokwire/logging-library-go/v2/logs"
 )
 
@@ -45,8 +46,8 @@ func (auth *Auth) clientIDCheck(w http.ResponseWriter, r *http.Request) bool {
 }
 
 // NewAuth creates new auth handler
-func NewAuth(app *core.Application, config *model.Config, logger *logs.Logger) *Auth {
-	coreAuth := web.NewCoreAuth(app)
+func NewAuth(app *core.Application, config *model.Config, authService *authservice.AuthService, logger *logs.Logger) *Auth {
+	coreAuth := web.NewCoreAuth(app, authService)
 	internalAuth := newInternalAuth(config)
 	auth := Auth{coreAuth: coreAuth, internalAuth: internalAuth, logger: logger}
 	return &auth
