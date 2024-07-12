@@ -1,17 +1,17 @@
-p, all_admin_polls, /polls/api/admin/*, (GET)|(POST)|(PUT)|(DELETE)
-p, all_surveys, /polls/api/admin/surveys, (GET)|(POST)|(PUT)|(DELETE)
-p, all_surveys, /polls/api/admin/surveys/*, (GET)|(POST)|(PUT)|(DELETE)
-p, get_surveys, /polls/api/admin/surveys, (GET)
-p, get_surveys, /polls/api/admin/surveys/*, (GET)
-p, update_surveys, /polls/api/admin/surveys, (GET)|(POST)
-p, update_surveys, /polls/api/admin/surveys/*, (GET)|(PUT)
-p, delete_surveys, /polls/api/admin/surveys, (GET)
-p, delete_surveys, /polls/api/admin/surveys/*, (GET)|(DELETE)
-p, all_alert_contacts, /polls/api/admin/alert-contacts, (GET)|(POST)|(PUT)|(DELETE)
-p, all_alert_contacts, /polls/api/admin/alert-contacts/*, (GET)|(POST)|(PUT)|(DELETE)
-p, get_alert_contacts, /polls/api/admin/alert-contacts, (GET)
-p, get_alert_contacts, /polls/api/admin/alert-contacts/*, (GET)
-p, update_alert_contacts, /polls/api/admin/alert-contacts, (GET)|(POST)
-p, update_alert_contacts, /polls/api/admin/alert-contacts/*, (GET)|(PUT)
-p, delete_alert_contacts, /polls/api/admin/alert-contacts, (GET)
-p, delete_alert_contacts, /polls/api/admin/alert-contacts/*, (GET)|(DELETE)
+p, all_admin_polls, /polls/api/admin/*, (GET)|(POST)|(PUT)|(DELETE), Descr
+p, all_surveys, /polls/api/admin/surveys, (GET)|(POST)|(PUT)|(DELETE), Descr
+p, all_surveys, /polls/api/admin/surveys/*, (GET)|(POST)|(PUT)|(DELETE), Descr
+p, get_surveys, /polls/api/admin/surveys, (GET), Descr
+p, get_surveys, /polls/api/admin/surveys/*, (GET), Descr
+p, update_surveys, /polls/api/admin/surveys, (GET)|(POST), Descr
+p, update_surveys, /polls/api/admin/surveys/*, (GET)|(PUT), Descr
+p, delete_surveys, /polls/api/admin/surveys, (GET), Descr
+p, delete_surveys, /polls/api/admin/surveys/*, (GET)|(DELETE), Descr
+p, all_alert_contacts, /polls/api/admin/alert-contacts, (GET)|(POST)|(PUT)|(DELETE), Descr
+p, all_alert_contacts, /polls/api/admin/alert-contacts/*, (GET)|(POST)|(PUT)|(DELETE), Descr
+p, get_alert_contacts, /polls/api/admin/alert-contacts, (GET), Descr
+p, get_alert_contacts, /polls/api/admin/alert-contacts/*, (GET), Descr
+p, update_alert_contacts, /polls/api/admin/alert-contacts, (GET)|(POST), Descr
+p, update_alert_contacts, /polls/api/admin/alert-contacts/*, (GET)|(PUT), Descr
+p, delete_alert_contacts, /polls/api/admin/alert-contacts, (GET), Descr
+p, delete_alert_contacts, /polls/api/admin/alert-contacts/*, (GET)|(DELETE), Descr
