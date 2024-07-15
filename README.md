@@ -32,6 +32,7 @@ UIUC_ORG_ID | < string > | yes | Org ID for UIUC to use when migrating old data
 POLLS_APP_ID | < string > | yes | App ID to use for requests to multi-tenant BBs
 POLLS_ORG_ID | < string > | yes | Org ID to use for requests to multi-tenant BBs
 POLLS_NOTIFICATIONS_BB_HOST | < url > | yes | Notifications BB base URL
+POLLS_GROUPS_BB_HOST | < url > | yes | Groups BB base URL
 DEFAULT_CACHE_EXPIRATION_SECONDS | < int > | no | Default cache expiration time in seconds. Defaults to 120
 
 ### Run Application
