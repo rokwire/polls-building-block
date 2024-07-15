@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.2] - 2024-07-15
 ### Fixed 
 - Unable to load group polls [#66](https://github.com/rokwire/polls-building-block/issues/66)
 
