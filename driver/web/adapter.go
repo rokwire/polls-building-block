@@ -21,9 +21,8 @@ import (
 	"polls/core"
 	"polls/core/model"
 	"polls/driver/web/rest"
-	"polls/utils"
 
-	"github.com/rokwire/core-auth-library-go/v2/authservice"
+	"github.com/rokwire/core-auth-library-go/v3/authservice"
 	"github.com/rokwire/logging-library-go/v2/logs"
 
 	"github.com/casbin/casbin"
@@ -130,7 +129,9 @@ func (we Adapter) serveDocUI() http.Handler {
 
 func (we Adapter) wrapFunc(handler http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		utils.LogRequest(req)
+		logObj := we.logger.NewRequestLog(req)
+		logObj.RequestReceived()
+		defer logObj.RequestComplete()
 
 		handler(w, req)
 	}
@@ -140,7 +141,9 @@ type apiKeysAuthFunc = func(http.ResponseWriter, *http.Request)
 
 func (we Adapter) apiKeyOrTokenWrapFunc(handler apiKeysAuthFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		utils.LogRequest(req)
+		logObj := we.logger.NewRequestLog(req)
+		logObj.RequestReceived()
+		defer logObj.RequestComplete()
 
 		// apply core token check
 		coreAuth, _ := we.auth.coreAuth.Check(req)
@@ -157,7 +160,9 @@ type authFunc = func(*model.User, http.ResponseWriter, *http.Request)
 
 func (we Adapter) userAuthWrapFunc(handler authFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		utils.LogRequest(req)
+		logObj := we.logger.NewRequestLog(req)
+		logObj.RequestReceived()
+		defer logObj.RequestComplete()
 
 		coreAuth, user := we.auth.coreAuth.Check(req)
 		if coreAuth && user != nil && !user.Claims.Anonymous {
@@ -171,7 +176,9 @@ func (we Adapter) userAuthWrapFunc(handler authFunc) http.HandlerFunc {
 // TODO: Switch to Core BB model for auth
 func (we Adapter) adminAuthWrapFunc(handler authFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		utils.LogRequest(req)
+		logObj := we.logger.NewRequestLog(req)
+		logObj.RequestReceived()
+		defer logObj.RequestComplete()
 
 		valid, hasAccess, user := we.auth.coreAuth.CheckWithAuthorization(req)
 		if valid && hasAccess {
@@ -195,7 +202,9 @@ type internalAPIKeyAuthFunc = func(http.ResponseWriter, *http.Request)
 
 func (we Adapter) internalAPIKeyAuthWrapFunc(handler internalAPIKeyAuthFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		utils.LogRequest(req)
+		logObj := we.logger.NewRequestLog(req)
+		logObj.RequestReceived()
+		defer logObj.RequestComplete()
 
 		apiKeyAuthenticated := we.auth.internalAuth.check(w, req)
 

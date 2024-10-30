@@ -22,9 +22,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/rokwire/logging-library-go/errors"
-	"github.com/rokwire/logging-library-go/logutils"
+	"github.com/rokwire/logging-library-go/v2/errors"
 	"github.com/rokwire/logging-library-go/v2/logs"
+	"github.com/rokwire/logging-library-go/v2/logutils"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -123,23 +123,23 @@ func (sa *Adapter) GetPolls(user *model.User, filter model.PollsFilter, filterBy
 		var innerFilter primitive.M
 		if membership != nil && len(membership.GroupIDsAsAdmin) > 0 {
 			innerFilter = primitive.M{"$or": []primitive.M{
-				primitive.M{"poll.group_id": bson.M{"$in": membership.GroupIDsAsAdmin}},
-				primitive.M{"poll.to_members.user_id": user.Claims.Subject},
+				{"poll.group_id": bson.M{"$in": membership.GroupIDsAsAdmin}},
+				{"poll.to_members.user_id": user.Claims.Subject},
 			}}
 		} else {
 			innerFilter = primitive.M{"poll.to_members.user_id": user.Claims.Subject}
 		}
 
 		mongoFilter = append(mongoFilter, primitive.E{Key: "$or", Value: []primitive.M{
-			primitive.M{"poll.to_members": primitive.Null{}},
-			primitive.M{"poll.to_members": primitive.M{"$exists": true, "$size": 0}},
-			primitive.M{"poll.user_id": user.Claims.Subject},
+			{"poll.to_members": primitive.Null{}},
+			{"poll.to_members": primitive.M{"$exists": true, "$size": 0}},
+			{"poll.user_id": user.Claims.Subject},
 			innerFilter,
 		}})
 	}
 
 	findOptions := options.Find()
-	findOptions.SetSort(bson.D{{"poll.status", 1}, {"_id", -1}})
+	findOptions.SetSort(bson.D{{Key: "poll.status", Value: 1}, {Key: "_id", Value: -1}})
 
 	if filter.Limit != nil {
 		findOptions.SetLimit(*filter.Limit)
@@ -184,17 +184,17 @@ func (sa *Adapter) GetPoll(user *model.User, id string, filterByToMembers bool, 
 			var innerFilter primitive.M
 			if membership != nil && len(membership.GroupIDsAsAdmin) > 0 {
 				innerFilter = primitive.M{"$or": []primitive.M{
-					primitive.M{"poll.group_id": bson.M{"$in": membership.GroupIDsAsAdmin}},
-					primitive.M{"poll.to_members.user_id": user.Claims.Subject},
+					{"poll.group_id": bson.M{"$in": membership.GroupIDsAsAdmin}},
+					{"poll.to_members.user_id": user.Claims.Subject},
 				}}
 			} else {
 				innerFilter = primitive.M{"poll.to_members.user_id": user.Claims.Subject}
 			}
 
 			filter = append(filter, primitive.E{Key: "$or", Value: []primitive.M{
-				primitive.M{"poll.to_members": primitive.Null{}},
-				primitive.M{"poll.to_members": primitive.M{"$exists": true, "$size": 0}},
-				primitive.M{"poll.user_id": user.Claims.Subject},
+				{"poll.to_members": primitive.Null{}},
+				{"poll.to_members": primitive.M{"$exists": true, "$size": 0}},
+				{"poll.user_id": user.Claims.Subject},
 				innerFilter,
 			}})
 		}
