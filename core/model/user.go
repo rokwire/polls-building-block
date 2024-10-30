@@ -1,6 +1,6 @@
 package model
 
-import "github.com/rokwire/core-auth-library-go/tokenauth"
+import "github.com/rokwire/core-auth-library-go/v2/tokenauth"
 
 // User auth wrapper
 type User struct {
@@ -19,3 +19,16 @@ type Sender struct {
 	Type string   `json:"type" bson:"type"` // user or system
 	User *UserRef `json:"user,omitempty" bson:"user,omitempty"`
 } // @name Sender
+
+// DeletedUserData represents a user-deleted
+type DeletedUserData struct {
+	AppID       string              `json:"app_id"`
+	Memberships []DeletedMembership `json:"memberships"`
+	OrgID       string              `json:"org_id"`
+}
+
+// DeletedMembership defines model for DeletedMembership.
+type DeletedMembership struct {
+	AccountID string                  `json:"account_id"`
+	Context   *map[string]interface{} `json:"context,omitempty"`
+}

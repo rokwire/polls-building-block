@@ -20,7 +20,9 @@ import (
 	"polls/core"
 	"polls/core/model"
 
-	"github.com/rokwire/core-auth-library-go/tokenauth"
+	"github.com/rokwire/core-auth-library-go/v2/authorization"
+	"github.com/rokwire/core-auth-library-go/v2/authservice"
+	"github.com/rokwire/core-auth-library-go/v2/tokenauth"
 )
 
 // CoreAuth implementation
@@ -29,33 +31,57 @@ type CoreAuth struct {
 	tokenAuth *tokenauth.TokenAuth
 }
 
-// NewCoreAuth creates new CoreAuth
-func NewCoreAuth(app *core.Application, tokenAuth *tokenauth.TokenAuth) *CoreAuth {
-	auth := CoreAuth{app: app, tokenAuth: tokenAuth}
-	return &auth
-}
-
 // Check checks the request contains a valid Core access token
 func (ca CoreAuth) Check(r *http.Request) (bool, *model.User) {
 
 	claims, err := ca.tokenAuth.CheckRequestTokens(r)
 	if err != nil {
-		log.Printf("error validate token: %s", err)
+		log.Printf("%s", err)
 		return false, nil
 	}
 
-	if claims != nil {
-		if claims.Valid() == nil {
-			token, _, _ := tokenauth.GetRequestTokens(r)
-			if len(token) > 0 {
-				return true, &model.User{
-					Token:  token,
-					Claims: *claims,
-				}
-			}
+	token, _, _ := tokenauth.GetRequestTokens(r)
 
-		}
+	return true, &model.User{
+		Token:  token,
+		Claims: *claims,
+	}
+}
+
+// CheckWithAuthorization checks the request contains a valid Core access token + authorization
+func (ca CoreAuth) CheckWithAuthorization(r *http.Request) (bool, bool, *model.User) {
+
+	claims, err := ca.tokenAuth.CheckRequestTokens(r)
+	if err != nil {
+		log.Printf("%s", err)
+		return false, false, nil
 	}
 
-	return false, nil
+	err = ca.tokenAuth.AuthorizeRequestPermissions(claims, r)
+	if err != nil {
+		log.Printf("%s", err)
+		return true, false, nil
+	}
+
+	token, _, _ := tokenauth.GetRequestTokens(r)
+
+	return true, true, &model.User{
+		Token:  token,
+		Claims: *claims,
+	}
+}
+
+// NewCoreAuth creates new CoreAuth
+func NewCoreAuth(app *core.Application, serviceRegManager *authservice.ServiceRegManager) *CoreAuth {
+	permissionAuth := authorization.NewCasbinStringAuthorization("driver/web/authorization_policy.csv")
+	tokenAuth, err := tokenauth.NewTokenAuth(true, serviceRegManager, permissionAuth, nil)
+	if err != nil {
+		log.Fatalf("error on new core auth")
+		return nil
+	}
+
+	//standartHandler := tokenauth.NewStandardHandler(*tokenAuth, nil)
+
+	auth := CoreAuth{app: app, tokenAuth: tokenAuth}
+	return &auth
 }

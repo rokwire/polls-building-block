@@ -6,6 +6,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.2] - 2024-07-15
+### Fixed 
+- Unable to load group polls [#66](https://github.com/rokwire/polls-building-block/issues/66)
+
+## [1.8.1] - 2024-07-12
+### Fixed 
+- Crash when loading polls [#62](https://github.com/rokwire/polls-building-block/issues/62)
+
+## [1.8.0] - 2024-07-09
+### Added
+- Remove user data [#59](https://github.com/rokwire/polls-building-block/issues/59)
+
+## [1.7.1] - 2024-07-02
+### Fixed 
+- Broken normal poll notifications [#57](https://github.com/rokwire/polls-building-block/issues/57)
+
+## [1.7.0] - 2024-07-01
+### Changed
+- Updated container images
+- Update poll notifications [#55](https://github.com/rokwire/polls-building-block/issues/55)
+
 ## [1.6.0] - 2023-01-13
 ### Changed
 - Update group's date update when a linked poll is created or ended [#49](https://github.com/rokwire/polls-building-block/issues/49)

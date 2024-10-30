@@ -182,7 +182,14 @@ func (app *Application) endPoll(user *model.User, pollID string) error {
 }
 
 func (app *Application) notifyNotificationsBBForPoll(user *model.User, poll *model.Poll, topic string, operation string, message string) {
+	subject := "Illinois"
 	if poll.GroupID != nil {
+
+		group, _ := app.groups.GetGroupDetails(user.Token, *poll.GroupID)
+		if group != nil {
+			subject = fmt.Sprintf("Group - %s", group.Title)
+		}
+
 		app.groups.SendGroupNotification(*poll.GroupID, model.GroupNotification{
 			Members: poll.ToMembersList.ToNotificationRecipients(),
 			Sender: &model.Sender{
@@ -193,7 +200,7 @@ func (app *Application) notifyNotificationsBBForPoll(user *model.User, poll *mod
 				},
 			},
 			Topic:   &topic,
-			Subject: "Illinois",
+			Subject: subject,
 			Body:    message,
 			Data: map[string]string{
 				"group_id":    *poll.GroupID,
@@ -206,23 +213,27 @@ func (app *Application) notifyNotificationsBBForPoll(user *model.User, poll *mod
 		})
 	} else {
 		app.notifications.SendNotification(model.NotificationMessage{
-			Recipients: poll.ToMembersList.ToNotificationRecipients(),
-			Sender: &model.Sender{
-				Type: "user",
-				User: &model.UserRef{
-					UserID: user.Claims.Subject,
-					Name:   user.Claims.Name,
+			Message: model.InnerMessage{
+				AppID:      user.Claims.AppID,
+				OrgID:      user.Claims.OrgID,
+				Recipients: poll.ToMembersList.ToNotificationRecipients(),
+				Sender: &model.Sender{
+					Type: "user",
+					User: &model.UserRef{
+						UserID: user.Claims.Subject,
+						Name:   user.Claims.Name,
+					},
 				},
-			},
-			Topic:   &topic,
-			Subject: "Illinois",
-			Body:    message,
-			Data: map[string]string{
-				"type":        "poll",
-				"operation":   operation,
-				"entity_type": "poll",
-				"entity_id":   poll.ID.Hex(),
-				"entity_name": poll.Question,
+				Topic:   &topic,
+				Subject: subject,
+				Body:    message,
+				Data: map[string]string{
+					"type":        "poll",
+					"operation":   operation,
+					"entity_type": "poll",
+					"entity_id":   poll.ID.Hex(),
+					"entity_name": poll.Question,
+				},
 			},
 		})
 	}
@@ -379,7 +390,7 @@ func (app *Application) createSurveyAlert(user *model.User, surveyAlert model.Su
 			if !ok {
 				return fmt.Errorf("error on Application.createSurveyAlert: No body available")
 			}
-			app.notifications.SendMail(contacts[i].Address, subject, body)
+			app.notifications.SendMail(user, contacts[i].Address, subject, body)
 		}
 	}
 
