@@ -114,36 +114,6 @@ func ModifyHTMLContent(input string) string {
 	return final
 }
 
-// LogRequest logs the request as hide some header fields because of security reasons
-func LogRequest(req *http.Request) {
-	if req == nil {
-		return
-	}
-
-	method := req.Method
-	path := req.URL.Path
-
-	val, ok := req.Header["User-Agent"]
-	if ok && len(val) != 0 && val[0] == "ELB-HealthChecker/2.0" {
-		return
-	}
-
-	header := make(map[string][]string)
-	for key, value := range req.Header {
-		var logValue []string
-		//do not log api keys, cookies and Authorization
-		if key == "Rokwire-Api-Key" || key == "User-ID" || key == "Cookie" ||
-			key == "Authorization" || key == "Rokwire-Hs-Api-Key" || key == "Group" ||
-			key == "Rokwire-Acc-ID" || key == "Csrf" {
-			logValue = append(logValue, "---")
-		} else {
-			logValue = value
-		}
-		header[key] = logValue
-	}
-	log.Printf("%s %s %s", method, path, header)
-}
-
 // GetLogUUIDValue prepares UUID to be logged.
 func GetLogUUIDValue(identifier string) string {
 	if len(identifier) < 26 {

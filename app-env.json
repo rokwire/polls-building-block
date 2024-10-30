@@ -1,7 +1,8 @@
 {
     "app_secret": {
         "INTERNAL_API_KEY": "<internal api key>",
-        "MONGO_AUTH": "<mongo_url>"
+        "MONGO_AUTH": "<mongo_url>",
+        "POLLS_PRIV_KEY": "<auth_priv_key>"
     },
     "app_config":{
         "PORT": "5000",
@@ -14,6 +15,8 @@
         "POLLS_APP_ID": "<app id>",
         "POLLS_ORG_ID": "<org id>",
         "POLLS_NOTIFICATIONS_BB_HOST": "<notifications-bb-base-url>",
-        "DEFAULT_CACHE_EXPIRATION_SECONDS": ""
+        "POLLS_GROUPS_BB_HOST": "<groups-bb-base-url>",
+        "DEFAULT_CACHE_EXPIRATION_SECONDS": "",
+        "POLLS_SERVICE_ACCOUNT_ID": "<service-account-id>"
     }
 }

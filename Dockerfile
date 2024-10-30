@@ -1,4 +1,4 @@
-FROM golang:1.18-buster as builder
+FROM docker.io/golang:1.23-bullseye as builder
 
 ENV CGO_ENABLED=0
 
@@ -8,7 +8,7 @@ WORKDIR /polls-app
 COPY . .
 RUN make
 
-FROM alpine:3.16.2
+FROM alpine:3.20
 
 #we need timezone database
 RUN apk --no-cache add tzdata

@@ -17,18 +17,21 @@ package main
 import (
 	"log"
 	"os"
+
 	"polls/core"
 	"polls/core/model"
 	cacheadapter "polls/driven/cache"
+	corebb "polls/driven/core"
 	"polls/driven/groups"
 	"polls/driven/notifications"
 	storage "polls/driven/storage"
 	driver "polls/driver/web"
 	"strings"
 
-	"github.com/rokwire/core-auth-library-go/authservice"
-	"github.com/rokwire/core-auth-library-go/tokenauth"
-	"github.com/rokwire/logging-library-go/logs"
+	"github.com/rokwire/core-auth-library-go/v3/authservice"
+	"github.com/rokwire/core-auth-library-go/v3/keys"
+	"github.com/rokwire/core-auth-library-go/v3/sigauth"
+	"github.com/rokwire/logging-library-go/v2/logs"
 )
 
 var (
@@ -45,7 +48,10 @@ func main() {
 
 	serviceID := "polls-v2"
 
-	loggerOpts := logs.LoggerOpts{SuppressRequests: []logs.HttpRequestProperties{logs.NewAwsHealthCheckHttpRequestProperties("/polls/version")}}
+	loggerOpts := logs.LoggerOpts{
+		SensitiveHeaders: []string{"Rokwire-Api-Key", "User-ID", "Rokwire-Hs-Api-Key", "Group", "Rokwire-Acc-ID", "Csrf"},
+		SuppressRequests: logs.NewStandardHealthCheckHTTPRequestProperties("polls/version"),
+	}
 	logger := logs.NewLogger(serviceID, &loggerOpts)
 
 	port := getEnvKey("PORT", true)
@@ -63,37 +69,56 @@ func main() {
 	serviceURL := getEnvKey("POLL_SERVICE_URL", true)
 	uiucOrgID := getEnvKey("UIUC_ORG_ID", true)
 
-	remoteConfig := authservice.RemoteAuthDataLoaderConfig{
-		AuthServicesHost: coreBBHost,
+	// Groups BB Host
+	groupsBBHost := getEnvKey("POLLS_GROUPS_BB_HOST", true)
+
+	// Notifications BB Host
+	notificationsBBHost := getEnvKey("POLLS_NOTIFICATIONS_BB_HOST", true)
+
+	authService := authservice.AuthService{
+		ServiceID:   serviceID,
+		ServiceHost: serviceURL,
+		FirstParty:  true,
+		AuthBaseURL: coreBBHost,
 	}
 
-	serviceLoader, err := authservice.NewRemoteAuthDataLoader(remoteConfig, []string{"core", "notifications", "groups"}, logger)
+	serviceRegLoader, err := authservice.NewRemoteServiceRegLoader(&authService, []string{"auth"})
 	if err != nil {
-		log.Fatalf("Error initializing auth service: %v", err)
+		log.Fatalf("Error initializing remote service registration loader: %v", err)
 	}
 
-	authService, err := authservice.NewAuthService(serviceID, serviceURL, serviceLoader)
+	serviceRegManager, err := authservice.NewServiceRegManager(&authService, serviceRegLoader, !strings.HasPrefix(serviceURL, "http://localhost"))
 	if err != nil {
-		log.Fatalf("Error initializing auth service: %v", err)
+		log.Fatalf("Error initializing service registration manager: %v", err)
 	}
 
-	tokenAuth, err := tokenauth.NewTokenAuth(true, authService, nil, nil)
+	//core adapter
+	var serviceAccountManager *authservice.ServiceAccountManager
+
+	serviceAccountID := getEnvKey("POLLS_SERVICE_ACCOUNT_ID", false)
+	privKeyRaw := getEnvKey("POLLS_PRIV_KEY", true)
+	privKeyRaw = strings.ReplaceAll(privKeyRaw, "\\n", "\n")
+	privKey, err := keys.NewPrivKey(keys.PS256, privKeyRaw)
 	if err != nil {
-		log.Fatalf("Error intitializing token auth: %v", err)
-	}
+		logger.Errorf("Error parsing priv key: %v", err)
+	} else if serviceAccountID == "" {
+		logger.Errorf("Missing service account id")
+	} else {
+		signatureAuth, err := sigauth.NewSignatureAuth(privKey, serviceRegManager, false, false)
+		if err != nil {
+			logger.Fatalf("Error initializing signature auth: %v", err)
+		}
 
-	// Notifications service reg
-	notificationsServiceReg, err := authService.GetServiceReg("notifications")
-	if err != nil {
-		log.Fatalf("error finding notifications service reg: %s", err)
-	}
+		serviceAccountLoader, err := authservice.NewRemoteServiceAccountLoader(&authService, serviceAccountID, signatureAuth)
+		if err != nil {
+			logger.Fatalf("Error initializing remote service account loader: %v", err)
+		}
 
-	// Groups service reg
-	groupsServiceReg, err := authService.GetServiceReg("groups")
-	if err != nil {
-		log.Fatalf("error finding notifications service reg: %s", err)
+		serviceAccountManager, err = authservice.NewServiceAccountManager(&authService, serviceAccountLoader)
+		if err != nil {
+			logger.Fatalf("Error initializing service account manager: %v", err)
+		}
 	}
-
 	config := &model.Config{
 		MongoDBAuth:       mongoDBAuth,
 		MongoDBName:       mongoDBName,
@@ -102,8 +127,8 @@ func main() {
 		CoreBBHost:        coreBBHost,
 		PollServiceURL:    serviceURL,
 		UiucOrgID:         uiucOrgID,
-		GroupsHost:        groupsServiceReg.Host,
-		NotificationsHost: notificationsServiceReg.Host,
+		GroupsHost:        groupsBBHost,
+		NotificationsHost: notificationsBBHost,
 	}
 
 	storageAdapter := storage.NewStorageAdapter(config, logger)
@@ -117,19 +142,22 @@ func main() {
 	//notifications BB adapter
 	appID := getEnvKey("POLLS_APP_ID", true)
 	orgID := getEnvKey("POLLS_ORG_ID", true)
-	notificationHost := getEnvKey("POLLS_NOTIFICATIONS_BB_HOST", true)
-	notificationsBBAdapter := notifications.NewNotificationsAdapter(notificationHost, internalAPIKey, appID, orgID)
+	notificationsBBAdapter := notifications.NewNotificationsAdapter(notificationsBBHost, internalAPIKey, appID, orgID)
 
 	groupsAdapter := groups.NewGroupsAdapter(config)
 
 	defaultCacheExpirationSeconds := getEnvKey("DEFAULT_CACHE_EXPIRATION_SECONDS", false)
 	cacheAdapter := cacheadapter.NewCacheAdapter(defaultCacheExpirationSeconds)
 
+	//core adapter
+	coreAdapter := corebb.NewCoreAdapter(coreBBHost, orgID, appID, serviceAccountManager)
+
 	// application
-	application := core.NewApplication(Version, Build, storageAdapter, cacheAdapter, notificationsBBAdapter, groupsAdapter, logger)
+	application := core.NewApplication(Version, Build, storageAdapter, cacheAdapter, notificationsBBAdapter,
+		groupsAdapter, serviceID, coreAdapter, logger)
 	application.Start()
 
-	webAdapter := driver.NewWebAdapter(host, port, application, tokenAuth, config, logger)
+	webAdapter := driver.NewWebAdapter(host, port, application, config, serviceRegManager, logger)
 
 	webAdapter.Start()
 }
