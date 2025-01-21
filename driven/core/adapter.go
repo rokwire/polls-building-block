@@ -18,7 +18,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"polls/core/model"
@@ -72,7 +72,7 @@ func (a *Adapter) LoadDeletedMemberships() ([]model.DeletedUserData, error) {
 		return nil, fmt.Errorf("LoadDeletedMemberships: error with response code != 200")
 	}
 
-	data, err := ioutil.ReadAll(resp.Body)
+	data, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Printf("LoadDeletedMemberships: unable to read json: %s", err)
 		return nil, fmt.Errorf("LoadDeletedMemberships: unable to parse json: %s", err)

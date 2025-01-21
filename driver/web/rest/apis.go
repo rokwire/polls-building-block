@@ -17,7 +17,7 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"polls/core"
@@ -74,7 +74,7 @@ func NewInternalApisHandler(app *core.Application, config *model.Config) Interna
 func (h ApisHandler) GetPolls(user *model.User, w http.ResponseWriter, r *http.Request) {
 
 	var filter model.PollsFilter
-	bodyData, _ := ioutil.ReadAll(r.Body)
+	bodyData, _ := io.ReadAll(r.Body)
 	if bodyData != nil && len(bodyData) > 0 {
 		err := json.Unmarshal(bodyData, &filter)
 		if err != nil {
@@ -101,6 +101,53 @@ func (h ApisHandler) GetPolls(user *model.User, w http.ResponseWriter, r *http.R
 	data, err := json.Marshal(result)
 	if err != nil {
 		log.Printf("Error on apis.GetPolls(): %s", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	w.Write(data)
+}
+
+// LoadPolls Retrieves  all polls by a filter params
+// @Description Retrieves  all polls by a filter params
+// @Tags Client
+// @ID LoadPolls
+// @Param data body model.PollsFilter false "body json for defined poll ids as request body"
+// @Success 200 {array} model.PollResult
+// @Security UserAuth
+// @Router /polls/load [post]
+func (h ApisHandler) LoadPolls(user *model.User, w http.ResponseWriter, r *http.Request) {
+
+	var filter model.PollsFilter
+	bodyData, _ := io.ReadAll(r.Body)
+	if bodyData != nil && len(bodyData) > 0 {
+		err := json.Unmarshal(bodyData, &filter)
+		if err != nil {
+			log.Printf("Error on apis.LoadPolls(): %s", err)
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+	}
+
+	resData, err := h.app.Services.GetPolls(user, filter, true)
+	if err != nil {
+		log.Printf("Error on apis.LoadPolls(): %s", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	result := []model.PollResult{}
+	if len(resData) > 0 {
+		for _, entry := range resData {
+			result = append(result, entry.ToPollResult(user.Claims.Subject))
+		}
+	}
+
+	data, err := json.Marshal(result)
+	if err != nil {
+		log.Printf("Error on apis.LoadPolls(): %s", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		return
 	}
@@ -177,7 +224,7 @@ func (h ApisHandler) UpdatePoll(user *model.User, w http.ResponseWriter, r *http
 		return
 	}
 
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Printf("Error on apis.UpdatePoll(%s): %s", id, err)
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
@@ -222,7 +269,7 @@ func (h ApisHandler) UpdatePoll(user *model.User, w http.ResponseWriter, r *http
 // @Router /polls [post]
 func (h ApisHandler) CreatePoll(user *model.User, w http.ResponseWriter, r *http.Request) {
 
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Printf("Error on apis.CreatePoll: %s", err)
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
@@ -373,7 +420,7 @@ func (h ApisHandler) VotePoll(user *model.User, w http.ResponseWriter, r *http.R
 		return
 	}
 
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Printf("Error on apis.VotePoll(%s): %s", id, err)
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
@@ -528,7 +575,7 @@ func (h ApisHandler) GetSurvey(user *model.User, w http.ResponseWriter, r *http.
 // @Router /surveys [post]
 func (h ApisHandler) CreateSurvey(user *model.User, w http.ResponseWriter, r *http.Request) {
 
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Printf("Error on apis.CreateSurvey: %s", err)
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
@@ -578,7 +625,7 @@ func (h ApisHandler) UpdateSurvey(user *model.User, w http.ResponseWriter, r *ht
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	if err != nil {
 
 		log.Printf("Error on apis.UpdateSurvey(%s): %s", id, err)
@@ -770,7 +817,7 @@ func (h ApisHandler) GetSurveyResponse(user *model.User, w http.ResponseWriter, 
 // @Router /survey-responses [post]
 func (h ApisHandler) CreateSurveyResponse(user *model.User, w http.ResponseWriter, r *http.Request) {
 
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Printf("Error on apis.CreateSurveyResponse: %s", err)
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
@@ -820,7 +867,7 @@ func (h ApisHandler) UpdateSurveyResponse(user *model.User, w http.ResponseWrite
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	if err != nil {
 
 		log.Printf("Error on apis.UpdateSurveyResponse(%s): %s", id, err)
@@ -936,7 +983,7 @@ func (h ApisHandler) DeleteSurveyResponses(user *model.User, w http.ResponseWrit
 // @Security UserAuth
 // @Router /survey-alert [post]
 func (h ApisHandler) CreateSurveyAlert(user *model.User, w http.ResponseWriter, r *http.Request) {
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Printf("Error on apis.CreateAlert: %s", err)
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
