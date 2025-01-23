@@ -396,3 +396,7 @@ func (app *Application) createSurveyAlert(user *model.User, surveyAlert model.Su
 
 	return nil
 }
+
+func (app *Application) getUserData(useriD string) (*model.UserDataResponse, error) {
+	return nil, nil
+}
