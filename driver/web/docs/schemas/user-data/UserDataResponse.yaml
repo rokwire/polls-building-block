@@ -1,0 +1,14 @@
+type: object
+properties:
+  polls:
+    type: array
+    $ref: "./PollsUserData.yaml"
+  polls_responses:
+    type: array
+    $ref: "./PollsResponseUserData.yaml" 
+  surveys:
+    type: array
+    $ref: "./SurveysUserData.yaml"   
+  surveys_responses:
+    type: array
+    $ref: "./SurveyResponseUserData.yaml"    

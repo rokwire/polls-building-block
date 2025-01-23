@@ -25,6 +25,16 @@ SurveyResponse:
   $ref: "./surveys/SurveyResponse.yaml"
 AlertContact:
   $ref: "./surveys/AlertContact.yaml"
+UserDataResponse:
+  $ref: "./user-data/UserDataResponse.yaml"  
+SurveysUserData:
+  $ref: "./user-data/SurveysUserData.yaml"   
+SurveyReponseUserData:
+  $ref: "./user-data/SurveyResponseUserData.yaml"  
+PollsUserData:
+  $ref: "./user-data/PollsUserData.yaml"  
+PollsResponseUserData:
+  $ref: "./user-data/PollsResponseUserData.yaml"   
 
 
 

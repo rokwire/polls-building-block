@@ -39,6 +39,8 @@ paths:
     $ref: "./resources/client/survey-responsesid.yaml"   
   /api/survey-alerts:
     $ref: "./resources/client/survey-alerts.yaml"  
+  /api/user-data:
+    $ref: "./resources/client/user-data.yaml"   
 
   #Admin
   /api/admin/surveys:

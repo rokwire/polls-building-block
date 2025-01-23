@@ -1,6 +1,9 @@
 package model
 
-import "github.com/rokwire/core-auth-library-go/v2/tokenauth"
+import (
+	"github.com/rokwire/core-auth-library-go/v2/tokenauth"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+)
 
 // User auth wrapper
 type User struct {
@@ -31,4 +34,36 @@ type DeletedUserData struct {
 type DeletedMembership struct {
 	AccountID string                  `json:"account_id"`
 	Context   *map[string]interface{} `json:"context,omitempty"`
+}
+
+// UserDataResponse wraps polls user data
+type UserDataResponse struct {
+	PollsUserData          []PollsUserData          `json:"polls"`
+	PollsResponseUserData  []PollsResponseUserData  `json:"polls_responses"`
+	SurveysUserData        []SurveysUserData        `json:"surveys"`
+	SurveyResponseUserData []SurveyResponseUserData `json:"surveys_responses"`
+} //@name UserDataResponse
+
+// PollsUserData  wraps polls user data
+type PollsUserData struct {
+	ID     primitive.ObjectID `json:"id"`
+	UserID string             `json:"user_id"`
+} // @name PollsUserData
+
+// PollsResponseUserData  wraps polls user data
+type PollsResponseUserData struct {
+	ID     primitive.ObjectID `json:"id"`
+	UserID string             `json:"user_id"`
+} // @name PollsResponseUserData
+
+// SurveyResponseUserData wraps the user data survey response
+type SurveyResponseUserData struct {
+	ID     string `json:"id"`
+	UserID string `json:"user_id"`
+}
+
+// SurveysUserData wraps the user data record
+type SurveysUserData struct {
+	ID        string `json:"id"`
+	CreatorID string `json:"creator_id"`
 }

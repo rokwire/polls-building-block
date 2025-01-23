@@ -961,3 +961,17 @@ func (h ApisHandler) CreateSurveyAlert(user *model.User, w http.ResponseWriter, 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 }
+
+// GetUserData retrieves user data for the current user
+// @Description Retrieves user data for the current user
+// @Tags Client
+// @ID GetUserData
+// @Accept json
+// @Produce json
+// @Success 200 {object} model.UserDataResponse
+// @Failure 401
+// @Security UserAuth
+// @Router /user-data [get]
+func (h ApisHandler) GetUserData(user *model.User, w http.ResponseWriter, r *http.Request) {
+
+}
