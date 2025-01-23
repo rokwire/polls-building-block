@@ -1,0 +1,7 @@
+type: object
+properties:
+  id:
+    readOnly: true
+    type: string   
+  user_id:
+    type: string    

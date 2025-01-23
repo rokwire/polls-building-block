@@ -1349,6 +1349,14 @@ components:
         surveys_responses:
           type: array
           $ref: '#/components/schemas/SurveyReponseUserData'
+        to_members:
+          type: array
+          properties:
+            id:
+              readOnly: true
+              type: string
+            user_id:
+              type: string
     SurveysUserData:
       type: object
       properties:

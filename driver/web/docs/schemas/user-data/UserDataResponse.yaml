@@ -11,4 +11,7 @@ properties:
     $ref: "./SurveysUserData.yaml"   
   surveys_responses:
     type: array
-    $ref: "./SurveyResponseUserData.yaml"    
+    $ref: "./SurveyResponseUserData.yaml"  
+  to_members:
+    type: array
+    $ref: "./ToMemberResponse.yaml"     

@@ -40,6 +40,7 @@ type DeletedMembership struct {
 type UserDataResponse struct {
 	PollsUserData          []PollsUserData          `json:"polls"`
 	PollsResponseUserData  []PollsResponseUserData  `json:"polls_responses"`
+	ToMemberResponse       []ToMemberResponse       `json:"to_members"`
 	SurveysUserData        []SurveysUserData        `json:"surveys"`
 	SurveyResponseUserData []SurveyResponseUserData `json:"surveys_responses"`
 } //@name UserDataResponse
@@ -67,3 +68,9 @@ type SurveysUserData struct {
 	ID        string `json:"id"`
 	CreatorID string `json:"creator_id"`
 }
+
+// ToMemberResponse  wraps members user data
+type ToMemberResponse struct {
+	ID     primitive.ObjectID `json:"id"`
+	UserID string             `json:"user_id"`
+} // @name ToMemberResponse

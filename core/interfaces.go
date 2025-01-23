@@ -60,7 +60,7 @@ type Services interface {
 	DeleteAlertContact(user *model.User, id string) error
 	CreateSurveyAlert(user *model.User, surveyAlert model.SurveyAlert) error
 
-	GetUserData(userID string) (*model.UserDataResponse, error)
+	GetUserData(user *model.User) (*model.UserDataResponse, error)
 }
 
 type servicesImpl struct {
@@ -171,8 +171,8 @@ func (s *servicesImpl) CreateSurveyAlert(user *model.User, surveyAlert model.Sur
 	return s.app.createSurveyAlert(user, surveyAlert)
 }
 
-func (s *servicesImpl) GetUserData(userID string) (*model.UserDataResponse, error) {
-	return s.app.getUserData(userID)
+func (s *servicesImpl) GetUserData(user *model.User) (*model.UserDataResponse, error) {
+	return s.app.getUserData(user)
 }
 
 // Storage is used by core to storage data - DB storage adapter, file storage adapter etc

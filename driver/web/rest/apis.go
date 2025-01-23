@@ -973,7 +973,7 @@ func (h ApisHandler) CreateSurveyAlert(user *model.User, w http.ResponseWriter, 
 // @Security UserAuth
 // @Router /user-data [get]
 func (h ApisHandler) GetUserData(user *model.User, w http.ResponseWriter, r *http.Request) {
-	userData, err := h.app.Services.GetUserData(user.Claims.Subject)
+	userData, err := h.app.Services.GetUserData(user)
 	if err != nil {
 		log.Printf("Error on apis.GetUserData: %s", err)
 		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)

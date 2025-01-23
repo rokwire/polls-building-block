@@ -397,28 +397,40 @@ func (app *Application) createSurveyAlert(user *model.User, surveyAlert model.Su
 	return nil
 }
 
-func (app *Application) getUserData(userID string) (*model.UserDataResponse, error) {
+func (app *Application) getUserData(user *model.User) (*model.UserDataResponse, error) {
+
 	var pollsUserData []model.PollsUserData
 	var pollsResponseUserData []model.PollsResponseUserData
+	var toMembersUserData []model.ToMemberResponse
+
 	polls, err := app.storage.GetAllPolls()
 	if err != nil {
 		return nil, err
 	}
 
 	for _, p := range polls {
-		if p.UserID == userID {
+		if p.UserID == user.Claims.Subject {
 			pr := model.PollsUserData{ID: p.ID, UserID: p.UserID}
 			pollsUserData = append(pollsUserData, pr)
 		}
 		for _, r := range p.Responses {
-			if r.UserID == userID {
+			if r.UserID == user.Claims.Subject {
 				rr := model.PollsResponseUserData{ID: p.ID, UserID: r.UserID}
 				pollsResponseUserData = append(pollsResponseUserData, rr)
 			}
 		}
+
+		for _, m := range p.ToMembersList {
+			if m.UserID == user.Claims.Subject {
+				mr := model.ToMemberResponse{ID: p.ID, UserID: m.UserID}
+				toMembersUserData = append(toMembersUserData, mr)
+			}
+		}
 	}
 
-	userData := model.UserDataResponse{PollsUserData: pollsUserData, PollsResponseUserData: pollsResponseUserData}
+	userData := model.UserDataResponse{PollsUserData: pollsUserData, PollsResponseUserData: pollsResponseUserData,
+		ToMemberResponse: toMembersUserData}
 
 	return &userData, nil
+
 }
