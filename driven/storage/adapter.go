@@ -727,3 +727,16 @@ func (sa *Adapter) DeleteAlertContact(user *model.User, id string) error {
 	}
 	return nil
 }
+
+// GetAllPolls gets all polls
+func (sa *Adapter) GetAllPolls() ([]model.Poll, error) {
+	filter := bson.M{}
+	var results []model.Poll
+	err := sa.db.polls.Find(filter, &results, nil)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.GetAllPolls - %s", err)
+		return nil, fmt.Errorf("error storage.Adapter.GetAllPolls - %s", err)
+	}
+
+	return results, nil
+}

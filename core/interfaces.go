@@ -179,6 +179,7 @@ func (s *servicesImpl) GetUserData(userID string) (*model.UserDataResponse, erro
 type Storage interface {
 	GetPolls(user *model.User, filter model.PollsFilter, filterByToMembers bool, membership *groups.GroupMembership) ([]model.Poll, error)
 	GetPoll(user *model.User, id string, filterByToMembers bool, membership *groups.GroupMembership) (*model.Poll, error)
+	GetAllPolls() ([]model.Poll, error)
 	CreatePoll(user *model.User, poll model.Poll) (*model.Poll, error)
 	UpdatePoll(user *model.User, poll model.Poll) (*model.Poll, error)
 

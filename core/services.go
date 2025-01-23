@@ -397,6 +397,28 @@ func (app *Application) createSurveyAlert(user *model.User, surveyAlert model.Su
 	return nil
 }
 
-func (app *Application) getUserData(useriD string) (*model.UserDataResponse, error) {
-	return nil, nil
+func (app *Application) getUserData(userID string) (*model.UserDataResponse, error) {
+	var pollsUserData []model.PollsUserData
+	var pollsResponseUserData []model.PollsResponseUserData
+	polls, err := app.storage.GetAllPolls()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, p := range polls {
+		if p.UserID == userID {
+			pr := model.PollsUserData{ID: p.ID, UserID: p.UserID}
+			pollsUserData = append(pollsUserData, pr)
+		}
+		for _, r := range p.Responses {
+			if r.UserID == userID {
+				rr := model.PollsResponseUserData{ID: p.ID, UserID: r.UserID}
+				pollsResponseUserData = append(pollsResponseUserData, rr)
+			}
+		}
+	}
+
+	userData := model.UserDataResponse{PollsUserData: pollsUserData, PollsResponseUserData: pollsResponseUserData}
+
+	return &userData, nil
 }
