@@ -191,6 +191,7 @@ type Storage interface {
 	SetListener(listener storage.CollectionListener)
 
 	GetSurvey(user *model.User, id string) (*model.Survey, error)
+	GetSurveysByUserID(user *model.User) ([]model.Survey, error)
 	CreateSurvey(survey model.Survey) (*model.Survey, error)
 	UpdateSurvey(user *model.User, survey model.Survey, admin bool) error
 	DeleteSurvey(user *model.User, id string, admin bool) error
@@ -198,6 +199,7 @@ type Storage interface {
 
 	GetSurveyResponse(user *model.User, id string) (*model.SurveyResponse, error)
 	GetSurveyResponses(user *model.User, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error)
+	GetSurveyResponseByUserID(user *model.User) ([]model.SurveyResponse, error)
 	CreateSurveyResponse(surveyResponse model.SurveyResponse) (*model.SurveyResponse, error)
 	UpdateSurveyResponse(user *model.User, id string, surveyResponse model.Survey) error
 	DeleteSurveyResponse(user *model.User, id string) error

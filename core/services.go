@@ -402,6 +402,8 @@ func (app *Application) getUserData(user *model.User) (*model.UserDataResponse, 
 	var pollsUserData []model.PollsUserData
 	var pollsResponseUserData []model.PollsResponseUserData
 	var toMembersUserData []model.ToMemberResponse
+	var surveyUserData []model.SurveysUserData
+	var surveyResponseUserData []model.SurveyResponseUserData
 
 	polls, err := app.storage.GetAllPolls()
 	if err != nil {
@@ -428,8 +430,28 @@ func (app *Application) getUserData(user *model.User) (*model.UserDataResponse, 
 		}
 	}
 
+	surveys, err := app.storage.GetSurveysByUserID(user)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, s := range surveys {
+		sr := model.SurveysUserData{ID: s.ID, CreatorID: s.CreatorID}
+		surveyUserData = append(surveyUserData, sr)
+	}
+
+	surveysResponse, err := app.storage.GetSurveyResponseByUserID(user)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, sr := range surveysResponse {
+		srr := model.SurveyResponseUserData{ID: sr.ID, UserID: sr.UserID}
+		surveyResponseUserData = append(surveyResponseUserData, srr)
+	}
+
 	userData := model.UserDataResponse{PollsUserData: pollsUserData, PollsResponseUserData: pollsResponseUserData,
-		ToMemberResponse: toMembersUserData}
+		ToMemberResponse: toMembersUserData, SurveysUserData: surveyUserData, SurveyResponseUserData: surveyResponseUserData}
 
 	return &userData, nil
 

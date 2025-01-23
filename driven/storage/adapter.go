@@ -487,6 +487,30 @@ func (sa *Adapter) GetSurveyResponse(user *model.User, id string) (*model.Survey
 	return &entry, nil
 }
 
+// GetSurveyResponseByUserID gets a survey response by user ID
+func (sa *Adapter) GetSurveyResponseByUserID(user *model.User) ([]model.SurveyResponse, error) {
+	filter := bson.M{"user_id": user.Claims.Subject}
+	var entry []model.SurveyResponse
+	err := sa.db.surveyResponses.Find(filter, &entry, nil)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.GetSurveyResponseByUserID - %s", err)
+		return nil, fmt.Errorf("error storage.Adapter.GetSurveyResponseByUserID - %s", err)
+	}
+	return entry, nil
+}
+
+// GetSurveysByUserID gets a surveys by user ID
+func (sa *Adapter) GetSurveysByUserID(user *model.User) ([]model.Survey, error) {
+	filter := bson.M{"creator_id": user.Claims.Subject}
+	var entry []model.Survey
+	err := sa.db.surveys.Find(filter, &entry, nil)
+	if err != nil {
+		fmt.Printf("error storage.Adapter.GetSurveysByUserID - %s", err)
+		return nil, fmt.Errorf("error storage.Adapter.GetSurveysByUserID - %s", err)
+	}
+	return entry, nil
+}
+
 // GetSurveyResponses gets matching surveys for a user
 func (sa *Adapter) GetSurveyResponses(user *model.User, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error) {
 	filter := bson.M{"user_id": user.Claims.Subject, "org_id": user.Claims.OrgID, "app_id": user.Claims.AppID}
