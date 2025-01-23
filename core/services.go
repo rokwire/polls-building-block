@@ -21,6 +21,7 @@ import (
 	"polls/core/model"
 	"polls/driven/groups"
 	"polls/driven/storage"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -398,61 +399,106 @@ func (app *Application) createSurveyAlert(user *model.User, surveyAlert model.Su
 }
 
 func (app *Application) getUserData(user *model.User) (*model.UserDataResponse, error) {
+	var (
+		pollsUserData                            []model.PollsUserData
+		pollsResponseUserData                    []model.PollsResponseUserData
+		toMembersUserData                        []model.ToMemberResponse
+		surveyUserData                           []model.SurveysUserData
+		surveyResponseUserData                   []model.SurveyResponseUserData
+		mu                                       sync.Mutex
+		wg                                       sync.WaitGroup
+		pollsErr, surveysErr, surveysResponseErr error
+	)
 
-	var pollsUserData []model.PollsUserData
-	var pollsResponseUserData []model.PollsResponseUserData
-	var toMembersUserData []model.ToMemberResponse
-	var surveyUserData []model.SurveysUserData
-	var surveyResponseUserData []model.SurveyResponseUserData
-
-	polls, err := app.storage.GetAllPolls()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, p := range polls {
-		if p.UserID == user.Claims.Subject {
-			pr := model.PollsUserData{ID: p.ID, UserID: p.UserID}
-			pollsUserData = append(pollsUserData, pr)
+	// Fetch all polls asynchronously
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		polls, err := app.storage.GetAllPolls()
+		if err != nil {
+			pollsErr = err
+			return
 		}
-		for _, r := range p.Responses {
-			if r.UserID == user.Claims.Subject {
-				rr := model.PollsResponseUserData{ID: p.ID, UserID: r.UserID}
-				pollsResponseUserData = append(pollsResponseUserData, rr)
+
+		for _, p := range polls {
+			if p.UserID == user.Claims.Subject {
+				mu.Lock()
+				pollsUserData = append(pollsUserData, model.PollsUserData{ID: p.ID, UserID: p.UserID})
+				mu.Unlock()
+			}
+			for _, r := range p.Responses {
+				if r.UserID == user.Claims.Subject {
+					mu.Lock()
+					pollsResponseUserData = append(pollsResponseUserData, model.PollsResponseUserData{ID: p.ID, UserID: r.UserID})
+					mu.Unlock()
+				}
+			}
+			for _, m := range p.ToMembersList {
+				if m.UserID == user.Claims.Subject {
+					mu.Lock()
+					toMembersUserData = append(toMembersUserData, model.ToMemberResponse{ID: p.ID, UserID: m.UserID})
+					mu.Unlock()
+				}
 			}
 		}
+	}()
 
-		for _, m := range p.ToMembersList {
-			if m.UserID == user.Claims.Subject {
-				mr := model.ToMemberResponse{ID: p.ID, UserID: m.UserID}
-				toMembersUserData = append(toMembersUserData, mr)
-			}
+	// Fetch surveys created by the user asynchronously
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		surveys, err := app.storage.GetSurveysByUserID(user)
+		if err != nil {
+			surveysErr = err
+			return
 		}
+
+		for _, s := range surveys {
+			mu.Lock()
+			surveyUserData = append(surveyUserData, model.SurveysUserData{ID: s.ID, CreatorID: s.CreatorID})
+			mu.Unlock()
+		}
+	}()
+
+	// Fetch survey responses asynchronously
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		surveysResponse, err := app.storage.GetSurveyResponseByUserID(user)
+		if err != nil {
+			surveysResponseErr = err
+			return
+		}
+
+		for _, sr := range surveysResponse {
+			mu.Lock()
+			surveyResponseUserData = append(surveyResponseUserData, model.SurveyResponseUserData{ID: sr.ID, UserID: sr.UserID})
+			mu.Unlock()
+		}
+	}()
+
+	// Wait for all goroutines to finish
+	wg.Wait()
+
+	// Return any errors that occurred
+	if pollsErr != nil {
+		return nil, pollsErr
+	}
+	if surveysErr != nil {
+		return nil, surveysErr
+	}
+	if surveysResponseErr != nil {
+		return nil, surveysResponseErr
 	}
 
-	surveys, err := app.storage.GetSurveysByUserID(user)
-	if err != nil {
-		return nil, err
+	// Combine results into UserDataResponse
+	userData := model.UserDataResponse{
+		PollsUserData:          pollsUserData,
+		PollsResponseUserData:  pollsResponseUserData,
+		ToMemberResponse:       toMembersUserData,
+		SurveysUserData:        surveyUserData,
+		SurveyResponseUserData: surveyResponseUserData,
 	}
-
-	for _, s := range surveys {
-		sr := model.SurveysUserData{ID: s.ID, CreatorID: s.CreatorID}
-		surveyUserData = append(surveyUserData, sr)
-	}
-
-	surveysResponse, err := app.storage.GetSurveyResponseByUserID(user)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, sr := range surveysResponse {
-		srr := model.SurveyResponseUserData{ID: sr.ID, UserID: sr.UserID}
-		surveyResponseUserData = append(surveyResponseUserData, srr)
-	}
-
-	userData := model.UserDataResponse{PollsUserData: pollsUserData, PollsResponseUserData: pollsResponseUserData,
-		ToMemberResponse: toMembersUserData, SurveysUserData: surveyUserData, SurveyResponseUserData: surveyResponseUserData}
 
 	return &userData, nil
-
 }
