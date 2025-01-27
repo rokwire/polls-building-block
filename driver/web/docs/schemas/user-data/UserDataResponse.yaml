@@ -1,17 +1,11 @@
 type: object
 properties:
-  polls:
+  my_polls:
     type: array
-    $ref: "./PollsUserData.yaml"
-  polls_responses:
+    $ref: "../../schemas/polls/Poll.yaml"
+  my_surveys:
     type: array
-    $ref: "./PollsResponseUserData.yaml" 
-  surveys:
+    $ref: "../../schemas/surveys/Survey.yaml"  
+  participated_surveys:
     type: array
-    $ref: "./SurveysUserData.yaml"   
-  surveys_responses:
-    type: array
-    $ref: "./SurveyResponseUserData.yaml"  
-  to_members:
-    type: array
-    $ref: "./ToMemberResponse.yaml"     
+    $ref: "../../schemas/surveys/SurveyResponse.yaml"    

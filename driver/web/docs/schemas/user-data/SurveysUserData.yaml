@@ -1,7 +1,0 @@
-type: object
-properties:
-  id:
-    readOnly: true
-    type: string  
-  creator_id:
-    type: string    

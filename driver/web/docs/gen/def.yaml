@@ -1337,54 +1337,12 @@ components:
     UserDataResponse:
       type: object
       properties:
-        polls:
+        my_polls:
           type: array
-          $ref: '#/components/schemas/PollsUserData'
-        polls_responses:
+          $ref: '#/components/schemas/Poll'
+        my_surveys:
           type: array
-          $ref: '#/components/schemas/PollsResponseUserData'
-        surveys:
+          $ref: '#/components/schemas/Survey'
+        participated_surveys:
           type: array
-          $ref: '#/components/schemas/SurveysUserData'
-        surveys_responses:
-          type: array
-          $ref: '#/components/schemas/SurveyReponseUserData'
-        to_members:
-          type: array
-          properties:
-            id:
-              readOnly: true
-              type: string
-            user_id:
-              type: string
-    SurveysUserData:
-      type: object
-      properties:
-        id:
-          readOnly: true
-          type: string
-        creator_id:
-          type: string
-    SurveyReponseUserData:
-      type: object
-      properties:
-        id:
-          type: string
-        user_id:
-          type: string
-    PollsUserData:
-      type: object
-      properties:
-        id:
-          readOnly: true
-          type: string
-        user_id:
-          type: string
-    PollsResponseUserData:
-      type: object
-      properties:
-        id:
-          readOnly: true
-          type: string
-        user_id:
-          type: string
+          $ref: '#/components/schemas/SurveyResponse'
