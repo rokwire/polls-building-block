@@ -1,20 +1,11 @@
 get:
   tags:
   - Client
-  summary: Retrieves a poll by id
+  summary: Retrieves users data
   description: |
-    Retrieves a poll by id
+    Retrieves users data
   security:
     - bearerAuth: []
-  parameters:
-    - name: id
-      in: path
-      description: id
-      required: true
-      style: simple
-      explode: false
-      schema:
-        type: string
   responses:
     200:
       description: Success
