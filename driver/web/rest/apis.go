@@ -1008,3 +1008,33 @@ func (h ApisHandler) CreateSurveyAlert(user *model.User, w http.ResponseWriter, 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
 }
+
+// GetUserData retrieves user data for the current user
+// @Description Retrieves user data for the current user
+// @Tags Client
+// @ID GetUserData
+// @Accept json
+// @Produce json
+// @Success 200 {object} model.UserDataResponse
+// @Failure 401
+// @Security UserAuth
+// @Router /user-data [get]
+func (h ApisHandler) GetUserData(user *model.User, w http.ResponseWriter, r *http.Request) {
+	userData, err := h.app.Services.GetUserData(user)
+	if err != nil {
+		log.Printf("Error on apis.GetUserData: %s", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	jsonData, err := json.Marshal(userData)
+	if err != nil {
+		log.Printf("Error on apis.GetUserData: %s", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonData)
+}
