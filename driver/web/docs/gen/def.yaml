@@ -77,6 +77,37 @@ paths:
           description: Unauthorized
         '500':
           description: Internal error
+  /api/polls/load:
+    post:
+      tags:
+        - Client
+      summary: Retrieves  all polls by a filter params
+      description: |
+        Retrieves all polls by a filter params
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Body json for defined poll ids as request body
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PollFilter'
+        required: true
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PollResult'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal error
   '/api/polls/{id}':
     get:
       tags:

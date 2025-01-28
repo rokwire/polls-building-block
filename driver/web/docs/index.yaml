@@ -19,6 +19,8 @@ paths:
   #Client
   /api/polls:
     $ref: "./resources/client/polls.yaml"
+  /api/polls/load:
+    $ref: "./resources/client/polls-load.yaml"
   /api/polls/{id}:
     $ref: "./resources/client/pollsid.yaml"
   /api/polls/{id}/events:
