@@ -1,0 +1,21 @@
+get:
+  tags:
+  - Client
+  summary: Retrieves users data
+  description: |
+    Retrieves users data
+  security:
+    - bearerAuth: []
+  responses:
+    200:
+      description: Success
+      content:
+        application/json:
+          schema:
+            $ref: "../../schemas/user-data/UserDataResponse.yaml"
+    400:
+      description: Bad request
+    401:
+      description: Unauthorized
+    500:
+      description: Internal error

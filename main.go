@@ -66,6 +66,12 @@ func main() {
 	serviceURL := getEnvKey("POLL_SERVICE_URL", true)
 	uiucOrgID := getEnvKey("UIUC_ORG_ID", true)
 
+	// Groups BB Host
+	groupsBBHost := getEnvKey("POLLS_GROUPS_BB_HOST", true)
+
+	// Notifications BB Host
+	notificationsBBHost := getEnvKey("POLLS_NOTIFICATIONS_BB_HOST", true)
+
 	authService := authservice.AuthService{
 		ServiceID:   serviceID,
 		ServiceHost: serviceURL,
@@ -106,13 +112,15 @@ func main() {
 		log.Fatalf("Error initializing service account manager: %v", err)
 	}
 	config := &model.Config{
-		MongoDBAuth:    mongoDBAuth,
-		MongoDBName:    mongoDBName,
-		MongoTimeout:   mongoTimeout,
-		InternalAPIKey: internalAPIKey,
-		CoreBBHost:     coreBBHost,
-		PollServiceURL: serviceURL,
-		UiucOrgID:      uiucOrgID,
+		MongoDBAuth:       mongoDBAuth,
+		MongoDBName:       mongoDBName,
+		MongoTimeout:      mongoTimeout,
+		InternalAPIKey:    internalAPIKey,
+		CoreBBHost:        coreBBHost,
+		PollServiceURL:    serviceURL,
+		UiucOrgID:         uiucOrgID,
+		GroupsHost:        groupsBBHost,
+		NotificationsHost: notificationsBBHost,
 	}
 
 	storageAdapter := storage.NewStorageAdapter(config, logger)
@@ -126,8 +134,7 @@ func main() {
 	//notifications BB adapter
 	appID := getEnvKey("POLLS_APP_ID", true)
 	orgID := getEnvKey("POLLS_ORG_ID", true)
-	notificationHost := getEnvKey("POLLS_NOTIFICATIONS_BB_HOST", true)
-	notificationsBBAdapter := notifications.NewNotificationsAdapter(notificationHost, internalAPIKey, appID, orgID)
+	notificationsBBAdapter := notifications.NewNotificationsAdapter(notificationsBBHost, internalAPIKey, appID, orgID)
 
 	groupsAdapter := groups.NewGroupsAdapter(config)
 

@@ -83,6 +83,7 @@ func (we Adapter) Start() {
 
 	// Client APIs
 	apiRouter.HandleFunc("/polls", we.userAuthWrapFunc(we.apisHandler.GetPolls)).Methods("GET")
+	apiRouter.HandleFunc("/polls/load", we.userAuthWrapFunc(we.apisHandler.LoadPolls)).Methods("POST")
 	apiRouter.HandleFunc("/polls", we.userAuthWrapFunc(we.apisHandler.CreatePoll)).Methods("POST")
 	apiRouter.HandleFunc("/polls/{id}", we.userAuthWrapFunc(we.apisHandler.GetPoll)).Methods("GET")
 	apiRouter.HandleFunc("/polls/{id}", we.userAuthWrapFunc(we.apisHandler.UpdatePoll)).Methods("PUT")
@@ -102,6 +103,7 @@ func (we Adapter) Start() {
 	apiRouter.HandleFunc("/survey-responses/{id}", we.userAuthWrapFunc(we.apisHandler.DeleteSurveyResponse)).Methods("DELETE")
 	apiRouter.HandleFunc("/survey-responses", we.userAuthWrapFunc(we.apisHandler.DeleteSurveyResponses)).Methods("DELETE")
 	apiRouter.HandleFunc("/survey-alerts", we.userAuthWrapFunc(we.apisHandler.CreateSurveyAlert)).Methods("POST")
+	apiRouter.HandleFunc("/user-data", we.userAuthWrapFunc(we.apisHandler.GetUserData)).Methods("GET")
 
 	// handle admin apis
 	adminRouter := apiRouter.PathPrefix("/admin").Subrouter()

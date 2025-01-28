@@ -5,6 +5,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+## [1.9.0] - 2025-01-28
+### Added
+- Consolidate the information, and make it accessible with a single API call [#70](https://github.com/rokwire/polls-building-block/issues/70)
+- Implement /polls API with HTTP POST method [#68](https://github.com/rokwire/polls-building-block/issues/68)
+
+## [1.8.2] - 2024-07-15
+### Fixed 
+- Unable to load group polls [#66](https://github.com/rokwire/polls-building-block/issues/66)
+
 ## [1.8.1] - 2024-07-12
 ### Fixed 
 - Crash when loading polls [#62](https://github.com/rokwire/polls-building-block/issues/62)

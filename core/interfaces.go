@@ -59,6 +59,8 @@ type Services interface {
 	UpdateAlertContact(user *model.User, id string, alertContact model.AlertContact) error
 	DeleteAlertContact(user *model.User, id string) error
 	CreateSurveyAlert(user *model.User, surveyAlert model.SurveyAlert) error
+
+	GetUserData(user *model.User) (*model.UserDataResponse, error)
 }
 
 type servicesImpl struct {
@@ -169,10 +171,15 @@ func (s *servicesImpl) CreateSurveyAlert(user *model.User, surveyAlert model.Sur
 	return s.app.createSurveyAlert(user, surveyAlert)
 }
 
+func (s *servicesImpl) GetUserData(user *model.User) (*model.UserDataResponse, error) {
+	return s.app.getUserData(user)
+}
+
 // Storage is used by core to storage data - DB storage adapter, file storage adapter etc
 type Storage interface {
 	GetPolls(user *model.User, filter model.PollsFilter, filterByToMembers bool, membership *groups.GroupMembership) ([]model.Poll, error)
 	GetPoll(user *model.User, id string, filterByToMembers bool, membership *groups.GroupMembership) (*model.Poll, error)
+	GetAllPolls() ([]model.Poll, error)
 	CreatePoll(user *model.User, poll model.Poll) (*model.Poll, error)
 	UpdatePoll(user *model.User, poll model.Poll) (*model.Poll, error)
 
@@ -184,6 +191,7 @@ type Storage interface {
 	SetListener(listener storage.CollectionListener)
 
 	GetSurvey(user *model.User, id string) (*model.Survey, error)
+	GetSurveysByUserID(user *model.User) ([]model.Survey, error)
 	CreateSurvey(survey model.Survey) (*model.Survey, error)
 	UpdateSurvey(user *model.User, survey model.Survey, admin bool) error
 	DeleteSurvey(user *model.User, id string, admin bool) error
@@ -191,6 +199,7 @@ type Storage interface {
 
 	GetSurveyResponse(user *model.User, id string) (*model.SurveyResponse, error)
 	GetSurveyResponses(user *model.User, surveyIDs []string, surveyTypes []string, startDate *time.Time, endDate *time.Time, limit *int, offset *int) ([]model.SurveyResponse, error)
+	GetSurveyResponseByUserID(user *model.User) ([]model.SurveyResponse, error)
 	CreateSurveyResponse(surveyResponse model.SurveyResponse) (*model.SurveyResponse, error)
 	UpdateSurveyResponse(user *model.User, id string, surveyResponse model.Survey) error
 	DeleteSurveyResponse(user *model.User, id string) error

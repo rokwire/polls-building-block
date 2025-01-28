@@ -1,0 +1,11 @@
+type: object
+properties:
+  my_polls:
+    type: array
+    $ref: "../../schemas/polls/Poll.yaml"
+  my_surveys:
+    type: array
+    $ref: "../../schemas/surveys/Survey.yaml"  
+  participated_surveys:
+    type: array
+    $ref: "../../schemas/surveys/SurveyResponse.yaml"    
