@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"polls/core/model"
@@ -54,7 +54,7 @@ func (a *Adapter) GetGroupsMembership(userToken string) (*GroupMembership, error
 		}
 		defer resp.Body.Close()
 		if resp.StatusCode != 200 {
-			errorBody, err := ioutil.ReadAll(resp.Body)
+			errorBody, err := io.ReadAll(resp.Body)
 			if err != nil {
 				log.Printf("error GetGroupsMembership: request - %s", err)
 				return nil, fmt.Errorf("error GetGroupsMembership: request - %s", err)
@@ -64,7 +64,7 @@ func (a *Adapter) GetGroupsMembership(userToken string) (*GroupMembership, error
 			return nil, fmt.Errorf("error GetGroupsMembership: request - %d. Error: %s, Body: %s", resp.StatusCode, err, string(errorBody))
 		}
 
-		data, err := ioutil.ReadAll(resp.Body)
+		data, err := io.ReadAll(resp.Body)
 		if err != nil {
 			log.Printf("error GetGroupsMembership: request - %s", err)
 			return nil, fmt.Errorf("error GetGroupsMembership: request - %s", err)
@@ -114,7 +114,7 @@ func (a *Adapter) GetGroupDetails(userToken string, groupID string) (*model.Grou
 		}
 		defer resp.Body.Close()
 		if resp.StatusCode != 200 {
-			errorBody, err := ioutil.ReadAll(resp.Body)
+			errorBody, err := io.ReadAll(resp.Body)
 			if err != nil {
 				log.Printf("error GetGroupDetails: request - %s", err)
 				return nil, fmt.Errorf("error GetGroupDetails: request - %s", err)
@@ -124,7 +124,7 @@ func (a *Adapter) GetGroupDetails(userToken string, groupID string) (*model.Grou
 			return nil, fmt.Errorf("error GetGroupDetails: request - %d. Error: %s, Body: %s", resp.StatusCode, err, string(errorBody))
 		}
 
-		data, err := ioutil.ReadAll(resp.Body)
+		data, err := io.ReadAll(resp.Body)
 		if err != nil {
 			log.Printf("error GetGroupDetails: request - %s", err)
 			return nil, fmt.Errorf("error GetGroupDetails: request - %s", err)
@@ -199,7 +199,7 @@ func (a *Adapter) UpdateGroupDateUpdated(groupID string) error {
 		}
 		defer resp.Body.Close()
 		if resp.StatusCode != 200 {
-			errorBody, err := ioutil.ReadAll(resp.Body)
+			errorBody, err := io.ReadAll(resp.Body)
 			if err != nil {
 				log.Printf("error UpdateGroupDateUpdated: request - %s", err)
 				return fmt.Errorf("error UpdateGroupDateUpdated: request - %s", err)

@@ -16,7 +16,7 @@ package rest
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"polls/core"
@@ -84,7 +84,7 @@ func (h AdminApisHandler) GetSurvey(user *model.User, w http.ResponseWriter, r *
 // @Router /surveys [post]
 func (h AdminApisHandler) CreateSurvey(user *model.User, w http.ResponseWriter, r *http.Request) {
 
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Printf("Error on apis.CreateSurvey: %s", err)
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
@@ -134,7 +134,7 @@ func (h AdminApisHandler) UpdateSurvey(user *model.User, w http.ResponseWriter, 
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	if err != nil {
 
 		log.Printf("Error on apis.UpdateSurvey(%s): %s", id, err)
@@ -280,7 +280,7 @@ func (h AdminApisHandler) GetAlertContact(user *model.User, w http.ResponseWrite
 // @Router /alert-contacts [post]
 func (h AdminApisHandler) CreateAlertContact(user *model.User, w http.ResponseWriter, r *http.Request) {
 
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Printf("Error on apis.CreateAlertContact: %s", err)
 		http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
@@ -330,7 +330,7 @@ func (h AdminApisHandler) UpdateAlertContact(user *model.User, w http.ResponseWr
 	vars := mux.Vars(r)
 	id := vars["id"]
 
-	data, err := ioutil.ReadAll(r.Body)
+	data, err := io.ReadAll(r.Body)
 	if err != nil {
 
 		log.Printf("Error on apis.UpdateAlertContacts(%s): %s", id, err)

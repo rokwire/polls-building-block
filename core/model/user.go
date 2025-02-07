@@ -32,3 +32,10 @@ type DeletedMembership struct {
 	AccountID string                  `json:"account_id"`
 	Context   *map[string]interface{} `json:"context,omitempty"`
 }
+
+// UserDataResponse wraps polls user data
+type UserDataResponse struct {
+	Poll           []Poll           `json:"my_polls"`
+	Surveys        []Survey         `json:"my_surveys"`
+	SurveyResponse []SurveyResponse `json:"participated_surveys"`
+} //@name UserDataResponse

@@ -21,6 +21,7 @@ import (
 	"polls/core/model"
 	"polls/driven/groups"
 	"polls/driven/storage"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -395,4 +396,77 @@ func (app *Application) createSurveyAlert(user *model.User, surveyAlert model.Su
 	}
 
 	return nil
+}
+
+func (app *Application) getUserData(user *model.User) (*model.UserDataResponse, error) {
+	var wg sync.WaitGroup
+	errChan := make(chan error, 3) // Channel to handle errors
+	defer close(errChan)
+
+	// Declare response variables
+	var pollsReponse []model.Poll
+	var survey []model.Survey
+	var surveyResponse []model.SurveyResponse
+
+	// Fetch polls asynchronously
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		polls, err := app.storage.GetAllPolls() // Pass context if storage methods accept it
+		if err != nil {
+			errChan <- err
+			return
+		}
+
+		if polls != nil {
+			for _, p := range polls {
+				if p.UserID == user.Claims.Subject {
+					pollsReponse = append(pollsReponse, p)
+				}
+			}
+		}
+	}()
+
+	// Fetch surveys asynchronously
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		s, err := app.storage.GetSurveysByUserID(user)
+		if err != nil {
+			errChan <- err
+			return
+		}
+		survey = s
+	}()
+
+	// Fetch survey responses asynchronously
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		sr, err := app.storage.GetSurveyResponseByUserID(user)
+		if err != nil {
+			errChan <- err
+			return
+		}
+		surveyResponse = sr
+	}()
+
+	// Wait for all goroutines to finish
+	wg.Wait()
+
+	// Check for errors
+	select {
+	case err := <-errChan:
+		return nil, err
+	default:
+	}
+
+	// Build the final response
+	userResponse := model.UserDataResponse{
+		Poll:           pollsReponse,
+		Surveys:        survey,
+		SurveyResponse: surveyResponse,
+	}
+
+	return &userResponse, nil
 }
