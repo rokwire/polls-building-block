@@ -1,4 +1,4 @@
-FROM docker.io/golang:1.23-bullseye as builder
+FROM public.ecr.aws/docker/library/golang:1.23-bullseye as builder
 
 ENV CGO_ENABLED=0
 
@@ -8,7 +8,7 @@ WORKDIR /polls-app
 COPY . .
 RUN make
 
-FROM alpine:3.20
+FROM public.ecr.aws/docker/library/alpine:3.20
 
 #we need timezone database
 RUN apk --no-cache add tzdata
@@ -18,6 +18,9 @@ COPY --from=builder /polls-app/driver/web/docs/gen/def.yaml /driver/web/docs/gen
 
 COPY --from=builder /polls-app/driver/web/authorization_model.conf /driver/web/authorization_model.conf
 COPY --from=builder /polls-app/driver/web/authorization_policy.csv /driver/web/authorization_policy.csv
+
+COPY --from=builder /groups-app/vendor/github.com/rokwire/core-auth-library-go/v3/authorization/authorization_model_scope.conf /groups-app/vendor/github.com/rokwire/core-auth-library-go/v3/authorization/authorization_model_scope.conf
+COPY --from=builder /groups-app/vendor/github.com/rokwire/core-auth-library-go/v3/authorization/authorization_model_string.conf /groups-app/vendor/github.com/rokwire/core-auth-library-go/v3/authorization/authorization_model_string.conf
 
 #we need timezone database
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo 
