@@ -235,7 +235,8 @@ func (sa *Adapter) UpdatePoll(user *model.User, poll model.Poll) (*model.Poll, e
 
 	if len(poll.ID) > 0 {
 
-		poll.DateUpdated = time.Now().UTC()
+		now := time.Now().UTC()
+		poll.DateUpdated = &now
 		filter := bson.D{
 			primitive.E{Key: "org_id", Value: user.Claims.OrgID},
 			primitive.E{Key: "_id", Value: poll.ID},

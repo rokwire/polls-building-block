@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fix PollResult voted bug
 - Move GET request bodies to query for web
+- Fix poll DateUpdated set to time zero value on creation
 
 ## [1.9.0] - 2025-01-28
 ### Added
