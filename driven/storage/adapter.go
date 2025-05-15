@@ -215,11 +215,13 @@ func (sa *Adapter) GetPoll(user *model.User, id string, filterByToMembers bool, 
 
 // CreatePoll creates a poll
 func (sa *Adapter) CreatePoll(user *model.User, poll model.Poll) (*model.Poll, error) {
+	now := time.Now()
 	poll.OrgID = user.Claims.OrgID
 	poll.ID = primitive.NewObjectID()
 	poll.UserID = user.Claims.Subject
 	poll.UserName = user.Claims.Name
-	poll.DateCreated = time.Now()
+	poll.DateCreated = now
+	poll.DateUpdated = now
 
 	_, err := sa.db.polls.InsertOne(poll)
 	if err != nil {
@@ -234,7 +236,6 @@ func (sa *Adapter) CreatePoll(user *model.User, poll model.Poll) (*model.Poll, e
 func (sa *Adapter) UpdatePoll(user *model.User, poll model.Poll) (*model.Poll, error) {
 
 	if len(poll.ID) > 0 {
-
 		poll.DateUpdated = time.Now().UTC()
 		filter := bson.D{
 			primitive.E{Key: "org_id", Value: user.Claims.OrgID},
