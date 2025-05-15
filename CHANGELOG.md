@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Changed
+- Refactor Groups BB adapter [#76](https://github.com/rokwire/polls-building-block/issues/76)
 - Support Google Trust Services as CA [#73](https://github.com/rokwire/polls-building-block/issues/73)
 
 ## [1.9.0] - 2025-01-28
