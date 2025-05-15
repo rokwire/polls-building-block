@@ -5,8 +5,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-### Changed
+
+### Fixed
 - Refactor Groups BB adapter [#76](https://github.com/rokwire/polls-building-block/issues/76)
+### Changed
+- Wrong date_updated field of newly created polls [#75](https://github.com/rokwire/polls-building-block/issues/75)
 - Support Google Trust Services as CA [#73](https://github.com/rokwire/polls-building-block/issues/73)
 
 ## [1.9.0] - 2025-01-28
