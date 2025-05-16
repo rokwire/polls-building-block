@@ -20,9 +20,9 @@ import (
 	"polls/core"
 	"polls/core/model"
 
-	"github.com/rokwire/core-auth-library-go/v2/authorization"
-	"github.com/rokwire/core-auth-library-go/v2/authservice"
-	"github.com/rokwire/core-auth-library-go/v2/tokenauth"
+	"github.com/rokwire/rokwire-building-block-sdk-go/services/core/auth"
+	"github.com/rokwire/rokwire-building-block-sdk-go/services/core/auth/authorization"
+	"github.com/rokwire/rokwire-building-block-sdk-go/services/core/auth/tokenauth"
 )
 
 // CoreAuth implementation
@@ -34,13 +34,13 @@ type CoreAuth struct {
 // Check checks the request contains a valid Core access token
 func (ca CoreAuth) Check(r *http.Request) (bool, *model.User) {
 
-	claims, err := ca.tokenAuth.CheckRequestTokens(r)
+	claims, err := ca.tokenAuth.CheckRequestToken(r)
 	if err != nil {
 		log.Printf("%s", err)
 		return false, nil
 	}
 
-	token, _, _ := tokenauth.GetRequestTokens(r)
+	token, _ := tokenauth.GetAccessToken(r)
 
 	return true, &model.User{
 		Token:  token,
@@ -51,7 +51,7 @@ func (ca CoreAuth) Check(r *http.Request) (bool, *model.User) {
 // CheckWithAuthorization checks the request contains a valid Core access token + authorization
 func (ca CoreAuth) CheckWithAuthorization(r *http.Request) (bool, bool, *model.User) {
 
-	claims, err := ca.tokenAuth.CheckRequestTokens(r)
+	claims, err := ca.tokenAuth.CheckRequestToken(r)
 	if err != nil {
 		log.Printf("%s", err)
 		return false, false, nil
@@ -63,7 +63,7 @@ func (ca CoreAuth) CheckWithAuthorization(r *http.Request) (bool, bool, *model.U
 		return true, false, nil
 	}
 
-	token, _, _ := tokenauth.GetRequestTokens(r)
+	token, _ := tokenauth.GetAccessToken(r)
 
 	return true, true, &model.User{
 		Token:  token,
@@ -72,7 +72,7 @@ func (ca CoreAuth) CheckWithAuthorization(r *http.Request) (bool, bool, *model.U
 }
 
 // NewCoreAuth creates new CoreAuth
-func NewCoreAuth(app *core.Application, serviceRegManager *authservice.ServiceRegManager) *CoreAuth {
+func NewCoreAuth(app *core.Application, serviceRegManager *auth.ServiceRegManager) *CoreAuth {
 	permissionAuth := authorization.NewCasbinStringAuthorization("driver/web/authorization_policy.csv")
 	tokenAuth, err := tokenauth.NewTokenAuth(true, serviceRegManager, permissionAuth, nil)
 	if err != nil {
