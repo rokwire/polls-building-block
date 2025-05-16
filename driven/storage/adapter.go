@@ -221,7 +221,7 @@ func (sa *Adapter) CreatePoll(user *model.User, poll model.Poll) (*model.Poll, e
 	poll.UserID = user.Claims.Subject
 	poll.UserName = user.Claims.Name
 	poll.DateCreated = now
-	poll.DateUpdated = now
+	poll.DateUpdated = &now
 
 	_, err := sa.db.polls.InsertOne(poll)
 	if err != nil {

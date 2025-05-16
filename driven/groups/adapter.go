@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"polls/core/model"
 
-	"github.com/rokwire/core-auth-library-go/v2/authservice"
+	"github.com/rokwire/core-auth-library-go/v3/authservice"
 )
 
 // Adapter groups adapter
