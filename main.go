@@ -125,7 +125,7 @@ func main() {
 		MongoDBAuth:       mongoDBAuth,
 		MongoDBName:       mongoDBName,
 		MongoTimeout:      mongoTimeout,
-		InternalAPIKey:    internalAPIKey,
+		InternalAPIKey:    internalAPIKey, // pragma: allowlist secret
 		CoreBBHost:        coreBBHost,
 		PollServiceURL:    serviceURL,
 		UiucOrgID:         uiucOrgID,
@@ -146,7 +146,7 @@ func main() {
 	orgID := envLoader.GetAndLogEnvVar(envPrefix+"ORG_ID", true, true)
 	notificationsBBAdapter := notifications.NewNotificationsAdapter(notificationsBBHost, internalAPIKey, appID, orgID)
 
-	groupsAdapter := groups.NewGroupsAdapter(config)
+	groupsAdapter := groups.NewGroupsAdapter(config, serviceAccountManager)
 
 	defaultCacheExpirationSeconds := envLoader.GetAndLogEnvVar("DEFAULT_CACHE_EXPIRATION_SECONDS", false, false)
 	cacheAdapter := cacheadapter.NewCacheAdapter(defaultCacheExpirationSeconds)
