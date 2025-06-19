@@ -1,6 +1,8 @@
-FROM golang:1.22-bullseye as builder
+FROM golang:1.24-alpine as builder
 
 ENV CGO_ENABLED=0
+
+RUN apk add --no-cache tzdata make build-base
 
 RUN mkdir /polls-app
 WORKDIR /polls-app
@@ -8,10 +10,10 @@ WORKDIR /polls-app
 COPY . .
 RUN make
 
-FROM alpine:3.21.3
+FROM alpine:3.22
 
 #we need timezone database + certificates
-RUN apk add --no-cache tzdata ca-certificates
+RUN apk add --no-cache tzdata ca-certificates make
 
 COPY --from=builder /polls-app/bin/polls /
 COPY --from=builder /polls-app/driver/web/docs/gen/def.yaml /driver/web/docs/gen/def.yaml

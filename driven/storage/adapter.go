@@ -22,9 +22,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/rokwire/logging-library-go/errors"
-	"github.com/rokwire/logging-library-go/logutils"
-	"github.com/rokwire/logging-library-go/v2/logs"
+	"github.com/rokwire/rokwire-building-block-sdk-go/utils/errors"
+	"github.com/rokwire/rokwire-building-block-sdk-go/utils/logging/logs"
+	"github.com/rokwire/rokwire-building-block-sdk-go/utils/logging/logutils"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -139,7 +139,7 @@ func (sa *Adapter) GetPolls(user *model.User, filter model.PollsFilter, filterBy
 	}
 
 	findOptions := options.Find()
-	findOptions.SetSort(bson.D{{"poll.status", 1}, {"_id", -1}})
+	findOptions.SetSort(bson.D{{Key: "poll.status", Value: 1}, {Key: "_id", Value: -1}})
 
 	if filter.Limit != nil {
 		findOptions.SetLimit(*filter.Limit)

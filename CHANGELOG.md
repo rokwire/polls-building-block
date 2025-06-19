@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Updated the Makefile & Dockerfile
+### Added
+- Replace auth library and logging library with Building Block SDK [#79](https://github.com/rokwire/polls-building-block/issues/79)
 
 ## [1.10.0] - 2025-05-15
 ### Fixed

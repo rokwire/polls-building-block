@@ -28,10 +28,10 @@ import (
 	driver "polls/driver/web"
 	"strings"
 
-	"github.com/golang-jwt/jwt"
-	"github.com/rokwire/core-auth-library-go/v2/authservice"
-	"github.com/rokwire/core-auth-library-go/v2/sigauth"
-	"github.com/rokwire/logging-library-go/v2/logs"
+	"github.com/rokwire/rokwire-building-block-sdk-go/services/core/auth"
+	"github.com/rokwire/rokwire-building-block-sdk-go/services/core/auth/keys"
+	"github.com/rokwire/rokwire-building-block-sdk-go/services/core/auth/sigauth"
+	"github.com/rokwire/rokwire-building-block-sdk-go/utils/logging/logs"
 )
 
 var (
@@ -72,44 +72,49 @@ func main() {
 	// Notifications BB Host
 	notificationsBBHost := getEnvKey("POLLS_NOTIFICATIONS_BB_HOST", true)
 
-	authService := authservice.AuthService{
+	authService := auth.Service{
 		ServiceID:   serviceID,
 		ServiceHost: serviceURL,
 		FirstParty:  true,
 		AuthBaseURL: coreBBHost,
 	}
 
-	serviceRegLoader, err := authservice.NewRemoteServiceRegLoader(&authService, []string{"auth"})
+	serviceRegLoader, err := auth.NewRemoteServiceRegLoader(&authService, []string{"auth"})
 	if err != nil {
 		log.Fatalf("Error initializing remote service registration loader: %v", err)
 	}
 
-	serviceRegManager, err := authservice.NewServiceRegManager(&authService, serviceRegLoader)
+	serviceRegManager, err := auth.NewServiceRegManager(&authService, serviceRegLoader, !strings.HasPrefix(serviceURL, "http://localhost"))
 	if err != nil {
 		log.Fatalf("Error initializing service registration manager: %v", err)
 	}
 
 	//core adapter
+	var serviceAccountManager *auth.ServiceAccountManager
+
 	serviceAccountID := getEnvKey("POLLS_SERVICE_ACCOUNT_ID", false)
 	privKeyRaw := getEnvKey("POLLS_PRIV_KEY", true)
 	privKeyRaw = strings.ReplaceAll(privKeyRaw, "\\n", "\n")
-	privKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(privKeyRaw))
+	privKey, err := keys.NewPrivKey(keys.PS256, privKeyRaw)
 	if err != nil {
-		log.Fatalf("Error parsing priv key: %v", err)
-	}
-	signatureAuth, err := sigauth.NewSignatureAuth(privKey, serviceRegManager, false)
-	if err != nil {
-		log.Fatalf("Error initializing signature auth: %v", err)
-	}
+		logger.Errorf("Error parsing priv key: %v", err)
+	} else if serviceAccountID == "" {
+		logger.Errorf("Missing service account id")
+	} else {
+		signatureAuth, err := sigauth.NewSignatureAuth(privKey, serviceRegManager, false, false)
+		if err != nil {
+			logger.Fatalf("Error initializing signature auth: %v", err)
+		}
 
-	serviceAccountLoader, err := authservice.NewRemoteServiceAccountLoader(&authService, serviceAccountID, signatureAuth)
-	if err != nil {
-		log.Fatalf("Error initializing remote service account loader: %v", err)
-	}
+		serviceAccountLoader, err := auth.NewRemoteServiceAccountLoader(&authService, serviceAccountID, signatureAuth)
+		if err != nil {
+			logger.Fatalf("Error initializing remote service account loader: %v", err)
+		}
 
-	serviceAccountManager, err := authservice.NewServiceAccountManager(&authService, serviceAccountLoader)
-	if err != nil {
-		log.Fatalf("Error initializing service account manager: %v", err)
+		serviceAccountManager, err = auth.NewServiceAccountManager(&authService, serviceAccountLoader)
+		if err != nil {
+			logger.Fatalf("Error initializing service account manager: %v", err)
+		}
 	}
 	config := &model.Config{
 		MongoDBAuth:       mongoDBAuth,
@@ -173,7 +178,7 @@ func getEnvKey(key string, required bool) string {
 		if required {
 			log.Fatal("No provided environment variable for " + key)
 		} else {
-			log.Printf("No provided environment variable for " + key)
+			log.Print("No provided environment variable for " + key)
 		}
 	}
 	return value
