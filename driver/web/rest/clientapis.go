@@ -63,6 +63,11 @@ func NewInternalApisHandler(app *core.Application, config *model.Config) Interna
 	return InternalApisHandler{app: app, config: config}
 }
 
+// NewBBSApisHandler creates new rest Handler instance
+func NewBBSApisHandler(app *core.Application, config *model.Config) BBSApisHandler {
+	return BBSApisHandler{app: app, config: config}
+}
+
 // GetPolls Retrieves  all polls by a filter params
 // @Description Retrieves  all polls by a filter params
 // @Tags Client
