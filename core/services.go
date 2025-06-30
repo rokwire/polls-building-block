@@ -113,6 +113,21 @@ func (app *Application) deletePoll(user *model.User, id string) error {
 	return nil
 }
 
+func (app *Application) deletePollsWithGroupID(user *model.User, groupID string) error {
+
+	ids, err := app.storage.DeletePollsWithGroupID(user.Claims.OrgID, groupID)
+	if err != nil {
+		return err
+	}
+
+	for _, id := range ids {
+		app.sseServer.NotifyPollForEvent(id, "poll_deleted")
+		app.sseServer.ClosePoll(id)
+	}
+
+	return nil
+}
+
 func (app *Application) startPoll(user *model.User, pollID string) error {
 	poll, err := app.storage.GetPoll(user, pollID, true, nil)
 	if err != nil {

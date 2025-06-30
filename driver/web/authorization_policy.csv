@@ -1,4 +1,5 @@
 p, all_admin_polls, /polls/api/admin/*, (GET)|(POST)|(PUT)|(DELETE), Descr
+p, delete_group_polls, /polls/api/bbs/group/*/polls, (DELETE), Delete polls for a group
 p, all_surveys, /polls/api/admin/surveys, (GET)|(POST)|(PUT)|(DELETE), Descr
 p, all_surveys, /polls/api/admin/surveys/*, (GET)|(POST)|(PUT)|(DELETE), Descr
 p, get_surveys, /polls/api/admin/surveys, (GET), Descr

@@ -95,7 +95,7 @@ func main() {
 	serviceAccountID := getEnvKey("POLLS_SERVICE_ACCOUNT_ID", false)
 	privKeyRaw := getEnvKey("POLLS_PRIV_KEY", true)
 	privKeyRaw = strings.ReplaceAll(privKeyRaw, "\\n", "\n")
-	privKey, err := keys.NewPrivKey(keys.PS256, privKeyRaw)
+	privKey, err := keys.NewPrivKey(keys.RS256, privKeyRaw)
 	if err != nil {
 		logger.Errorf("Error parsing priv key: %v", err)
 	} else if serviceAccountID == "" {

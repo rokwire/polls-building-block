@@ -121,7 +121,7 @@ func (we Adapter) Start() {
 
 	// BB internal APIs
 	bbsRouter := apiRouter.PathPrefix("/bbs").Subrouter()
-	bbsRouter.HandleFunc("/group/{id}/polls", we.userAuthWrapFunc(we.bbsApisHandler.DeletePollsForGroup)).Methods("DELETE")
+	bbsRouter.HandleFunc("/group/{id}/polls", we.bbsAuthWrapFunc(we.bbsApisHandler.DeletePollsForGroup)).Methods("DELETE")
 
 	log.Fatal(http.ListenAndServe(":"+we.port, router))
 }
@@ -212,6 +212,32 @@ func (we Adapter) internalAPIKeyAuthWrapFunc(handler internalAPIKeyAuthFunc) htt
 		} else {
 			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 		}
+	}
+}
+
+type bbsAuthFunc = func(*model.User, http.ResponseWriter, *http.Request)
+
+func (we Adapter) bbsAuthWrapFunc(handler bbsAuthFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		utils.LogRequest(req)
+
+		valid, hasAccess, user := we.auth.coreAuth.CheckWithAuthorization(req)
+		if valid && hasAccess {
+			handler(user, w, req)
+			return
+		}
+
+		if !valid {
+			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+			return
+		}
+
+		if !hasAccess {
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			return
+		}
+
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 	}
 }
 

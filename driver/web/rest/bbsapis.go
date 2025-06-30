@@ -15,9 +15,12 @@
 package rest
 
 import (
+	"log"
 	"net/http"
 	"polls/core"
 	"polls/core/model"
+
+	"github.com/gorilla/mux"
 )
 
 // BBSApisHandler handles the rest BB APIs implementation
@@ -26,9 +29,17 @@ type BBSApisHandler struct {
 	config *model.Config
 }
 
+// DeletePollsForGroup deletes all polls for a group
 func (h BBSApisHandler) DeletePollsForGroup(user *model.User, w http.ResponseWriter, r *http.Request) {
-	//vars := mux.Vars(r)
-	//id := vars["id"]
+	vars := mux.Vars(r)
+	id := vars["id"]
+
+	err := h.app.Services.DeletePollsWithGroupID(user, id)
+	if err != nil {
+		log.Printf("Error on bbsapis.DeletePollsForGroup(): %s", err)
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusOK)
