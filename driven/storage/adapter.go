@@ -179,13 +179,15 @@ func (sa Adapter) DeletePollsWithAccountIDs(orgID string, accountsIDs []string) 
 }
 
 // DeletePollsWithGroupID Deletes polls with group ID
-func (sa Adapter) DeletePollsWithGroupID(orgID string, groupID string) ([]string, error) {
+func (sa Adapter) DeletePollsWithGroupID(orgID *string, groupID string) ([]string, error) {
 
 	var pollIDs []string
 	err := sa.PerformTransaction(func(ctx TransactionContext) error {
 		filter := bson.D{
-			primitive.E{Key: "org_id", Value: orgID},
 			primitive.E{Key: "poll.group_id", Value: groupID},
+		}
+		if orgID != nil {
+			filter = append(filter, primitive.E{Key: "org_id", Value: *orgID})
 		}
 
 		var polls []model.Poll

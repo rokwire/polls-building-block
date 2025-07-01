@@ -115,7 +115,7 @@ func (app *Application) deletePoll(user *model.User, id string) error {
 
 func (app *Application) deletePollsWithGroupID(user *model.User, groupID string) error {
 
-	ids, err := app.storage.DeletePollsWithGroupID(user.Claims.OrgID, groupID)
+	ids, err := app.storage.DeletePollsWithGroupID(nil, groupID) // don't pass orgID (due to wrong value)
 	if err != nil {
 		return err
 	}
