@@ -1,5 +1,5 @@
 DATE    ?= $(shell date +%FT%T%z)
-GOBIN    = $(CURDIR)/build
+GOBIN    = $(CURDIR)/bin
 BASE     = $(CURDIR)
 MODULE = $(shell cd $(BASE) && $(GO) list -m)
 PKGS     = $(or $(PKG),$(shell cd $(BASE) && $(GO) list ./...))
@@ -27,7 +27,7 @@ V = 0
 Q = $(if $(filter 1,$V),,@)
 M = $(shell printf "\033[34;1m▶\033[0m")
 
-SHELL=sh
+SHELL=bash
 
 .PHONY: all
 all: vendor log-variables checkfmt lint vet vuln test-short | $(BASE) ; $(info $(M) building executable(s)… $(VERSION) $(DATE)) @ ## Build program binary
@@ -84,7 +84,7 @@ fixfmt: ; $(info $(M) Fixings formatting…) @ ## Run gofmt to fix formatting on
 
 .PHONY: vuln
 vuln: tools ; $(info $(M) running govulncheck…) @ ## Run govulncheck
-#	$Q cd $(CURDIR) && $(GOVULN) ./...
+	$Q cd $(CURDIR) && $(GOVULN) ./...
 
 # Misc
 

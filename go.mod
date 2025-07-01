@@ -1,6 +1,8 @@
 module polls
 
-go 1.24.3
+go 1.24.2
+
+toolchain go1.24.3
 
 require (
 	github.com/PuerkitoBio/goquery v1.9.2
