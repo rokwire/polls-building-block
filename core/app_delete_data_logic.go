@@ -150,7 +150,7 @@ func (d deleteDataLogic) processDelete() {
 
 func (d deleteDataLogic) deleteAppOrgUsersData(appID string, orgID string, accountsIDs []string) {
 	// delete polls
-	err := d.storage.DeletePollsWithIDs(orgID, accountsIDs)
+	err := d.storage.DeletePollsWithAccountIDs(orgID, accountsIDs)
 	if err != nil {
 		d.logger.Errorf("error deleting the polls - %s", err)
 		return

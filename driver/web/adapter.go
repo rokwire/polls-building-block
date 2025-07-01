@@ -41,6 +41,7 @@ type Adapter struct {
 	apisHandler         rest.ApisHandler
 	adminApisHandler    rest.AdminApisHandler
 	internalApisHandler rest.InternalApisHandler
+	bbsApisHandler      rest.BBSApisHandler
 
 	app    *core.Application
 	logger *logs.Logger
@@ -117,6 +118,11 @@ func (we Adapter) Start() {
 	adminRouter.HandleFunc("/alert-contacts", we.adminAuthWrapFunc(we.adminApisHandler.CreateAlertContact)).Methods("POST")
 	adminRouter.HandleFunc("/alert-contacts/{id}", we.adminAuthWrapFunc(we.adminApisHandler.UpdateAlertContact)).Methods("PUT")
 	adminRouter.HandleFunc("/alert-contacts/{id}", we.adminAuthWrapFunc(we.adminApisHandler.DeleteAlertContact)).Methods("DELETE")
+
+	// BB internal APIs
+	bbsRouter := apiRouter.PathPrefix("/bbs").Subrouter()
+	bbsRouter.HandleFunc("/group/{id}/polls", we.bbsAuthWrapFunc(we.bbsApisHandler.DeletePollsForGroup)).Methods("DELETE")
+
 	log.Fatal(http.ListenAndServe(":"+we.port, router))
 }
 
@@ -209,6 +215,32 @@ func (we Adapter) internalAPIKeyAuthWrapFunc(handler internalAPIKeyAuthFunc) htt
 	}
 }
 
+type bbsAuthFunc = func(*model.User, http.ResponseWriter, *http.Request)
+
+func (we Adapter) bbsAuthWrapFunc(handler bbsAuthFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, req *http.Request) {
+		utils.LogRequest(req)
+
+		valid, hasAccess, user := we.auth.coreAuth.CheckWithAuthorization(req)
+		if valid && hasAccess {
+			handler(user, w, req)
+			return
+		}
+
+		if !valid {
+			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+			return
+		}
+
+		if !hasAccess {
+			http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+			return
+		}
+
+		http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+	}
+}
+
 // NewWebAdapter creates new WebAdapter instance
 func NewWebAdapter(host string, port string, app *core.Application, config *model.Config, serviceRegManager *auth.ServiceRegManager, logger *logs.Logger) Adapter {
 	auth := NewAuth(app, config, serviceRegManager, logger)
@@ -217,6 +249,7 @@ func NewWebAdapter(host string, port string, app *core.Application, config *mode
 	apisHandler := rest.NewApisHandler(app, config)
 	adminApisHandler := rest.NewAdminApisHandler(app, config)
 	internalApisHandler := rest.NewInternalApisHandler(app, config)
+	bbsApisHandler := rest.NewBBSApisHandler(app, config)
 	return Adapter{
 		host:                host,
 		port:                port,
@@ -224,6 +257,7 @@ func NewWebAdapter(host string, port string, app *core.Application, config *mode
 		authorization:       authorization,
 		apisHandler:         apisHandler,
 		adminApisHandler:    adminApisHandler,
+		bbsApisHandler:      bbsApisHandler,
 		internalApisHandler: internalApisHandler,
 		app:                 app,
 		logger:              logger,

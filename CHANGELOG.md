@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated the Makefile & Dockerfile
 ### Added
+- Delete polls BB API [#82](https://github.com/rokwire/polls-building-block/issues/82)
 - Replace auth library and logging library with Building Block SDK [#79](https://github.com/rokwire/polls-building-block/issues/79)
 
 ## [1.10.0] - 2025-05-15

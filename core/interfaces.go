@@ -31,6 +31,7 @@ type Services interface {
 	CreatePoll(user *model.User, poll model.Poll) (*model.Poll, error)
 	UpdatePoll(user *model.User, poll model.Poll) (*model.Poll, error)
 	DeletePoll(user *model.User, id string) error
+	DeletePollsWithGroupID(user *model.User, groupID string) error
 
 	VotePoll(user *model.User, pollID string, vote model.PollVote) error
 	StartPoll(user *model.User, pollID string) error
@@ -89,6 +90,10 @@ func (s *servicesImpl) UpdatePoll(user *model.User, poll model.Poll) (*model.Pol
 
 func (s *servicesImpl) DeletePoll(user *model.User, id string) error {
 	return s.app.deletePoll(user, id)
+}
+
+func (s *servicesImpl) DeletePollsWithGroupID(user *model.User, groupID string) error {
+	return s.app.deletePollsWithGroupID(user, groupID)
 }
 
 func (s *servicesImpl) StartPoll(user *model.User, pollID string) error {
@@ -186,7 +191,8 @@ type Storage interface {
 	DeletePoll(user *model.User, id string) error
 
 	VotePoll(user *model.User, pollID string, vote model.PollVote) error
-	DeletePollsWithIDs(orgID string, accountsIDs []string) error
+	DeletePollsWithAccountIDs(orgID string, accountsIDs []string) error
+	DeletePollsWithGroupID(orgID *string, groupID string) ([]string, error)
 
 	SetListener(listener storage.CollectionListener)
 

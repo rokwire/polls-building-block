@@ -15,6 +15,7 @@
 package storage
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"polls/core/model"
@@ -28,6 +29,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
@@ -44,6 +46,11 @@ const (
 	settingsKey   = "stadium"
 	eventInterval = 100 * time.Millisecond
 )
+
+// TransactionContext wraps mongo.SessionContext for use by external packages
+type TransactionContext interface {
+	mongo.SessionContext
+}
 
 // Adapter implements the Storage interface
 type Adapter struct {
@@ -157,8 +164,8 @@ func (sa *Adapter) GetPolls(user *model.User, filter model.PollsFilter, filterBy
 	return list, nil
 }
 
-// DeletePollsWithIDs Deletes polls
-func (sa Adapter) DeletePollsWithIDs(orgID string, accountsIDs []string) error {
+// DeletePollsWithAccountIDs Deletes polls
+func (sa Adapter) DeletePollsWithAccountIDs(orgID string, accountsIDs []string) error {
 	filter := bson.D{
 		primitive.E{Key: "org_id", Value: orgID},
 		primitive.E{Key: "poll.userid", Value: bson.M{"$in": accountsIDs}},
@@ -169,6 +176,42 @@ func (sa Adapter) DeletePollsWithIDs(orgID string, accountsIDs []string) error {
 		return errors.WrapErrorAction(logutils.ActionDelete, "user", nil, err)
 	}
 	return nil
+}
+
+// DeletePollsWithGroupID Deletes polls with group ID
+func (sa Adapter) DeletePollsWithGroupID(orgID *string, groupID string) ([]string, error) {
+
+	var pollIDs []string
+	err := sa.PerformTransaction(func(ctx TransactionContext) error {
+		filter := bson.D{
+			primitive.E{Key: "poll.group_id", Value: groupID},
+		}
+		if orgID != nil {
+			filter = append(filter, primitive.E{Key: "org_id", Value: *orgID})
+		}
+
+		var polls []model.Poll
+		err := sa.db.polls.FindWithContext(ctx, filter, &polls, nil)
+		if err != nil {
+			return errors.WrapErrorAction(logutils.ActionFind, "group_polls", nil, err)
+		}
+
+		_, err = sa.db.polls.DeleteManyWithContext(ctx, filter, nil)
+		if err != nil {
+			return errors.WrapErrorAction(logutils.ActionDelete, "group_polls", nil, err)
+		}
+
+		for _, poll := range polls {
+			pollIDs = append(pollIDs, poll.ID.Hex())
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, errors.WrapErrorAction(logutils.ActionDelete, "group_polls", nil, err)
+	}
+
+	return pollIDs, nil
 }
 
 // GetPoll retrieves a single poll
@@ -764,4 +807,38 @@ func (sa *Adapter) GetAllPolls() ([]model.Poll, error) {
 	}
 
 	return results, nil
+}
+
+// PerformTransaction performs a transaction
+func (sa *Adapter) PerformTransaction(transaction func(context TransactionContext) error) error {
+	// transaction
+	err := sa.db.dbClient.UseSession(context.Background(), func(sessionContext mongo.SessionContext) error {
+		err := sessionContext.StartTransaction()
+		if err != nil {
+			sa.abortTransaction(sessionContext)
+			return err
+		}
+
+		err = transaction(sessionContext)
+		if err != nil {
+			sa.abortTransaction(sessionContext)
+			return err
+		}
+
+		err = sessionContext.CommitTransaction(sessionContext)
+		if err != nil {
+			sa.abortTransaction(sessionContext)
+			return err
+		}
+		return nil
+	})
+
+	return err
+}
+
+func (sa *Adapter) abortTransaction(sessionContext mongo.SessionContext) {
+	err := sessionContext.AbortTransaction(sessionContext)
+	if err != nil {
+		log.Printf("error aborting a transaction - %s\n", err)
+	}
 }

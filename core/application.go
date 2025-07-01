@@ -32,7 +32,8 @@ type Application struct {
 	build   string
 
 	Services Services //expose to the drivers adapters
-	logger   *logs.Logger
+
+	logger *logs.Logger
 
 	storage       Storage
 	cache         *cacheadapter.CacheAdapter

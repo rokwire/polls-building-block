@@ -54,6 +54,10 @@ paths:
   /api/admin/alert-contacts/{id}:
     $ref: "./resources/admin/alert-contactids.yaml" 
 
+  #BBs
+  /bbs/grpup/{id}/polls:
+    $ref: "./resources/bbs/polls.yaml"    
+
 components:
   securitySchemes:
       bearerAuth:            # arbitrary name for the security scheme
