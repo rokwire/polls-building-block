@@ -5,11 +5,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Changed
+- Can't delete a poll - [part 1 - added comprehensive logs] [#86](https://github.com/rokwire/polls-building-block/issues/86)
 
 ## [1.11.1] - 2025-07-10
 ### Changed
 - Rename delete_group_polls permission to all_bbs-polls [#84](https://github.com/rokwire/polls-building-block/issues/84)
-
 
 ## [1.11.0] - 2025-07-01
 ### Changed
