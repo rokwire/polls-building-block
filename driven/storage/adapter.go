@@ -217,6 +217,9 @@ func (sa Adapter) DeletePollsWithGroupID(orgID *string, groupID string) ([]strin
 // GetPoll retrieves a single poll
 func (sa *Adapter) GetPoll(user *model.User, id string, filterByToMembers bool, membership *groups.GroupMembership) (*model.Poll, error) {
 
+	//TODO print using fmt what we have in membership carefully
+	fmt.Printf("membership issue 86: %+v\n", membership)
+
 	if objID, err := primitive.ObjectIDFromHex(id); err == nil {
 		filter := bson.D{
 			primitive.E{Key: "org_id", Value: user.Claims.OrgID},
@@ -227,17 +230,17 @@ func (sa *Adapter) GetPoll(user *model.User, id string, filterByToMembers bool, 
 			var innerFilter primitive.M
 			if membership != nil && len(membership.GroupIDsAsAdmin) > 0 {
 				innerFilter = primitive.M{"$or": []primitive.M{
-					primitive.M{"poll.group_id": bson.M{"$in": membership.GroupIDsAsAdmin}},
-					primitive.M{"poll.to_members.user_id": user.Claims.Subject},
+					{"poll.group_id": bson.M{"$in": membership.GroupIDsAsAdmin}},
+					{"poll.to_members.user_id": user.Claims.Subject},
 				}}
 			} else {
 				innerFilter = primitive.M{"poll.to_members.user_id": user.Claims.Subject}
 			}
 
 			filter = append(filter, primitive.E{Key: "$or", Value: []primitive.M{
-				primitive.M{"poll.to_members": primitive.Null{}},
-				primitive.M{"poll.to_members": primitive.M{"$exists": true, "$size": 0}},
-				primitive.M{"poll.user_id": user.Claims.Subject},
+				{"poll.to_members": primitive.Null{}},
+				{"poll.to_members": primitive.M{"$exists": true, "$size": 0}},
+				{"poll.user_id": user.Claims.Subject},
 				innerFilter,
 			}})
 		}
