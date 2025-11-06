@@ -217,9 +217,6 @@ func (sa Adapter) DeletePollsWithGroupID(orgID *string, groupID string) ([]strin
 // GetPoll retrieves a single poll
 func (sa *Adapter) GetPoll(user *model.User, id string, filterByToMembers bool, membership *groups.GroupMembership) (*model.Poll, error) {
 
-	//TODO print using fmt what we have in membership carefully
-	fmt.Printf("membership issue 86: %+v\n", membership)
-
 	if objID, err := primitive.ObjectIDFromHex(id); err == nil {
 		filter := bson.D{
 			primitive.E{Key: "org_id", Value: user.Claims.OrgID},
