@@ -73,16 +73,26 @@ func (app *Application) createPoll(user *model.User, poll model.Poll) (*model.Po
 }
 
 func (app *Application) updatePoll(user *model.User, poll model.Poll) (*model.Poll, error) {
-	persistedPoll, err := app.storage.GetPoll(user, poll.ID.Hex(), true, nil)
+	//get the poll
+	groupMembership, err := app.groups.GetGroupsMembership(user.Token)
+	if err != nil {
+		return nil, fmt.Errorf("error getting poll when update - %s", err)
+	}
+	persistedPoll, err := app.storage.GetPoll(user, poll.ID.Hex(), true, groupMembership)
 	if err != nil {
 		return nil, err
 	}
+	if persistedPoll == nil {
+		return nil, fmt.Errorf("poll not found")
+	}
 
+	//check permission
 	err = app.checkPollPermission(user, persistedPoll, "update")
 	if err != nil {
 		return nil, err
 	}
 
+	//update the poll
 	updatedPoll, err := app.storage.UpdatePoll(user, poll)
 	if err != nil {
 		return nil, err
@@ -92,16 +102,26 @@ func (app *Application) updatePoll(user *model.User, poll model.Poll) (*model.Po
 }
 
 func (app *Application) deletePoll(user *model.User, id string) error {
-	poll, err := app.storage.GetPoll(user, id, true, nil)
+	//get the poll
+	groupMembership, err := app.groups.GetGroupsMembership(user.Token)
+	if err != nil {
+		return fmt.Errorf("error getting poll when delete - %s", err)
+	}
+	poll, err := app.storage.GetPoll(user, id, true, groupMembership)
 	if err != nil {
 		return err
 	}
+	if poll == nil {
+		return fmt.Errorf("poll not found")
+	}
 
+	//check permission
 	err = app.checkPollPermission(user, poll, "delete")
 	if err != nil {
 		return err
 	}
 
+	//delete the poll
 	err = app.storage.DeletePoll(user, id)
 	if err != nil {
 		return err
